@@ -562,7 +562,6 @@ files = [
 ]
 
 [[package]]
-<<<<<<< HEAD
 name = "soupsieve"
 version = "2.6"
 description = "A modern CSS selector implementation for Beautiful Soup."
@@ -589,8 +588,6 @@ files = [
 ]
 
 [[package]]
-=======
->>>>>>> 1170baa (測試 pre-commit 自動導出 requirements.txt)
 name = "tzdata"
 version = "2025.1"
 description = "Provider of IANA time zone data"
