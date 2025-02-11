@@ -641,8 +641,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10"
-<<<<<<< HEAD
 content-hash = "ca6fba825002319076a3618dcd99af280b6a4e00fa1f90a7a8b8a2bbddf8ba56"
-=======
-content-hash = "b0d22e8beca4726bd42144a9a20802260208f6b351ba386982551e474ec213c3"
->>>>>>> 1170baa (測試 pre-commit 自動導出 requirements.txt)
