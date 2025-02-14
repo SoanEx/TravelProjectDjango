@@ -1,0 +1,27 @@
+├── .env
+├── .gitignore
+├── .vscode
+│   └── settings.json
+├── hello_world.py
+├── poetry.lock
+├── project_structure.txt
+├── pyproject.toml
+├── README.md
+├── requirements.txt
+├── setup.bat
+├── setup.ps1
+├── travelProject
+│   ├── manage.py
+│   └── travelProject
+│       ├── __init__.py
+│       ├── __pycache__
+│       │   ├── __init__.cpython-310.pyc
+│       │   ├── settings.cpython-310.pyc
+│       │   ├── urls.cpython-310.pyc
+│       │   └── wsgi.cpython-310.pyc
+│       ├── asgi.py
+│       ├── settings.py
+│       ├── urls.py
+│       └── wsgi.py
+├── 列出專案目錄腳本.ps1
+└── 啟動django.bat
