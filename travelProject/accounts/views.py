@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 # travelProject/accounts/views.py
 
 import random
@@ -19,44 +16,30 @@ import google.oauth2.id_token
 
 import phonenumbers
 
-from .forms import RegistrationForm #驗證表單
+from .forms import RegistrationForm  # 驗證表單
 from .forms import RegistrationLoginForm
 
+
 def parse_e164_phone(country_code, local_phone):
-    """
-    嘗試將使用者輸入的「當地格式」轉為 E.164。
-    country_code: "TW", "US" ...
-    local_phone:  "0932170711"
-    """
-    # 假設我們先把它轉成類似 +國碼 + 號碼 (暫時拼接)
-    # 這邊有多種寫法，也可 user 直接輸入 +886...
+    # 省略同前，維持你的 parse e164 邏輯
     if country_code == "TW":
-        # 簡單示範: 若以0開頭，去0
         if local_phone.startswith('0'):
             local_phone = local_phone[1:]
-        # 暫時拼成 +886
         phone_str = f"+886{local_phone}"
     elif country_code == "US":
         phone_str = f"+1{local_phone}"
     else:
-        # 若其他國家先不處理
         phone_str = local_phone
-
-    # 用 phonenumbers parse 來檢查是否有效 & 轉成 e164
     try:
         phone_obj = phonenumbers.parse(phone_str, None)
         if not phonenumbers.is_valid_number(phone_obj):
-            # 不是有效號碼
             return None
-        # 返回 e164 格式 e.g. +886932170711
         return phonenumbers.format_number(phone_obj, phonenumbers.PhoneNumberFormat.E164)
     except phonenumbers.NumberParseException:
         return None
 
+
 def send_verification_code(phone_number, code):
-    """
-    呼叫 Twilio API 發送驗證碼到指定手機
-    """
     account_sid = settings.TWILIO_ACCOUNT_SID
     auth_token = settings.TWILIO_AUTH_TOKEN
     client = Client(account_sid, auth_token)
@@ -67,181 +50,191 @@ def send_verification_code(phone_number, code):
     )
     return message.sid
 
+
 def check_username(request):
-    """
-    AJAX：檢查使用者是否已存在
-    """
     username = request.GET.get('username', '').strip()
     exists = User.objects.filter(username=username).exists()
     return JsonResponse({'exists': exists})
 
+
 def registration_login(request):
+    """
+    1. step=initial (初次 POST)：
+       - if mode=google => 走 Google 驗證邏輯
+       - else => 走一般表單 (RegistrationLoginForm) 驗證
+    2. step=verify => 驗證簡訊碼
+    """
     context = {}
 
     if request.method == 'POST':
         step = request.POST.get('step', 'initial')
 
         if step == 'verify':
-            # --- (1) 驗證碼步驟 ---
+            # --- 驗證碼步驟 ---
             input_code = request.POST.get('code')
-            session_code = request.session.get('verification_code')
+            session_code = request.session.get('verification_code', '')
             if input_code == session_code:
-                action = request.session.get('action')  # 'login', 'registration', or 'google'
-                full_email = request.session.get('username')  # 這是完整 email (舉例: test@example.com)
+                # 驗證成功
+                full_email = request.session.get('username')
+                user = User.objects.get(username=full_email)
 
-                if action == 'registration':
-                    # 建立新使用者
-                    password = request.session.get('password')
-                    # CHANGED: 將整個 email 拆成 @ 前後
-                    username_part = full_email.split('@')[0]
-                    
-                    # CHANGED: 創建使用者時, username=拆後, email=完整
-                    user = User.objects.create_user(
-                        username=username_part,
-                        email=full_email,
-                        password=password
-                    )
-                    
-                    # 處理手機號碼
-                    e164_phone = request.session.get('e164_phone')
-                    if e164_phone:
-                        user.profile.phone_number = e164_phone
-                        user.profile.save()
-                    context['success'] = '恭喜註冊並驗證成功，您已登入。'
+                # phone_verified = True
+                user.profile.phone_verified = True
+                user.profile.save()
 
-                elif action == 'google':
-                    # Google OAuth
-                    # 這裡的 session['username'] 應該也是一個 email
-                    user_exists = User.objects.filter(username=full_email).exists()
-                    if not user_exists:
-                        # 如果你想同樣拆 email->username, email=完整, 可以這樣:
-                        username_part = full_email.split('@')[0]
-                        user = User.objects.create_user(
-                            username=username_part,
-                            email=full_email,
-                            password=None
-                        )
-                        context['success'] = '以 Google 帳號註冊並驗證成功，您已登入。'
-                    else:
-                        user = User.objects.get(username=full_email)  
-                        # 如果你仍以「整個 email 當 username」, 這裡就不拆了.
-                        context['success'] = '以 Google 帳號登入並驗證成功。'
+                # 將 device_id 加入 known_devices
+                device_id = request.session.get('device_id')
+                if device_id:
+                    user.profile.add_known_device(device_id)
 
-                else:
-                    # action == 'login'
-                    # 這裡 session['username'] 還是用 "整個 email"? 
-                    # 如果先前 login 是用 email 當 username, 你要一致
-                    user = User.objects.get(username=full_email)
-                    context['success'] = '登入並驗證成功。'
-
+                # 登入並清除 session
                 login(request, user)
-                # 清 session
-                for key in ['verification_code','action','username','password','e164_phone']:
+                for key in ['verification_code','username','password','e164_phone','device_id']:
                     request.session.pop(key, None)
+
+                context['success'] = '驗證成功，已登入。'
             else:
                 context['error'] = '驗證碼錯誤'
-                context['show_verification'] = False
 
         else:
-            # --- (2) 初始步驟 ---
+            # --- 初始步驟 ---
             mode = request.POST.get('mode', 'normal')
-            temp_username = request.POST.get('username', '').strip()
-            # 1) 判斷帳號是否已存在 (這裡若 existing username=整個 email, 需一致)
-            user_exists = User.objects.filter(username=temp_username).exists()
-
-            # 2) 建立表單物件
-            form = RegistrationLoginForm(user_exists=user_exists, data=request.POST)
-            if not form.is_valid():
-                # 表單驗證失敗
-                context['error'] = form.errors.get_json_data()
-                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                    return JsonResponse(context)
-                else:
-                    return render(request, 'accounts/registration_login.html', context)
-
-            # 3) 表單驗證通過，取得欄位
-            full_email = form.cleaned_data['username']  # 這是整個 Email
-            password = form.cleaned_data['password']
-            country = form.cleaned_data['country']
-            phone_local = form.cleaned_data['phone_local']
-
-            # 4) 轉成 e164
-            e164_phone = parse_e164_phone(country, phone_local)
-            if not e164_phone:
-                context['error'] = "電話格式不正確，請重新輸入"
-                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                    return JsonResponse(context)
-                else:
-                    return render(request, 'accounts/registration_login.html', context)
-            request.session['e164_phone'] = e164_phone
+            device_id = request.POST.get('device_id')
+            if not device_id:
+                device_id = str(random.randint(10000000, 99999999))
+            request.session['device_id'] = device_id
 
             if mode == 'google':
-                # Google OAuth
+                # (A) Google One Tap 登入流程，不要檢查一般表單
                 token = request.POST.get('id_token')
                 if not token:
                     context['error'] = '未取得 Google Token'
-                    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                        return JsonResponse(context)
-                    else:
-                        return render(request, 'accounts/registration_login.html', context)
+                    return _smart_return(request, context)
 
+                # 驗證 Token
                 try:
-                    request_adapter = google.auth.transport.requests.Request()
-                    id_info = google.oauth2.id_token.verify_oauth2_token(token, request_adapter, settings.GOOGLE_CLIENT_ID)
+                    req = google.auth.transport.requests.Request()
+                    id_info = google.oauth2.id_token.verify_oauth2_token(token, req, settings.GOOGLE_CLIENT_ID)
                     full_email = id_info['email']
                 except ValueError:
                     context['error'] = 'Google 驗證失敗'
-                    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                        return JsonResponse(context)
-                    else:
-                        return render(request, 'accounts/registration_login.html', context)
+                    return _smart_return(request, context)
 
-                verification_code = str(random.randint(100000, 999999))
-                request.session['verification_code'] = verification_code
-                request.session['action'] = 'google'
-                request.session['username'] = full_email  # 整個 email
+                # 假設你也需要手機 (country, phone_local)
+                country = request.POST.get('country', 'TW')
+                phone_local = request.POST.get('phone_local', '')
+                if not phone_local:
+                    context['error'] = "尚未填寫手機號碼"
+                    context['ask_phone'] = True
+                    return _smart_return(request, context)
+                e164_phone = parse_e164_phone(country, phone_local)
 
-                try:
-                    send_verification_code(e164_phone, verification_code)
-                    context['show_verification'] = True
-                    context['message'] = '已發送驗證碼至您的手機（Google 登入流程）。'
-                except Exception as e:
-                    context['error'] = f'簡訊發送失敗: {e}'
+                request.session['username'] = full_email
+                request.session['e164_phone'] = e164_phone
+
+                # 是否已有此帳號？
+                user_exists = User.objects.filter(username=full_email).exists()
+                if not user_exists:
+                    # 建立新用戶
+                    user = User.objects.create_user(
+                        username=full_email,
+                        email=full_email,
+                        password=None  # Google 帳號不需本地密碼
+                    )
+                    user.profile.phone_number = e164_phone or ""
+                    user.profile.phone_verified = False
+                    user.profile.save()
+                    need_sms_verify = True
+                else:
+                    user = User.objects.get(username=full_email)
+                    known_devices = user.profile.get_known_devices()
+                    need_sms_verify = (not user.profile.phone_verified) or (device_id not in known_devices)
+
+                if need_sms_verify:
+                    verification_code = str(random.randint(100000, 999999))
+                    request.session['verification_code'] = verification_code
+                    try:
+                        if e164_phone:
+                            send_verification_code(e164_phone, verification_code)
+                            context['show_verification'] = True
+                            context['message'] = 'Google 帳號首次/新裝置登入，需要簡訊驗證。'
+                        else:
+                            context['error'] = "尚未填寫手機號碼，無法發送簡訊。"
+                    except Exception as e:
+                        context['error'] = f'簡訊發送失敗: {e}'
+                else:
+                    # 不需要驗證 => 直接登入
+                    login(request, user)
+                    user.profile.add_known_device(device_id)
+                    context['success'] = 'Google 登入成功 (手機已驗證)。'
+
+                return _smart_return(request, context)
 
             else:
-                # 一般登入/註冊流程
+                # (B) 一般登入/註冊流程 => 檢查表單
+                temp_username = request.POST.get('username', '').strip()
+                user_exists = User.objects.filter(username=temp_username).exists()
+
+                form = RegistrationLoginForm(user_exists=user_exists, data=request.POST)
+                if not form.is_valid():
+                    context['error'] = form.errors.get_json_data()
+                    return _smart_return(request, context)
+
+                full_email = form.cleaned_data['username']
+                password = form.cleaned_data['password']
+                country = form.cleaned_data['country']
+                phone_local = form.cleaned_data['phone_local']
+
+                e164_phone = parse_e164_phone(country, phone_local)
+                if not e164_phone:
+                    context['error'] = "電話格式不正確，請重新輸入"
+                    return _smart_return(request, context)
+
+                # 存進 session
+                request.session['username'] = full_email
+                request.session['e164_phone'] = e164_phone
+                request.session['password'] = password
+
                 if user_exists:
                     user = authenticate(username=full_email, password=password)
                     if user is None:
                         context['error'] = '密碼錯誤'
-                        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                            return JsonResponse(context)
-                        else:
-                            return render(request, 'accounts/registration_login.html', context)
-                    action = 'login'
+                        return _smart_return(request, context)
+
+                    known_devices = user.profile.get_known_devices()
+                    if (not user.profile.phone_verified) or (device_id not in known_devices):
+                        # 需要簡訊
+                        verification_code = str(random.randint(100000, 999999))
+                        request.session['verification_code'] = verification_code
+                        try:
+                            send_verification_code(e164_phone, verification_code)
+                            context['show_verification'] = True
+                            context['message'] = '已發送驗證碼至您的手機。'
+                        except Exception as e:
+                            context['error'] = f'簡訊發送失敗: {e}'
+                    else:
+                        # 直接登入
+                        login(request, user)
+                        user.profile.add_known_device(device_id)
+                        context['success'] = '已成功登入。'
                 else:
-                    action = 'registration'
+                    # 新用戶 => 建立 + phone_verified=False => 簡訊驗證
+                    user = User.objects.create_user(username=full_email, email=full_email, password=password)
+                    user.profile.phone_number = e164_phone
+                    user.profile.phone_verified = False
+                    user.profile.save()
 
-                verification_code = str(random.randint(100000, 999999))
-                request.session['verification_code'] = verification_code
-                request.session['action'] = action
-                request.session['username'] = full_email  # 整個 email
-                request.session['password'] = password
+                    verification_code = str(random.randint(100000, 999999))
+                    request.session['verification_code'] = verification_code
+                    try:
+                        send_verification_code(e164_phone, verification_code)
+                        context['show_verification'] = True
+                        context['message'] = '已發送驗證碼至您的手機 (新註冊)。'
+                    except Exception as e:
+                        context['error'] = f'簡訊發送失敗: {e}'
 
-                try:
-                    send_verification_code(e164_phone, verification_code)
-                    context['show_verification'] = True
-                    context['message'] = '已發送驗證碼至您的手機。'
-                except Exception as e:
-                    context['error'] = f'簡訊發送失敗: {e}'
-
-    # 決定回傳方式
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse(context)
-    else:
-        return render(request, 'accounts/registration_login.html', context)
-
-
+    # GET 或處理完後
+    return _smart_return(request, context)
 
 def google_auth_verify(request):
     """
@@ -249,6 +242,7 @@ def google_auth_verify(request):
     暫時留空或供後端 API 用
     """
     return JsonResponse({'msg': 'OK'})
+
 
 def test_twilio(request):
     phone = "+886932170711"  # 測試號碼
@@ -259,24 +253,40 @@ def test_twilio(request):
         return HttpResponse(f"錯誤: {str(e)}")
     return HttpResponse("已嘗試發送簡訊")
 
+
 def registration_view(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            # 儲存使用者基本資料（email、username、密碼）
             user = form.save()
             # 取得經 parse_e164_phone 轉換後的手機號碼
             country = form.cleaned_data.get("country")
             phone_local = form.cleaned_data.get("phone_local")
             e164_phone = parse_e164_phone(country, phone_local)
             if e164_phone:
-                # 假設你有使用 Profile 模型來存手機號碼
                 user.profile.phone_number = e164_phone
                 user.profile.save()
-            # 登入使用者，並轉跳至成功頁或首頁
             login(request, user)
             return redirect('home')  # 例如轉跳到首頁
     else:
         form = RegistrationForm()
     return render(request, 'accounts/registration.html', {'form': form})
 
+
+def _smart_return(request, context):
+    """
+    小工具函式：若是 AJAX 就 JsonResponse；否則 render
+    """
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse(context)
+    else:
+        context['GOOGLE_CLIENT_ID'] = settings.GOOGLE_CLIENT_ID
+        return render(request, 'accounts/registration_login.html', context)
+
+
+def google_oauth_verify(request):
+    return JsonResponse({'msg': 'OK'})
+
+def google_redirect_callback(request):
+    # 若你完全改用 One Tap，就不需要 redirect flow，此函式可刪除或保留備用
+    return HttpResponse("已棄用 redirect flow，可改用 One Tap。")
