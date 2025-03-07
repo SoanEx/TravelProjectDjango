@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>動態測速照相標記 - Google 地圖</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCKTCE6f7FcJQCtPJGTb7ThLlEEvw2ij7w&libraries=places"></script>
+    <script>
+        let map, directionsService, directionsRenderer;
+        let cameraMarkers = [];
+        
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 13,
+                center: { lat: 25.033964, lng: 121.564472 }
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+
+            document.getElementById('routeBtn').addEventListener('click', function () {
+                calculateAndDisplayRoute();
+            });
+        }
+
+        function calculateAndDisplayRoute() {
+            let start = document.getElementById('start').value;
+            let end = document.getElementById('end').value;
+
+            if (start && end) {
+                directionsService.route({
+                    origin: start,
+                    destination: end,
+                    travelMode: 'DRIVING'
+                }, function (response, status) {
+                    if (status === 'OK') {
+                        directionsRenderer.setDirections(response);
+                        let routePoints = response.routes[0].overview_path.map(point => ({
+                            lat: point.lat(),
+                            lng: point.lng()
+                        }));
+                        fetchSpeedCameras(routePoints);
+                    } else {
+                        alert('無法找到路線: ' + status);
+                    }
+                });
+            }
+        }
+
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+    
+    function fetchSpeedCameras(routePoints) {
+        fetch('/get_speed_cameras/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()  // 加入 CSRF Token
+            },
+            body: JSON.stringify({ route: routePoints })
+        })
+        .then(response => response.json())
+        .then(data => {
+            showCameras(data.cameras);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+        function showCameras(cameras) {
+            // 清除舊的標記
+            cameraMarkers.forEach(marker => marker.setMap(null));
+            cameraMarkers = [];
+
+            cameras.forEach(camera => {
+                let marker = new google.maps.Marker({
+                    position: { lat: camera.latitude, lng: camera.longitude },
+                    map: map,
+                    icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"
+                });
+                cameraMarkers.push(marker);
+            });
+        }
+        
+    </script>
+</head>
+<body onload="initMap()">
+    <form id="csrf-form">
+        {% csrf_token %}
+    </form>
+    <h2>輸入出發地與目的地</h2>
+    <input id="start" type="text" placeholder="出發地">
+    <input id="end" type="text" placeholder="目的地">
+    <button id="routeBtn">規劃路線</button>
+    <div id="map" style="width: 100%; height: 500px;"></div>
+</body>
+</html>
