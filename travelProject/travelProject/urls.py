@@ -16,9 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from accounts.views import index_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # 將 accounts 的路由接在某個 prefix，例如 /accounts/
     path('accounts/', include('accounts.urls')),
+    path('', index_view, name='home'),
+    path('accounts/', include('django.contrib.auth.urls')),## 這行很重要：包含 Django 內建的帳號相關 URLs (包含 login/logout/password_reset...)
 ]

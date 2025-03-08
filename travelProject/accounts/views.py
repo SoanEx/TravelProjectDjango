@@ -290,3 +290,6 @@ def google_oauth_verify(request):
 def google_redirect_callback(request):
     # 若你完全改用 One Tap，就不需要 redirect flow，此函式可刪除或保留備用
     return HttpResponse("已棄用 redirect flow，可改用 One Tap。")
+
+def index_view(request):
+    return render(request, 'index.html')
