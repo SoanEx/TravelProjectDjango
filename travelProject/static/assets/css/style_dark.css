@@ -421,6 +421,7 @@ button,
 [type=reset],
 [type=submit] {
   -webkit-appearance: button;
+  appearance: button;
 }
 button:not(:disabled),
 [type=button]:not(:disabled),
@@ -479,6 +480,7 @@ legend + * {
 [type=search] {
   outline-offset: -2px;
   -webkit-appearance: textfield;
+  appearance: textfield;
 }
 
 /* rtl:raw:
@@ -499,7 +501,7 @@ legend + * {
 
 ::file-selector-button {
   font: inherit;
-  -webkit-appearance: button;
+  /* -webkit-appearance: button; */
 }
 
 output {
@@ -20775,10 +20777,7 @@ blockquote .user-name:before {
 .widgets-category li a:hover {
   color: #ee3231;
 }
-.widgets-checkbox li {
-  /* ---Custom Input Checkbox--- */
-  /* -End Here- */
-}
+/* Removed empty ruleset for .widgets-checkbox li to avoid compilation errors */
 .widgets-checkbox li:not(:last-child) {
   margin-bottom: 25px;
 }
@@ -21581,7 +21580,7 @@ blockquote .user-name:before {
   color: #2c2c2c;
   cursor: pointer;
   display: inline-block;
-  float: left;
+  /* float: left; */
   font-size: 12px;
   height: 40px;
   line-height: 40px;
