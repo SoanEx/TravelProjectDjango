@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block tilte %}Items{% endblock tilte %}
+{% block content %}
+  <table class="table caption-top">
+    <thead>
+      <tr>
+        <th scope="col">No.</th>
+        <th scope="col">date</th>
+        <th scope="col">type</th>
+        <th scope="col">amount</th>
+        <th scope="col">note</th>
+        <th scope="col">members</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+
+    {% for item in items_list %}
+    <tr>
+      <th scope="row">{{forloop.counter}}</th>
+      <td>{{item.date}}</td>
+      <td>{{item.types}}</td>
+      <td>{{item.amount}}</td>
+      <td>{{item.note}}</td>
+      <td>
+        {% for m in select_list %}
+          {% if item.id == m.no_id %}
+          {{m.member}}
+          {% endif %}
+        {% endfor %}
+      </td>
+      <td>
+        <form action="{% url 'del-item' %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="id" value={{item.id}}>
+          <input type="submit" value="delet" class="btn-btn-dangeere btn-sm">
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+    <tfoot>
+      <tr>
+        <th scope="end">total</th>
+        <td>
+          {{total}}
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+{% endblock content %}
