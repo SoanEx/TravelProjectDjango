@@ -5,14 +5,19 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from geopy.distance import geodesic
 import os
-
+from django.conf import settings
+import requests
+import openai
+import time
+from dotenv import load_dotenv
 
 # Create your views here.
-
+load_dotenv()  # 載入 .env 變數
 # 讀取測速照相 CSV 檔案
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAMERA_CSV_PATH = os.path.join(BASE_DIR, "camaramap", "speed_cameras.csv")
 # CAMERA_CSV_PATH = "camaramap/speed_cameras.csv"  # 請放入你的 CSV 檔案路徑
+
 
 def load_speed_cameras():
     """ 讀取測速照相 CSV 並修正欄位名稱 """
@@ -67,9 +72,16 @@ def filter_cameras_near_route(route_points, cameras, max_distance=0.1):
 
     return filtered_cameras
 
+def get_google_maps_key(request):
+    api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+    if not api_key:
+        return JsonResponse({"error": "API key not found"}, status=500)
+    return JsonResponse({"apiKey": api_key})
+
 def map_view(request):
     """ 顯示 Google 地圖頁面 """
-    return render(request, 'dynamicmap.html')
+    # return render(request, 'dynamicmap.html')
+    return render(request, 'index.html')  
 
 
 def get_speed_cameras(request):
@@ -107,3 +119,41 @@ def get_speed_cameras(request):
     except Exception as e:
         print("❌ 其他錯誤:", e)
         return JsonResponse({'error': str(e)}, status=500)
+    
+def get_nearby_places(request):
+    lat = request.GET.get("lat")
+    lng = request.GET.get("lng")
+    keyword = request.GET.get("keyword", "tourist attraction")
+
+    if not lat or not lng:
+        return JsonResponse({"error": "缺少經緯度參數"}, status=400)
+
+    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=5000&type=point_of_interest&keyword={keyword}&key={settings.GOOGLE_MAPS_API_KEY}"
+    
+    print(f"🔍 Google Places API 請求: {url}")  # Debug
+    response = requests.get(url)
+    data = response.json()
+
+    if "error_message" in data:
+        print(f"❌ API 錯誤: {data['error_message']}")
+        return JsonResponse({"error": data["error_message"]}, status=500)
+
+    return JsonResponse({"places": data.get("results", [])})
+
+
+def generate_itinerary(request):
+    
+    location = request.GET.get("location")
+    days = int(request.GET.get("days", 1))
+
+    prompt = f"請根據 {location} 為 {days} 天規劃最佳旅遊行程，包含景點、活動、餐飲推薦。"
+    
+    openai_client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+    time.sleep(5)
+    response = openai_client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "system", "content": prompt}]
+    )
+    response_data = response.choices[0].message.content if response.choices else "無法生成行程"
+    return JsonResponse({"itinerary": response_data})
+

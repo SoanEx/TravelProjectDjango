@@ -22,4 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.map_view, name='map'),
     path('get_speed_cameras/', views.get_speed_cameras, name='get_speed_cameras'),
+    path('api/nearby_places/', views.get_nearby_places, name='get_nearby_places'),
+    path('api/itinerary/', views.generate_itinerary, name='generate_itinerary'),
+    path("get_google_maps_key/", views.get_google_maps_key, name="get_google_maps_key"),
 ]

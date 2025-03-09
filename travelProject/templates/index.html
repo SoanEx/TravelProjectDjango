@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>旅遊計畫</title>
+    <script>
+        async function loadGoogleMaps() {
+            try {
+                let response = await fetch("/get_google_maps_key");
+                let data = await response.json();
+                let script = document.createElement("script");
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places`;
+                script.async = true;
+                script.defer = true;
+                document.head.appendChild(script);
+                script.onload = initMap;  // 確保地圖在載入後初始化
+            } catch (error) {
+                console.error("❌ 無法載入 Google Maps API:", error);
+            }
+        }
+
+   
+    </script>
+</head>
+<body>
+    <h2>輸入出發地與目的地</h2>
+    <input id="start" type="text" placeholder="出發地">
+    <input id="end" type="text" placeholder="目的地">
+    <button onclick="planRoute()">規劃路線</button>
+
+    <h2>推薦景點</h2>
+    <button onclick="fetchAttractions()">查詢附近景點</button>
+    <ul id="attractionsList"></ul>
+
+    <div id="map" style="width: 100%; height: 500px;"></div>
+
+    <script>
+        let map;
+        let directionsService;
+        let directionsRenderer;
+        let speedCameraMarkers = [];
+        let attractionMarkers = [];
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 13,
+                center: { lat: 25.033964, lng: 121.564472 }
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+        }
+
+        function planRoute() {
+            let start = document.getElementById("start").value;
+            let end = document.getElementById("end").value;
+
+            if (!start || !end) {
+                alert("請輸入出發地和目的地！");
+                return;
+            }
+
+            let request = {
+                origin: start,
+                destination: end,
+                travelMode: "DRIVING"
+            };
+
+            directionsService.route(request, function(result, status) {
+                if (status == "OK") {
+                    directionsRenderer.setDirections(result);
+                    let routePoints = result.routes[0].overview_path.map(point => ({
+                        lat: point.lat(),
+                        lng: point.lng()
+                    }));
+                    fetchSpeedCameras(routePoints);
+                } else {
+                    alert("路線規劃失敗: " + status);
+                }
+            });
+        }
+
+        function fetchSpeedCameras(routePoints) {
+            fetch("/get_speed_cameras/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken() 
+                },
+                body: JSON.stringify({ route: routePoints })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("📸 測速照相點:", data);
+                addSpeedCamerasToMap(data.cameras);
+            })
+            .catch(error => console.error("❌ 測速相機 API 錯誤:", error));
+        }
+
+        function addSpeedCamerasToMap(cameras) {
+            speedCameraMarkers.forEach(marker => marker.setMap(null)); 
+            speedCameraMarkers = [];
+
+            cameras.forEach(cam => {
+                let marker = new google.maps.Marker({
+                    position: { lat: cam.latitude, lng: cam.longitude },
+                    map: map,
+                    icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                    title: "測速照相點"
+                });
+                speedCameraMarkers.push(marker);
+            });
+        }
+
+        function fetchAttractions() {
+            let end = document.getElementById("end").value;
+            if (!end) {
+                alert("請先輸入目的地！");
+                return;
+            }
+
+            let geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: end }, function(results, status) {
+                if (status === "OK") {
+                    let location = results[0].geometry.location;
+                    let lat = location.lat();
+                    let lng = location.lng();
+
+                    fetch(`/api/nearby_places?lat=${lat}&lng=${lng}&keyword=tourist attraction`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("📍 附近景點:", data);
+                        addAttractionsToMap(data.places);
+                    })
+                    .catch(error => console.error("❌ 景點 API 錯誤:", error));
+                } else {
+                    alert("無法解析目的地: " + status);
+                }
+            });
+        }
+
+        function addAttractionsToMap(places) {
+            attractionMarkers.forEach(marker => marker.setMap(null)); 
+            attractionMarkers = [];
+            let list = document.getElementById("attractionsList");
+            list.innerHTML = "";
+
+            places.forEach(place => {
+                let marker = new google.maps.Marker({
+                    position: { lat: place.geometry.location.lat, lng: place.geometry.location.lng },
+                    map: map,
+                    icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                    title: place.name
+                });
+                attractionMarkers.push(marker);
+
+                let li = document.createElement("li");
+                li.textContent = place.name;
+                list.appendChild(li);
+            });
+        }
+
+        function getCSRFToken() {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith('csrftoken=')) {
+                        cookieValue = cookie.substring('csrftoken='.length, cookie.length);
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+        window.onload = loadGoogleMaps;
+    </script>
+</body>
+</html>
