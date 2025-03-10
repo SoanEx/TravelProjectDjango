@@ -7,3 +7,4 @@ __pycache__/
 *.pyc
 travelProject/accounts/__pycache__
 *.code-workspace
+travelProject/db.sqlite3

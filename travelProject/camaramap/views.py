@@ -81,7 +81,7 @@ def get_google_maps_key(request):
 def map_view(request):
     """ 顯示 Google 地圖頁面 """
     # return render(request, 'dynamicmap.html')
-    return render(request, 'index.html')  
+    return render(request, 'camaramap/index.html')  
 
 
 def get_speed_cameras(request):

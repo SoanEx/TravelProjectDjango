@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from accounts.views import index_view
-
+from camaramap import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     # 將 accounts 的路由接在某個 prefix，例如 /accounts/
