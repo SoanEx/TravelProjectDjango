@@ -1,0 +1,280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-TW" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{% block title %}我的網站{% endblock %}</title>
+  <meta name="robots" content="index, follow" />
+  <meta name="description" content="Tromic car accessories shop template">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ========== 引入必要 CSS ========== -->
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}" type="image/x-icon">
+
+  <!-- Vendor CSS (Icons, etc.) -->
+  <link rel="stylesheet" href="{% static 'assets/css/vendor/font-awesome.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/vendor/Pe-icon-7-stroke.css' %}" />
+
+  <!-- Plugins CSS (可能包含動畫、swiper、popup 等) -->
+  <!-- <link rel="stylesheet" href="{% static 'assets/css/plugins/animate.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/plugins/jquery-ui.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/plugins/swiper-bundle.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/plugins/nice-select.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/plugins/magnific-popup.min.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/plugins/ion.rangeSlider.min.css' %}"> -->
+
+  <!-- 主題樣式 (style.css) -->
+  <link rel="stylesheet" href="{% static 'assets/css/style_dark.css' %}">
+
+</head>
+
+<body>
+  <!-- (A) Preloader (可酌情保留或刪除) -->
+  <div class="preloader-activate preloader-active open_tm_preloader">
+    <div class="preloader-area-wrap">
+      <div class="spinner d-flex justify-content-center align-items-center h-100">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- (B) 主容器 -->
+  <div class="main-wrapper">
+
+    <!-- ================== Header 區域開始 ================== -->
+    <header class="main-header-area">
+      <!-- 頂部資訊列 (可選) -->
+      <div class="header-top border-bottom d-none d-lg-block">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-6">
+              <div class="header-top-left">
+                <ul class="dropdown-wrap text-matterhorn">
+                  <li class="dropdown">
+                    <button class="btn btn-link dropdown-toggle ht-btn" type="button"
+                            id="languageButton" data-bs-toggle="dropdown" aria-expanded="false">
+                      English
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="languageButton">
+                      <li><a class="dropdown-item" href="#">French</a></li>
+                      <li><a class="dropdown-item" href="#">Italian</a></li>
+                      <li><a class="dropdown-item" href="#">Spanish</a></li>
+                    </ul>
+                  </li>
+                  <li class="dropdown">
+                    <button class="btn btn-link dropdown-toggle ht-btn" type="button"
+                            id="currencyButton" data-bs-toggle="dropdown" aria-expanded="false">
+                      USD
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="currencyButton">
+                      <li><a class="dropdown-item" href="#">GBP</a></li>
+                      <li><a class="dropdown-item" href="#">ISO</a></li>
+                    </ul>
+                  </li>
+                  <li>
+                    Call Us
+                    <a href="tel://3965410">3965410</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="header-top-right text-matterhorn">
+                <p class="shipping mb-0">
+                  Free delivery on order over <span>$200</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中間 (LOGO + 主選單 + Header右側功能) -->
+      <div class="header-middle header-sticky py-6 py-lg-0">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-12">
+              <div class="header-middle-wrap position-relative">
+
+                <!-- LOGO -->
+                <a href="#" class="header-logo">
+                  <!-- 路徑請確保 dark.png 在 assets/images/logo/ 下 -->
+                  <img src="{% static 'assets/images/logo/dark.png' %}" alt="Header Logo">
+                </a>
+
+                <!-- 主選單 (桌面版) -->
+                <div class="main-menu d-none d-lg-block">
+                  <nav class="main-nav">
+                    <ul>
+                      <li class="drop-holder">
+                        <a href="#">Home <i class="pe-7s-angle-down"></i></a>
+                        <ul class="drop-menu">
+                          <li><a href="#">Home One</a></li>
+                          <li><a href="#">Home Two</a></li>
+                        </ul>
+                      </li>
+                      <li class="megamenu-holder">
+                        <a href="#">Shop <i class="pe-7s-angle-down"></i></a>
+                        <!-- Megamenu 區可自行刪改 -->
+                        <ul class="drop-menu megamenu">
+                          <li>
+                            <span class="title">Shop Layout</span>
+                            <ul>
+                              <li><a href="#">Shop Default</a></li>
+                              <li><a href="#">Shop Grid Fullwidth</a></li>
+                              <li><a href="#">Shop Right Sidebar</a></li>
+                            </ul>
+                          </li>
+                          <!-- 省略... -->
+                        </ul>
+                      </li>
+                      <!-- 其他選單項 -->
+                    </ul>
+                  </nav>
+                </div>
+
+                <!-- Header 右側功能 Icon -->
+                <div class="header-right">
+                  <ul>
+                    <!-- 下拉：我的帳號 -->
+                    <li class="dropdown d-none d-lg-block">
+                      <button class="btn btn-link dropdown-toggle ht-btn p-0" type="button" 
+                              id="settingButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="pe-7s-user"></i>
+                      </button>
+                      <ul class="dropdown-menu right-side" aria-labelledby="settingButton">
+                        <li><a class="dropdown-item" href="#">My account</a></li>
+                        <li><a class="dropdown-item" href="{% url 'registration_login' %}">登入 | 註冊</a></li>
+                      </ul>
+                    </li>
+                    <!-- 搜尋按鈕 (觸發 Modal) -->
+                    <li>
+                      <a href="#exampleModal" class="search-btn bt" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <i class="pe-7s-search"></i>
+                      </a>
+                    </li>
+                    <!-- 心願清單 (桌面) -->
+                    <li class="d-none d-lg-block">
+                      <a href="#">
+                        <i class="pe-7s-like"></i>
+                      </a>
+                    </li>
+                    
+                    <!-- Mobile Menu 按鈕 (行動版) -->
+                    <li class="mobile-menu_wrap d-block d-lg-none">
+                      <a href="#mobileMenu" class="mobile-menu_btn toolbar-btn pl-0">
+                        <i class="pe-7s-menu"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- end header-right -->
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 手機選單 (Offcanvas) -->
+      <div class="mobile-menu_wrapper" id="mobileMenu">
+        <!-- 這裡放行動版選單內容(如原始模板 mobileMenu)；若不用可刪 -->
+      </div>
+
+      <!-- 搜尋 Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModal" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="modal-search">
+                <span class="searchbox-info">Start typing and press Enter to search or ESC to close</span>
+                <form action="#" class="hm-searchbox">
+                  <input type="text" name="Search entire store here..." value="Search entire store here..."
+                    onblur="if(this.value==''){this.value='Search entire store here...'}"
+                    onfocus="if(this.value=='Search entire store here...'){this.value=''}">
+                  <button class="search-btn" type="submit">
+                    <i class="pe-7s-search"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 小購物車 Offcanvas -->
+      <div class="offcanvas-minicart_wrapper" id="miniCart">
+        <div class="tromic-offcanvas-body">
+          <div class="minicart-content">
+            <div class="minicart-heading">
+              <h4 class="mb-0">Shopping Cart</h4>
+              <a href="#" class="button-close">
+                <i class="pe-7s-close"></i>
+              </a>
+            </div>
+            <ul class="minicart-list">
+              <!-- 範例購物車品項 -->
+            </ul>
+          </div>
+          <div class="minicart-item_total">
+            <span>Subtotal</span>
+            <span class="ammount">$240.00</span>
+          </div>
+          <div class="group-btn_wrap d-grid gap-2">
+            <a href="#" class="btn btn-dark btn-primary-hover">View Cart</a>
+            <a href="#" class="btn btn-dark btn-primary-hover">Checkout</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="global-overlay"></div>
+    </header>
+    <!-- ================== Header 區域結束 ================== -->
+
+
+    <!-- (C) 主內容區: 供子頁面 extends 時插入內容 -->
+    <main>
+      {% block content %}
+      <!-- 預留給子模板的內容區塊 -->
+      {% endblock %}
+    </main>
+
+    <!-- (D) 頁尾區 (如果有需要 Footer，可以加在這裡) -->
+    <footer>
+      <!-- 可自行定義，也可 include -->
+      <p style="text-align:center; margin: 20px 0; color:#666;">
+        &copy; {% now "Y" %} MySite. All Rights Reserved.
+      </p>
+    </footer>
+
+  </div><!-- main-wrapper 結束 -->
+
+
+  <!-- ========== 引入必要 JS (Bootstrap, jQuery 等) ========== -->
+  <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+  <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.2.min.js' %}"></script>
+  <script src="{% static 'assets/js/vendor/modernizr-3.11.2.min.js' %}"></script>
+
+  <!-- Plugins JS (部分特效、下拉選單、popup 用) -->
+  <script src="{% static 'assets/js/plugins/wow.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/jquery-ui.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/swiper-bundle.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/jquery.nice-select.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/parallax.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/jquery.magnific-popup.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/tippy.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/ion.rangeSlider.min.js' %}"></script>
+  <script src="{% static 'assets/js/plugins/mailchimp-ajax.js' %}"></script>
+
+  <!-- Main JS (模板主要的功能) -->
+  <script src="{% static 'assets/js/main.js' %}"></script>
+</body>
+</html>

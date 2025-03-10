@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>Google Identity Services - Frontend Test</title>
+  <!-- 只載入新版 GIS，不要載入舊版 platform.js -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <h1>Google Identity Services 測試</h1>
+
+  <!-- 
+    1) 以 data-client_id 配置你的 Google OAuth Client ID
+    2) data-callback 指向 handleCredentialResponse
+    3) data-auto_prompt="false" 不會自動彈出 One Tap
+  -->
+  <div id="g_id_onload"
+       data-client_id="306141542879-qqa1cs3q2g9437lfs3m0g9070cm661bk.apps.googleusercontent.com"
+       data-callback="handleCredentialResponse"
+       data-auto_prompt="false">
+  </div>
+
+  <!-- Google 登入按鈕 (標準樣式) -->
+  <div class="g_id_signin" 
+       data-type="standard"
+       data-theme="outline"
+       data-size="large"
+       data-text="signin_with"
+       data-shape="rectangular"
+       data-logo_alignment="left">
+  </div>
+
+  <script>
+    /**
+     * handleCredentialResponse:
+     *  - Google 按鈕登入後自動呼叫此函式
+     *  - response.credential 就是新版 GIS 回傳的 "id_token"
+     */
+    function handleCredentialResponse(response) {
+      // 這裡可先在 console 看看 token
+      console.log("Google returned ID token:", response.credential);
+      
+      // 把 ID token 用 JSON 格式 POST 給後端 /accounts/google-auth/
+      // (確定你的 Django 有對應的 path('google-auth/', google_auth, ...) )
+      fetch("/accounts/google-auth/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+          // 如果你啟用 Django CSRF，需要帶上 X-CSRFToken
+          "X-CSRFToken": getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          id_token: response.credential
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("後端回應：", data);
+        if (data.status === 'success') {
+          alert("Google 登入驗證成功！使用者 Email = " + data.email);
+          // TODO: 你可以在此進行頁面跳轉或顯示使用者資料
+        } else if (data.error) {
+          alert("後端回應錯誤: " + data.error);
+        }
+      })
+      .catch(err => {
+        console.error("Fetch AJAX 錯誤：", err);
+      });
+    }
+
+    /**
+     * 取得 CSRF Token (若你的 Django 開啟 CSRF 防護)
+     * 假設 Django 的預設 cookie 名稱為 csrftoken
+     */
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+</body>
+</html>

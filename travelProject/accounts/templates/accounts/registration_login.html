@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>整合登入/註冊 (One Tap + 驗證) + CSRF</title>
+  <!-- 1. 只載入新版 Google Identity Services (GIS) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    /* ---------- 全域樣式 ---------- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: #2c2c2c; /* 深灰背景 */
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: #3a3a3a;
+      border-radius: 12px;
+      padding: 20px 25px;
+      width: 360px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+    #messageContainer {
+      margin-bottom: 12px;
+    }
+    .msg-error {
+      color: #f44336;
+      margin-bottom: 8px;
+    }
+    .msg-success {
+      color: #4caf50;
+      margin-bottom: 8px;
+    }
+    .field-error {
+      color: #f44336;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      margin: 8px 0 4px;
+    }
+    input, select {
+      padding: 8px 10px;
+      border: none;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      outline: none;
+    }
+    input[type="text"],
+    input[type="password"] {
+      background: #f9f9f9;
+      color: #333;
+    }
+    select {
+      background: #f9f9f9;
+      color: #333;
+    }
+    input::placeholder {
+      color: #aaa;
+    }
+    #submitBtn {
+      background: #e0e0e0;
+      color: #333;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    #submitBtn:hover {
+      background: #ccc;
+    }
+    .verification-section {
+      display: none;  /* 預設隱藏驗證碼欄位 */
+    }
+    .registration-field {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+    .registration-field.active {
+      max-height: 500px;
+      opacity: 1;
+    }
+
+    /* ---------- Google Flow 手機輸入區塊 ---------- */
+    #phoneSection {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 14px;
+    }
+    #phoneSection.active {
+      max-height: 300px; /* 視需要可調大一些 */
+      opacity: 1;
+    }
+    #phoneRow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 50px;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    #googleCountry {
+      flex: none;
+      min-width: 80px;
+      height: 50px;
+      line-height: 50px;
+      outline: none;
+      font-size: 16px;
+      color: #757575;
+      text-align-last: center;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    #googlePhone {
+    width: 150px;         /* 固定寬度 150px */
+    height: 50px;
+    line-height: 50px;
+    font-size: 16px;
+    color: #333;
+    
+    margin-top: 12px;     /* 原本的 margin-top 保留 */
+    outline: none;
+    
+    text-align: left;     /* 文字靠左 */
+    padding-left: 10px;   /* 可視需要增加左內距，讓文字與左邊框有點距離 */
+    }
+    #codeRow {
+      display: none; /* 預設不顯示驗證碼欄位 */
+      flex-direction: column;
+      gap: 8px;
+    }
+    #googleVerifyBtn {
+      width: 100%;
+      height: 50px;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 16px;
+      color: #757575;
+      cursor: pointer;
+      outline: none;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>整合登入/註冊 (One Tap + 驗證) + CSRF</h1>
+
+    <!-- 訊息容器 -->
+    <div id="messageContainer">
+      <p class="msg-error"></p>
+      <p class="msg-success"></p>
+    </div>
+
+    <!-- (A) 一般登入/註冊表單 (mode=normal) -->
+    <form id="mainForm" method="post" action="{% url 'registration_login' %}" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="step" id="step" value="initial">
+      <input type="hidden" name="mode" id="mode" value="normal">
+      <input type="hidden" name="device_id" id="device_id" value="">
+
+      <!-- 帳號(Email) -->
+      <label for="username">帳號 (Email)：</label>
+      <input type="text" id="username" name="username" placeholder="請輸入 Email" required>
+      <div id="usernameInfo" style="color: #aaa;"></div>
+      <div id="usernameError" class="field-error"></div>
+
+      <!-- 密碼 -->
+      <label for="password">密碼：</label>
+      <input type="password" id="password" name="password" placeholder="請輸入密碼" required>
+      <div id="passwordError" class="field-error"></div>
+
+      <!-- 只有「註冊」時才會顯示的欄位 -->
+      <div id="registrationFields" class="registration-field">
+        <label for="confirm_password">確認密碼：</label>
+        <input type="password" name="confirm_password" id="confirm_password" placeholder="再次輸入密碼">
+        <div id="confirm_passwordError" class="field-error"></div>
+
+        <label for="country">國家：</label>
+        <select id="country" name="country">
+          <option value="TW">台灣 (+886)</option>
+          <option value="US">美國 (+1)</option>
+        </select>
+
+        <label for="phone_local">手機號碼：</label>
+        <input type="text" id="phone_local" name="phone_local" placeholder="例如 0912345678">
+        <div id="phone_localError" class="field-error"></div>
+      </div>
+
+      <!-- 驗證碼欄位 (一般表單專用) -->
+      <div id="verificationSection" class="verification-section">
+        <label for="code">驗證碼：</label>
+        <input type="text" name="code" id="code" placeholder="6位數驗證碼">
+      </div>
+
+      <button type="submit" id="submitBtn">送出</button>
+    </form>
+
+    <hr style="margin: 20px 0;" />
+
+    <!-- (B) Google One Tap 按鈕 -->
+    <div id="g_id_onload"
+         data-client_id="{{ GOOGLE_CLIENT_ID|default_if_none:'your_google_client_id' }}"
+         data-callback="handleGoogleCallback"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+
+    <!-- (C) Google Flow - 給使用者填寫手機的區塊 -->
+    <div id="phoneSection">
+      <!-- 第一步：輸入國家 + 手機 -->
+      <div id="phoneRow">
+        <select id="googleCountry">
+          <option value="TW">台灣 (+886)</option>
+          <option value="US">美國 (+1)</option>
+        </select>
+        <input type="text" id="googlePhone" placeholder="例如 0912345678" />
+      </div>
+      <!-- 第二步：驗證碼欄位 -->
+      <div id="codeRow">
+        <input type="text" id="googleCode" placeholder="請輸入簡訊驗證碼" />
+      </div>
+      <button type="button" id="googleVerifyBtn" onclick="googlePhoneSubmit()">驗證手機號碼</button>
+    </div>
+  </div>
+
+<script>
+/* ----------------------------------------------------------------
+   (1) 取得 CSRF Token，供後續 fetch 時帶入 (X-CSRFToken)
+----------------------------------------------------------------- */
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+/* ----------------------------------------------------------------
+   (2) 產生 / 讀取 裝置ID，存在 localStorage
+----------------------------------------------------------------- */
+let deviceId = localStorage.getItem('my_device_id');
+if (!deviceId) {
+  deviceId = 'dev-' + Math.random().toString(36).substring(2, 10);
+  localStorage.setItem('my_device_id', deviceId);
+}
+document.getElementById('device_id').value = deviceId;
+
+/* ----------------------------------------------------------------
+   (3) 監聽帳號 (Email) blur => 檢查帳號是否存在
+----------------------------------------------------------------- */
+document.getElementById('username').addEventListener('blur', function() {
+  const username = this.value.trim();
+  if (!username) return;
+
+  fetch("/accounts/check_username/?username=" + encodeURIComponent(username))
+    .then(res => res.json())
+    .then(data => {
+      let regFields = document.getElementById('registrationFields');
+      let info = document.getElementById('usernameInfo');
+      if (data.exists) {
+        // 帳號已存在 => 隱藏註冊欄位
+        regFields.classList.remove('active');
+        document.getElementById('country').removeAttribute('required');
+        document.getElementById('phone_local').removeAttribute('required');
+        info.style.color = '#e0e0e0';
+        info.innerText = '帳號已存在，請輸入密碼登入';
+      } else {
+        // 帳號不存在 => 顯示註冊欄位
+        regFields.classList.add('active');
+        document.getElementById('country').setAttribute('required','required');
+        document.getElementById('phone_local').setAttribute('required','required');
+        info.style.color = '#e0e0e0';
+        info.innerText = '新帳號，請輸入密碼 & 手機號碼';
+      }
+    })
+    .catch(e => {
+      console.error("檢查帳號錯誤:", e);
+    });
+});
+
+/* ----------------------------------------------------------------
+   (4) 攔截「一般表單」送出 => AJAX 發送 => mode=normal
+----------------------------------------------------------------- */
+const mainForm = document.getElementById('mainForm');
+mainForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  clearFieldErrors();
+
+  const formData = new FormData(mainForm);
+  fetch(mainForm.action, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRFToken': getCookie('csrftoken')
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log("後端回傳 (普通表單):", data);
+    // 依照 mode=normal => 呼叫對應函式
+    if (formData.get('mode') === 'normal') {
+      handleNormalResponse(data);
+    } else {
+      handleGoogleResponse(data);
+    }
+  })
+  .catch(err => {
+    console.error("AJAX錯誤:", err);
+  });
+});
+
+/* ----------------------------------------------------------------
+   (5) 分開處理「一般表單回應」與「Google Flow 回應」
+----------------------------------------------------------------- */
+function clearFieldErrors() {
+  const fields = ['username','password','confirm_password','phone_local','googlePhone','googleCode'];
+  fields.forEach(f => {
+    let errDiv = document.getElementById(f + 'Error');
+    if (errDiv) errDiv.innerText = '';
+  });
+  document.querySelector('.msg-error').innerText = '';
+  document.querySelector('.msg-success').innerText = '';
+}
+
+/* -- (5A) 一般表單回應處理 -------------------------------------- */
+function handleNormalResponse(data) {
+  // 錯誤
+  if (data.error) {
+    if (typeof data.error === 'object') {
+      for (let field in data.error) {
+        let errDiv = document.getElementById(field + 'Error');
+        if (errDiv) {
+          let msgs = data.error[field].map(e => e.message).join(' / ');
+          errDiv.innerText = msgs;
+        }
+      }
+    } else {
+      document.querySelector('.msg-error').innerText = data.error;
+    }
+  }
+  // 訊息
+  if (data.message) {
+    document.querySelector('.msg-success').innerText = data.message;
+  }
+  // 成功
+  if (data.success) {
+    document.querySelector('.msg-success').innerText = data.success;
+  }
+  // 顯示驗證碼欄位
+  if (data.show_verification) {
+    const vSec = document.getElementById('verificationSection');
+    if (vSec) {
+      vSec.style.display = 'block';
+      document.getElementById('code').setAttribute('required','required');
+      document.getElementById('step').value = 'verify';
+      document.getElementById('submitBtn').innerText = '驗證';
+    }
+  }
+}
+
+/* -- (5B) Google Flow 回應處理 ---------------------------------- */
+function handleGoogleResponse(data) {
+  // 錯誤
+  if (data.error) {
+    if (typeof data.error === 'object') {
+      for (let field in data.error) {
+        let errDiv = document.getElementById(field + 'Error');
+        if (errDiv) {
+          let msgs = data.error[field].map(e => e.message).join(' / ');
+          errDiv.innerText = msgs;
+        }
+      }
+    } else {
+      document.querySelector('.msg-error').innerText = data.error;
+    }
+  }
+  // 一般訊息
+  if (data.message) {
+    document.querySelector('.msg-success').innerText = data.message;
+  }
+  // 成功提示
+  if (data.success) {
+    document.querySelector('.msg-success').innerText = data.success;
+  }
+
+  // 若後端需要使用者填寫手機 (ask_phone=true)
+  if (data.ask_phone) {
+    // 移除一般表單
+    const mf = document.getElementById('mainForm');
+    if (mf) mf.remove();
+    // 顯示「手機輸入區塊」
+    document.getElementById('phoneSection').classList.add('active');
+    document.querySelector('.msg-error').innerText = '請填寫手機號碼後再送出 (Google Flow)';
+  }
+
+  // 若後端要顯示「輸入驗證碼」(簡訊已發送)
+  if (data.show_verification) {
+    // 隱藏電話輸入列
+    const phoneRow = document.getElementById('phoneRow');
+    if (phoneRow) phoneRow.style.display = 'none';
+    // 顯示驗證碼輸入列
+    const codeRow = document.getElementById('codeRow');
+    if (codeRow) codeRow.style.display = 'flex';
+    // 改按鈕文字
+    const verifyBtn = document.getElementById('googleVerifyBtn');
+    if (verifyBtn) verifyBtn.innerText = '驗證簡訊碼';
+    // 更新流程階段
+    window.googleFlowStep = 2;
+  }
+}
+
+/* ----------------------------------------------------------------
+   (6) Google One Tap => 按下「Google 登入」後的回呼
+----------------------------------------------------------------- */
+let googleIdToken = null;
+
+function handleGoogleCallback(response) {
+  clearFieldErrors();
+  googleIdToken = response.credential;
+  console.log("Google credential:", googleIdToken);
+
+  // 送往後端 => mode=google => step=initial
+  let formData = new FormData();
+  formData.append('step','initial');
+  formData.append('mode','google');
+  formData.append('id_token', googleIdToken);
+  formData.append('device_id', deviceId);
+  formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+  fetch("{% url 'registration_login' %}", {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRFToken': getCookie('csrftoken')
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log("One Tap回應:", data);
+    handleGoogleResponse(data);
+  })
+  .catch(err => {
+    console.error("One Tap AJAX錯誤:", err);
+  });
+}
+
+/* ----------------------------------------------------------------
+   (7) Google Flow - 手機驗證 (分兩步)
+----------------------------------------------------------------- */
+let googleFlowStep = 1;  // 第一次按下時 (輸入手機)
+
+function googlePhoneSubmit() {
+  clearFieldErrors();
+  const verifyBtn = document.getElementById('googleVerifyBtn');
+
+  if (googleFlowStep === 1) {
+    // 第一步：送出 (country, phone_local)
+    let country = document.getElementById('googleCountry').value;
+    let phoneLocal = document.getElementById('googlePhone').value.trim();
+    if (!phoneLocal) {
+      document.querySelector('.msg-error').innerText = '請先填寫手機號碼';
+      return;
+    }
+
+    let formData = new FormData();
+    formData.append('step','initial');   // 再次 initial (後端可判斷 -> 發送簡訊)
+    formData.append('mode','google');
+    formData.append('id_token', googleIdToken);
+    formData.append('device_id', deviceId);
+    formData.append('country', country);
+    formData.append('phone_local', phoneLocal);
+    formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+    fetch("{% url 'registration_login' %}", {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("googlePhoneSubmit(第一步)回應:", data);
+      handleGoogleResponse(data);
+
+      // 如果後端回傳 show_verification=true => 切換到輸入驗證碼畫面
+      // (已在 handleGoogleResponse() 處理顯示 codeRow、隱藏 phoneRow 等)
+    })
+    .catch(err => {
+      console.error("googlePhoneSubmit(第一步) AJAX錯誤:", err);
+    });
+
+    // 設為下一階段
+    googleFlowStep = 2;
+
+  } else if (googleFlowStep === 2) {
+    // 第二步：送出「驗證碼」
+    let codeVal = document.getElementById('googleCode').value.trim();
+    if (!codeVal) {
+      document.querySelector('.msg-error').innerText = '請輸入驗證碼';
+      return;
+    }
+
+    let formData = new FormData();
+    formData.append('step','verify');   // 後端檢查 session 內 code
+    formData.append('mode','google');
+    formData.append('id_token', googleIdToken);
+    formData.append('device_id', deviceId);
+    formData.append('code', codeVal);
+    formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+    fetch("{% url 'registration_login' %}", {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With':'XMLHttpRequest',
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log("googlePhoneSubmit(第二步)回應:", data);
+      handleGoogleResponse(data);
+
+      if (data.success) {
+        // 驗證成功，可提示已登入
+        document.querySelector('.msg-success').innerText = '手機驗證成功，已完成 Google 登入流程。';
+        // 也可收合 phoneSection 等
+        // document.getElementById('phoneSection').classList.remove('active');
+      }
+    })
+    .catch(err => {
+      console.error("googlePhoneSubmit(第二步) AJAX錯誤:", err);
+    });
+  }
+}
+</script>
+
+</body>
+</html>

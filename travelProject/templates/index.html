@@ -1,0 +1,90 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}首頁{% endblock %}
+
+{% block content %}
+<div class="product-area section-space-top-100">
+  <div class="container">
+      <div class="section-title style-2 pb-55">
+          <h2 class="title mb-0">Top Category</h2>
+      </div>
+      <div class="row">
+          <div class="product-custom-col col-12">
+              <div class="product-category-item">
+                  <a class="product-category-img img-zoom-effect" href="shop.html">
+                      <img src="{% static 'assets/images/product/top-category/1-1-180x180.png' %}" alt="Top Category">
+                  </a>
+                  <div class="product-category-content pt-5">
+                      <h2 class="title">
+                          <a href="shop.html">Tail Light</a>
+                      </h2>
+                  </div>
+              </div>
+          </div>
+          <div class="product-custom-col col-12">
+              <div class="product-category-item">
+                  <a class="product-category-img img-zoom-effect" href="shop.html">
+                      <img src="{% static 'assets/images/product/top-category/1-2-180x180.png' %}" alt="Top Category">
+                  </a>
+                  <div class="product-category-content pt-5">
+                      <h2 class="title">
+                          <a href="shop.html">Wiper Blades</a>
+                      </h2>
+                  </div>
+              </div>
+          </div>
+          <div class="product-custom-col col-12 pt-4 pt-sm-0">
+              <div class="product-category-item">
+                  <a class="product-category-img img-zoom-effect" href="shop.html">
+                      <img src="{% static 'assets/images/product/top-category/1-3-180x180.png' %}" alt="Top Category">
+                  </a>
+                  <div class="product-category-content pt-5">
+                      <h2 class="title">
+                          <a href="shop.html">Suspension</a>
+                      </h2>
+                  </div>
+              </div>
+          </div>
+          <div class="product-custom-col col-12 pt-4 pt-lg-0">
+              <div class="product-category-item">
+                  <a class="product-category-img img-zoom-effect" href="shop.html">
+                      <img src="{% static 'assets/images/product/top-category/1-4-180x180.png' %}" alt="Top Category">
+                  </a>
+                  <div class="product-category-content pt-5">
+                      <h2 class="title">
+                          <a href="shop.html">Air Filter</a>
+                      </h2>
+                  </div>
+              </div>
+          </div>
+          <div class="product-custom-col col-12 pt-4 pt-lg-0">
+              <div class="product-category-item">
+                  <a class="product-category-img img-zoom-effect" href="shop.html">
+                      <img src="{% static 'assets/images/product/top-category/1-5-180x180.png' %}" alt="Top Category">
+                  </a>
+                  <div class="product-category-content pt-5">
+                      <h2 class="title">
+                          <a href="shop.html">Car Brakes</a>
+                      </h2>
+                  </div>
+              </div>
+          </div>
+          <div class="product-custom-col col-12 pt-4 pt-lg-0">
+              <div class="product-category-item">
+                  <a class="product-category-img img-zoom-effect" href="shop.html">
+                      <img src="{% static 'assets/images/product/top-category/1-6-180x180.png' %}" alt="Top Category">
+                  </a>
+                  <div class="product-category-content pt-5">
+                      <h2 class="title">
+                          <a href="shop.html">Pistons Liners</a>
+                      </h2>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+<!-- Product Area End Here -->
+{% endblock %}
