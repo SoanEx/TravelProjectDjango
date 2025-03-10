@@ -8,3 +8,6 @@ __pycache__/
 travelProject/accounts/__pycache__
 *.code-workspace
 travelProject/db.sqlite3
+env
+*.sqlite3
+.vscode/settings.json
