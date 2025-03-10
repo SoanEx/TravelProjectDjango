@@ -25,4 +25,9 @@ urlpatterns = [
     path('', index_view, name='home'),
     path('accounts/', include('django.contrib.auth.urls')),## 這行很重要：包含 Django 內建的帳號相關 URLs (包含 login/logout/password_reset...)
     path("bk/",include('bookkeeping.urls')),
+    path('map/', views.map_view, name='map'),
+    path('get_speed_cameras/', views.get_speed_cameras, name='get_speed_cameras'),
+    path('api/nearby_places/', views.get_nearby_places, name='get_nearby_places'),
+    path('api/itinerary/', views.generate_itinerary, name='generate_itinerary'),
+    path("get_google_maps_key/", views.get_google_maps_key, name="get_google_maps_key"),
 ]

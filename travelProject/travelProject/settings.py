@@ -12,6 +12,14 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+from django.conf import settings
+import os
+from dotenv import load_dotenv
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+print("API Key:", settings.OPENAI_API_KEY)  # 確保這裡顯示正確的 API Key
 
 # 讀取 .env
 load_dotenv()
@@ -45,6 +53,8 @@ INSTALLED_APPS = [
     # 新增的應用程式
     'accounts',  # 使用者帳號管理包含google 簡訊twilio
     'phonenumber_field',  # 電話號碼欄位自動轉換
+    'camaramap',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -90,16 +100,8 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "QTrGARr0e5mCCZnRlszfyJlScH7yILmWvUi
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', '3306'),
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -157,3 +159,5 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY') 
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY') 

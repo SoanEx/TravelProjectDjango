@@ -6,3 +6,4 @@ travelProject/202502005
 __pycache__/
 *.pyc
 travelProject/accounts/__pycache__
+*.code-workspace
