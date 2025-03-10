@@ -1,3 +1,9 @@
 /.venv
 .env
-TravelProjectDjango.code-workspace
+travelProject/travelProject/TravelProjectDjango.code-workspace
+django1test.pem
+travelProject/202502005
+__pycache__/
+*.pyc
+travelProject/accounts/__pycache__
+*.code-workspace
