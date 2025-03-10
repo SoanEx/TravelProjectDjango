@@ -13,12 +13,13 @@
       <div class="row">
           <div class="product-custom-col col-12">
               <div class="product-category-item">
-                  <a class="product-category-img img-zoom-effect" href="shop.html">
+                  <a class="product-category-img img-zoom-effect" href="{% url 'index' %}"><!-- 記帳轉跳頁 -->
                       <img src="{% static 'assets/images/product/top-category/1-1-180x180.png' %}" alt="Top Category">
                   </a>
                   <div class="product-category-content pt-5">
                       <h2 class="title">
-                          <a href="shop.html">Tail Light</a>
+                          <!-- 記帳轉跳頁 -->
+                          <a href="{% url 'index' %}">Book Keeping</a>
                       </h2>
                   </div>
               </div>

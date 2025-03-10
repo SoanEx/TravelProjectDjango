@@ -24,5 +24,5 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('', index_view, name='home'),
     path('accounts/', include('django.contrib.auth.urls')),## 這行很重要：包含 Django 內建的帳號相關 URLs (包含 login/logout/password_reset...)
-    path("",include('bookkeeping.urls')),
+    path("bk/",include('bookkeeping.urls')),
 ]
