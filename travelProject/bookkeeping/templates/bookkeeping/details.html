@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block tilte %}details{% endblock tilte %}
+{% block content %}
+  <div class="table-responsive">
+    {% for user in user_list %}
+    {{user}}
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">type</th>
+          <th scope="col">total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in relation_list %}
+          {% if r.member == user %}
+          <tr>
+            <td>{{r.types}}</td>
+            <td>{{r.total}}</td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+
+      <tfoot>
+        <tr>
+          <th scope="end"></th>
+          <td></td>
+        </tr>
+      </tfoot>  
+    </table>
+    {% endfor %}
+  </div>
+{% endblock content %}

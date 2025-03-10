@@ -14,15 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
-from accounts.views import index_view
+
+from django.urls import path
+from . import views
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    # 將 accounts 的路由接在某個 prefix，例如 /accounts/
-    path('accounts/', include('accounts.urls')),
-    path('', index_view, name='home'),
-    path('accounts/', include('django.contrib.auth.urls')),## 這行很重要：包含 Django 內建的帳號相關 URLs (包含 login/logout/password_reset...)
-    path("",include('bookkeeping.urls')),
+    path('index/',views.index,name="index"),
+    path("details/",views.Details.as_view(),name="details"),
+    path("items/",views.Items.as_view(),name="items"),
+    path("del-item",views.DelItem.as_view(),name="del-item"),
+    path("newitem/",views.newitem,name="newitem"),
 ]

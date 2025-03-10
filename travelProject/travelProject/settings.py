@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bookkeeping', #記帳
     # 新增的應用程式
     'accounts',  # 使用者帳號管理包含google 簡訊twilio
     'phonenumber_field',  # 電話號碼欄位自動轉換
