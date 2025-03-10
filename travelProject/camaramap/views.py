@@ -128,8 +128,8 @@ def get_nearby_places(request):
     if not lat or not lng:
         return JsonResponse({"error": "缺少經緯度參數"}, status=400)
 
-    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=5000&type=point_of_interest&keyword={keyword}&key={settings.GOOGLE_MAPS_API_KEY}"
     
+    url = f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=5000&type=point_of_interest&keyword={keyword}&key={settings.GOOGLE_MAPS_API_KEY}"
     print(f"🔍 Google Places API 請求: {url}")  # Debug
     response = requests.get(url)
     data = response.json()

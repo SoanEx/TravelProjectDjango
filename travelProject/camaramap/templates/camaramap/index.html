@@ -54,17 +54,20 @@
             try {
                 let response = await fetch("/get_google_maps_key");
                 let data = await response.json();
+                
+                // ✅ **確保 API Key 存入全域變數**
+                window.GOOGLE_API_KEY = data.apiKey;
+        
                 let script = document.createElement("script");
                 script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places`;
                 script.async = true;
                 script.defer = true;
                 document.head.appendChild(script);
-                script.onload = initMap;  // 確保地圖在載入後初始化
+                script.onload = initMap;  // 確保地圖載入後初始化
             } catch (error) {
                 console.error("❌ 無法載入 Google Maps API:", error);
             }
         }
-   
     </script>
 </head>
 <body>
@@ -127,7 +130,7 @@
         }
 
         function fetchSpeedCameras(routePoints) {
-            fetch("/get_speed_cameras/", {
+            fetch("/api/get_speed_cameras/", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -158,7 +161,13 @@
             });
         }
 
-        function fetchAttractions() {
+        async function fetchAttractions() {
+            // **直接從後端獲取 API Key**
+            if (!window.GOOGLE_API_KEY) {
+                console.warn("⏳ Google API Key 尚未載入，正在取得...");
+                await loadGoogleAPIKey();  // ✅ 確保 API Key 正確載入
+            }
+        
             let end = document.getElementById("end").value;
             if (!end) {
                 alert("請先輸入目的地！");
@@ -175,9 +184,19 @@
                     fetch(`/api/nearby_places?lat=${lat}&lng=${lng}&keyword=tourist attraction`)
                     .then(response => response.json())
                     .then(data => {
-                        console.log("📍 附近景點:", data);
-                        addAttractionsToMap(data.places);
-                        displayAttractions(data.places);  // ✅ 確保景點清單顯示
+                        console.log("📍 附近景點 API 回應:", data);
+        
+                        if (data.error) {
+                            alert(`❌ API 錯誤: ${data.error}`);
+                            return;
+                        }
+        
+                        if (data.places && data.places.length > 0) {
+                            addAttractionsToMap(data.places);
+                            displayAttractions(data.places);
+                        } else {
+                            alert("🚨 無法獲取景點資訊！");
+                        }
                     })
                     .catch(error => console.error("❌ 景點 API 錯誤:", error));
                 } else {
@@ -185,11 +204,19 @@
                 }
             });
         }
+        
         // **美化景點顯示**
         function displayAttractions(places) {
             let list = document.getElementById("attractionsList");
             list.innerHTML = ""; // 清空現有列表
         
+            if (!places || places.length === 0) {
+                list.innerHTML = "<p>🚫 沒有找到景點，請更換地點再試。</p>";
+                return;
+            }
+        
+            console.log("✅ 正在顯示景點數量:", places.length);
+            
             places.forEach(place => {
                 let name = place.name || "無名稱";
                 let address = place.vicinity || "地址不詳";
@@ -198,10 +225,10 @@
                     (place.opening_hours.open_now ? "🟢 營業中" : "🔴 已關門") : "⏳ 未提供營業時間";
                 let website = place.website ? `<a href="${place.website}" target="_blank">官方網站</a>` : "🌐 無網站";
         
-                // ✅ **現在從全域變數獲取 API Key**
-                let photoUrl = place.photos && place.photos.length > 0 
-                    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${window.GOOGLE_API_KEY}`
-                    : "https://via.placeholder.com/400?text=No+Image"; // 預設圖片
+                let apiKey = window.GOOGLE_API_KEY || "";
+                let photoUrl = place.photos && place.photos.length > 0
+                    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
+                    : "https://via.placeholder.com/400?text=No+Image";
         
                 let li = document.createElement("li");
                 li.classList.add("attraction-item");
@@ -219,25 +246,40 @@
                 list.appendChild(li);
             });
         }
-
         function addAttractionsToMap(places) {
-            attractionMarkers.forEach(marker => marker.setMap(null)); 
+            // 移除舊的標記
+            attractionMarkers.forEach(marker => marker.setMap(null));
             attractionMarkers = [];
-            let list = document.getElementById("attractionsList");
-            list.innerHTML = "";
-
+        
             places.forEach(place => {
+                let position = { 
+                    lat: place.geometry.location.lat, 
+                    lng: place.geometry.location.lng 
+                };
+        
+                // 創建地圖標記
                 let marker = new google.maps.Marker({
-                    position: { lat: place.geometry.location.lat, lng: place.geometry.location.lng },
+                    position: position,
                     map: map,
                     icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
                     title: place.name
                 });
+        
+                // **新增 InfoWindow (彈出標籤)**
+                let infoWindow = new google.maps.InfoWindow({
+                    content: `<strong>${place.name}</strong>`
+                });
+        
+                // **點擊標記時顯示景點名稱**
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                });
+        
+                // **自動開啟標籤**
+                infoWindow.open(map, marker);
+        
+                // **儲存標記，方便管理**
                 attractionMarkers.push(marker);
-
-                let li = document.createElement("li");
-                li.textContent = place.name;
-                list.appendChild(li);
             });
         }
 
