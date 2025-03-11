@@ -19,7 +19,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-print("API Key:", settings.OPENAI_API_KEY)  # 確保這裡顯示正確的 API Key
+# print("API Key:", settings.OPENAI_API_KEY)  # 確保這裡顯示正確的 API Key
 
 # 讀取 .env
 load_dotenv()
@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'phonenumber_field',  # 電話號碼欄位自動轉換
     'camaramap',
     'rest_framework',
+    'funstuff',
 ]
 
 MIDDLEWARE = [
