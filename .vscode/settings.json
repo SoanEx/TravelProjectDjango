@@ -1,3 +1,4 @@
-﻿{
-    "python.pythonPath": ".venv/Scripts/python.exe"
+{
+    "python.pythonPath": ".venv/Scripts/python.exe",
+    "terminal.integrated.cwd": "G:\\\\softwareProgram\\\\TravelProjectDjango\\\\travelProject"
 }
