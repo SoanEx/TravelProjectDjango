@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}前端即時爆炸表單{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+      <h3 class="mb-4">使用者體驗調查</h3>
+
+      <p>Hi，{{ user.username }} 您好</p>
+
+      <form id="explosiveQuizForm" class="card p-4">
+        <!-- 不一定要 method="POST"，因為你說「未送出」就要判斷 -->
+        <!-- 若不需要後端接收，此處可不寫 method 或寫 method="get" -->
+        <p class="mb-3">請問您的使用者體驗如何？</p>
+
+        <!-- 你的 form.as_p -->  
+        <!-- 假設 feedback_choice 是 django form 的欄位，但此處我們主要只用JS監聽 -->
+        {{ form.as_p }}
+
+        <!-- 若還需要後端submit，就留下面按鈕；否則可視需求移除 -->
+        <button type="submit" class="btn btn-primary mt-3">送出</button>
+      </form>
+
+      <!-- 預先在這裡放爆炸文字容器，預設隱藏 -->
+      <div class="explosion-container mt-4" id="explosionText">
+        <!-- 範例：手動拆成每個字 -->
+        {% for char in explosion_text %}
+            <span class="letter">{{ char }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<!-- 若 anime.js 沒在 base.html 加，就在這裡CDN載入 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+<script src="{% static 'funstuff/js/explosive_quiz.js' %}">
+    console.log("explosive_quiz.js 載入成功");
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  // 假設你的 ChoiceField name="feedback_choice"
+  const radios = document.querySelectorAll('input[name="feedback_choice"]');
+  if (!radios.length) return; // 沒找到就跳過
+
+  // 爆炸容器
+  const explosionText = document.getElementById('explosionText');
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      // 一旦偵測到 radio 改變 → 檢查 value 是不是 'D'
+      console.log("選到的值:", this.value);
+      if (this.value === 'D') {
+        // 1) 顯示爆炸文字容器
+        explosionText.style.display = 'inline-block';
+
+        // 2) 執行爆炸動畫
+        explodeAnimation();
+      } else {
+        // 若用戶又改選 A/B/C，可先隱藏爆炸文字(視需求)
+        console.log(`選到 ${this.value}，復原！`);
+        reassembleAnimation();
+      }
+    });
+  });
+});
+</script>
+
+<style>
+.explosion-container {
+  display: inline-block;
+  position: relative;
+  font-size: 24px;
+  font-weight: bold;
+}
+.letter {
+  display: inline-block;
+  position: relative;
+  margin: 0 2px;
+}
+</style>
+{% endblock scripts %}

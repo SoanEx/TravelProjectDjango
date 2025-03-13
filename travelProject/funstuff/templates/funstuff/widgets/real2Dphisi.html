@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Matter.js 文字爆炸</title>
+  <!-- Matter.js CDN (或改本地檔案) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+</head>
+<body>
+
+<!-- 你可搭配 Bootstrap 或任何樣式；此處示範簡單 -->
+<h1>測試文字物理爆炸</h1>
+
+<!-- Radio 選項 (假設 name="feedback_choice") -->
+<label><input type="radio" name="feedback_choice" value="A" checked> A</label>
+<label><input type="radio" name="feedback_choice" value="B"> B</label>
+<label><input type="radio" name="feedback_choice" value="C"> C</label>
+<label><input type="radio" name="feedback_choice" value="D"> D (爆炸)</label>
+
+<!-- Canvas 放置處，Matter.js 會在上面渲染 -->
+<canvas id="myCanvas" width="800" height="400" style="border:1px solid #999;"></canvas>
+
+<script>
+/* 使用 Matter.js 進行文字散落 */
+
+// 1) 建立核心模組
+const Engine = Matter.Engine,
+      Render = Matter.Render,
+      Runner = Matter.Runner,
+      Bodies = Matter.Bodies,
+      Composite = Matter.Composite,
+      Body = Matter.Body;
+
+// 2) 建立引擎、渲染器
+let engine = Engine.create(); // 物理引擎
+let render = Render.create({
+  element: document.body, // 或指定某個 DOM 容器
+  canvas: document.getElementById('myCanvas'),
+  engine: engine,
+  options: {
+    width: 800,
+    height: 400,
+    background: '#f4f4f4',
+    wireframes: false // false = 顯示實際外觀, true = 顯示線框
+  }
+});
+
+// 3) 建立地板 (固定剛體)
+const ground = Bodies.rectangle(400, 390, 800, 20, { 
+  isStatic: true, 
+  render: { fillStyle: '#060' }
+});
+Composite.add(engine.world, [ground]);
+
+// 4) 建立字母的剛體 (每個字母一個 body)
+let letters = []; 
+const text = "BOOM!";
+const startX = 400, startY = 100; // 初始位置
+let offsetX = - (text.length * 20) / 2; // 簡單讓字母大概置中
+
+for (let i = 0; i < text.length; i++) {
+  let char = text[i];
+  // 做一個矩形 body (可換成 polygon) 代表該字母
+  let letterBody = Bodies.rectangle(startX + i*25 + offsetX, startY, 20, 20, {
+    render: {
+      fillStyle: '#c33'
+    },
+    label: char // 方便識別
+  });
+  letters.push(letterBody);
+}
+// 把 letters 全加進世界
+Composite.add(engine.world, letters);
+
+// 5) 執行渲染和引擎
+Render.run(render);
+let runner = Runner.create();
+Runner.run(runner, engine);
+
+// 6) 監聽 radio: 若選到 D, 施加隨機力爆炸; 否則復位
+const radios = document.querySelectorAll('input[name="feedback_choice"]');
+radios.forEach(radio => {
+  radio.addEventListener('change', function() {
+    if (this.value === 'D') {
+      console.log("選到 D, 爆炸!");
+      // 施加隨機力: letters 都飛散
+      letters.forEach(letter => {
+        // 重設 letter 位置到(400,100) (可先歸位)
+        Body.setPosition(letter, { x: letter.position.x, y: letter.position.y });
+        Body.setVelocity(letter, { x: 0, y: 0 });
+
+        let forceX = (Math.random() - 0.5) * 0.05; // 隨機左右
+        let forceY = -0.05 * (Math.random() + 0.5); // 往上拋
+        Body.applyForce(letter, letter.position, { x: forceX, y: forceY });
+      });
+    } else {
+      console.log("選到 " + this.value + ", 復原!");
+      // 把 letters 重新放回初始狀態
+      letters.forEach((letter, idx) => {
+        let x = startX + idx*25 + offsetX;
+        let y = startY;
+        Body.setPosition(letter, { x, y });
+        Body.setAngle(letter, 0);
+        Body.setVelocity(letter, { x: 0, y: 0 });
+        Body.setAngularVelocity(letter, 0);
+      });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

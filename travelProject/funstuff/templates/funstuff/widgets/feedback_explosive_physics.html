@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}表單 + 物理字體 - 垂直置中{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+  <!-- 1) 表單在上方 -->
+  <div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+      <h3 class="mb-4">使用者體驗調查 (DOM + Matter.js)</h3>
+
+      <form id="explosiveQuizForm" class="card p-4">
+        <p class="mb-3">請問您的使用者體驗如何？</p>
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary mt-3">送出</button>
+      </form>
+
+      
+    </div>
+  </div>
+</div>
+
+<!-- 2) 下方留一塊「物理範圍」，自訂高度，垂直置中lettersContainer -->
+<!--   - 這裡用Bootstrap的 d-flex + align-items-center + justify-content-center
+       讓內部容器可以在該區塊裡「水平、垂直置中」 -->
+<div class="mt-3" 
+     style="height: 50vh;  /* 60%視窗高度，可自行調整 */
+            display: flex; 
+            align-items: center; 
+            justify-content: center;">
+  
+  <!-- 內部容器: 寬高依自己需求；用 position:relative 供絕對定位 -->
+  <div id="lettersContainer" 
+       style="position: relative; 
+              width: 80%;        /* 80%父層寬度，可改固定px */
+              height: 100%;      /* 充滿父層高度 */
+              background: transparent; 
+              overflow: hidden;"> 
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<!-- 載入 Matter.js (或可移到 base.html) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const Engine = Matter.Engine,
+        Runner = Matter.Runner,
+        Bodies = Matter.Bodies,
+        Composite = Matter.Composite,
+        Body = Matter.Body;
+
+  // 1) 建立物理引擎
+  let engine = Engine.create();
+  let runner = Runner.create();
+  Runner.run(runner, engine);
+
+  // 取得容器大小 (lettersContainer) 當作物理範圍
+  const container = document.getElementById('lettersContainer');
+  const containerRect = container.getBoundingClientRect();
+  let w = containerRect.width;
+  let h = containerRect.height;
+
+  // 2) 建立「上下左右」4面牆，防止字母飛出可視範圍
+  const thickness = 30; // 牆壁厚度
+  let ground    = Bodies.rectangle(w/2, h + thickness/2-30, w, thickness, { isStatic: true ,render: { fillStyle: 'rgba(0,255,0,0.3)' }});
+  let ceiling   = Bodies.rectangle(w/2, -thickness/2, w, thickness, { isStatic: true });
+  let leftWall  = Bodies.rectangle(-thickness/2, h/2, thickness, h, { isStatic: true });
+  let rightWall = Bodies.rectangle(w + thickness/2, h/2, thickness, h, { isStatic: true });
+
+  Composite.add(engine.world, [ground, ceiling, leftWall, rightWall]);
+
+  // 3) 取得後端文字 (若無給預設"BOOM!")
+  const textFromServer = "{{ explosion_text|default:'BOOM!' }}";
+  // letters: 用來對應 Body 和 <span>
+  let letters = [];
+
+  // 設計字母的初始擺放 (約略容器中上方)
+  let startX = w/2 - (textFromServer.length * 25)/2;
+  let startY = -10;
+
+  // 4) 逐字產生: (A) <span>  (B) Matter.Body
+  for (let i = 0; i < textFromServer.length; i++) {
+    let c = textFromServer[i];
+
+    // (A) 建立 DOM
+    let span = document.createElement('span');
+    span.classList.add('letterSpan');
+    span.style.position = 'absolute';
+    span.style.fontSize = '24px';
+    span.style.fontWeight = 'bold';
+    span.style.transformOrigin = 'center center';
+    span.innerText = c;
+    container.appendChild(span);
+
+    // (B) 建立 body
+    let body = Bodies.rectangle(startX + i*25, startY, 20, 20, { label: c });
+    Composite.add(engine.world, body);
+
+    letters.push({
+      body,
+      span,
+      initX: body.position.x,
+      initY: body.position.y
+    });
+  }
+
+  // 5) 用 requestAnimationFrame 同步 Body -> span
+  function updateDOM() {
+    letters.forEach(item => {
+      let b = item.body, s = item.span;
+      // body(0,0)相對於 container 左上角
+      s.style.left = (b.position.x - 10) + 'px';
+      s.style.top  = (b.position.y - 10) + 'px';
+      s.style.transform = `rotate(${b.angle}rad)`;
+    });
+    requestAnimationFrame(updateDOM);
+  }
+  requestAnimationFrame(updateDOM);
+
+  // 6) 事件: 選到 D => explode; 否則 reassemble
+  const radios = document.querySelectorAll('input[name="feedback_choice"]');
+  radios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.value === 'D') {
+        explodeLetters();
+      } else {
+        reassembleLetters();
+      }
+    });
+  });
+
+  function explodeLetters() {
+    letters.forEach(item => {
+      Body.setVelocity(item.body, { x: 0, y: 0 });
+      Body.setAngularVelocity(item.body, 0);
+      // 隨機拋射力
+      let fx = (Math.random() - 0.5) * 0.02;
+      let fy = -0.05 * (Math.random() + 0.5);
+      Body.applyForce(item.body, item.body.position, { x: fx, y: fy });
+    });
+  }
+  function reassembleLetters() {
+    letters.forEach(item => {
+      Body.setPosition(item.body, { x: item.initX, y: item.initY });
+      Body.setAngle(item.body, 0);
+      Body.setVelocity(item.body, { x:0, y:0 });
+      Body.setAngularVelocity(item.body, 0);
+    });
+  }
+});
+</script>
+{% endblock scripts %}

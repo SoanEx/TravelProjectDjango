@@ -30,4 +30,5 @@ urlpatterns = [
     path('api/nearby_places/', views.get_nearby_places, name='get_nearby_places'),
     path('api/itinerary/', views.generate_itinerary, name='generate_itinerary'),
     path("get_google_maps_key/", views.get_google_maps_key, name="get_google_maps_key"),
+    path('funstuff/', include('funstuff.urls')),
 ]
