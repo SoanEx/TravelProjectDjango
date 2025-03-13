@@ -1,0 +1,1 @@
+ssh -i "G:\softwareProgram\TravelProjectDjango\django1test.pem" ec2-user@ec2-3-112-203-16.ap-northeast-1.compute.amazonaws.com
