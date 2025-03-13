@@ -1,49 +1,48 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}表單 + 物理字體 - 垂直置中{% endblock title %}
+{% block title %}表單 + 飛散文字疊在前面 + 延遲出現{% endblock title %}
 
 {% block content %}
 <div class="container my-5">
-  <!-- 1) 表單在上方 -->
   <div class="row justify-content-center">
-    <div class="col-md-6 text-center">
-      <h3 class="mb-4">使用者體驗調查 (DOM + Matter.js)</h3>
+    <div class="col-md-6">
+      <h3 class="mb-4 text-center">使用者體驗調查</h3>
 
-      <form id="explosiveQuizForm" class="card p-4">
-        <p class="mb-3">請問您的使用者體驗如何？</p>
+      <form class="card p-4">
+        <p>請問您的使用者體驗如何？</p>
         {{ form.as_p }}
+
         <button type="submit" class="btn btn-primary mt-3">送出</button>
       </form>
-
-      
     </div>
   </div>
 </div>
 
-<!-- 2) 下方留一塊「物理範圍」，自訂高度，垂直置中lettersContainer -->
-<!--   - 這裡用Bootstrap的 d-flex + align-items-center + justify-content-center
-       讓內部容器可以在該區塊裡「水平、垂直置中」 -->
-<div class="mt-3" 
-     style="height: 50vh;  /* 60%視窗高度，可自行調整 */
-            display: flex; 
-            align-items: center; 
-            justify-content: center;">
-  
-  <!-- 內部容器: 寬高依自己需求；用 position:relative 供絕對定位 -->
-  <div id="lettersContainer" 
-       style="position: relative; 
-              width: 80%;        /* 80%父層寬度，可改固定px */
-              height: 100%;      /* 充滿父層高度 */
-              background: transparent; 
-              overflow: hidden;"> 
-  </div>
-</div>
+<!-- 絕對定位覆蓋層：z-index高，pointer-events:none，可讓字母飛散在前 -->
+<div id="lettersOverlay"></div>
 
+<style>
+#lettersOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none; /* 不攔截滑鼠，後面表單可被點擊 */
+}
+.letterSpan {
+  position: absolute;
+  font-size: 24px;
+  font-weight: bold;
+  transform-origin: center center;
+}
+</style>
 {% endblock content %}
 
 {% block scripts %}
-<!-- 載入 Matter.js (或可移到 base.html) -->
+<!-- Matter.js CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 
 <script>
@@ -54,75 +53,81 @@ document.addEventListener('DOMContentLoaded', function() {
         Composite = Matter.Composite,
         Body = Matter.Body;
 
-  // 1) 建立物理引擎
+  // 1) 建立引擎
   let engine = Engine.create();
   let runner = Runner.create();
   Runner.run(runner, engine);
 
-  // 取得容器大小 (lettersContainer) 當作物理範圍
-  const container = document.getElementById('lettersContainer');
-  const containerRect = container.getBoundingClientRect();
-  let w = containerRect.width;
-  let h = containerRect.height;
+  // 2) 建立覆蓋層
+  const overlay = document.getElementById('lettersOverlay');
+  let overlayW = overlay.clientWidth;
+  let overlayH = overlay.clientHeight;
 
-  // 2) 建立「上下左右」4面牆，防止字母飛出可視範圍
-  const thickness = 30; // 牆壁厚度
-  let ground    = Bodies.rectangle(w/2, h + thickness/2-30, w, thickness, { isStatic: true ,render: { fillStyle: 'rgba(0,255,0,0.3)' }});
-  let ceiling   = Bodies.rectangle(w/2, -thickness/2, w, thickness, { isStatic: true });
-  let leftWall  = Bodies.rectangle(-thickness/2, h/2, thickness, h, { isStatic: true });
-  let rightWall = Bodies.rectangle(w + thickness/2, h/2, thickness, h, { isStatic: true });
+  // 3) 四面牆 (讓字母可以飛到上面 -200, 也可自行調)
+  const thick = 50;
+  let ceiling   = Bodies.rectangle(overlayW / 2, -200, overlayW, thick, { isStatic: true });
+  let ground    = Bodies.rectangle(overlayW / 2, overlayH + thick/2 - 200, overlayW, thick, { isStatic: true });
+  let leftWall  = Bodies.rectangle(-thick/2, overlayH/2, thick, overlayH, { isStatic: true });
+  let rightWall = Bodies.rectangle(overlayW + thick/2, overlayH/2, thick, overlayH, { isStatic: true });
+  Composite.add(engine.world, [ceiling, ground, leftWall, rightWall]);
 
-  Composite.add(engine.world, [ground, ceiling, leftWall, rightWall]);
+  // 4) 後端帶入字串，預設 "PHYSICS!"
+  const textFromServer = "{{ explosion_text|default:'PHYSICS!' }}";
 
-  // 3) 取得後端文字 (若無給預設"BOOM!")
-  const textFromServer = "{{ explosion_text|default:'BOOM!' }}";
-  // letters: 用來對應 Body 和 <span>
+  // letters陣列(裝 body、span等資訊)，爆炸/復原會用到
   let letters = [];
 
-  // 設計字母的初始擺放 (約略容器中上方)
-  let startX = w/2 - (textFromServer.length * 25)/2;
-  let startY = -10;
+  // 設定字母初始座標 (可自行調整)
+  let startX = overlayW / 2 - (textFromServer.length * 25) / 2;
+  let startY = 200;  // 200px 從視窗頂端算起
 
-  // 4) 逐字產生: (A) <span>  (B) Matter.Body
+  // 5) 「延遲 + stagger」創建字母
+  // firstDelay = 第一個字母延遲時間(毫秒)
+  // staggerDelay = 後續每個字母間隔(毫秒)
+  let firstDelay = 1000;    // 第一個字母延遲1秒
+  let staggerDelay = 300;   // 之後每個字母相隔0.3秒
+
   for (let i = 0; i < textFromServer.length; i++) {
-    let c = textFromServer[i];
+    // 為每個字母設定它的顯示時間
+    let delay = firstDelay + i * staggerDelay;
+    let char = textFromServer[i];
 
-    // (A) 建立 DOM
-    let span = document.createElement('span');
-    span.classList.add('letterSpan');
-    span.style.position = 'absolute';
-    span.style.fontSize = '24px';
-    span.style.fontWeight = 'bold';
-    span.style.transformOrigin = 'center center';
-    span.innerText = c;
-    container.appendChild(span);
+    // 用 setTimeout 讓第 i 個字母在 delay 時間後創建
+    setTimeout(() => {
+      // (A) 建 span
+      let span = document.createElement('span');
+      span.classList.add('letterSpan');
+      span.innerText = char;
+      overlay.appendChild(span);
 
-    // (B) 建立 body
-    let body = Bodies.rectangle(startX + i*25, startY, 20, 20, { label: c });
-    Composite.add(engine.world, body);
+      // (B) 建 body
+      let body = Bodies.rectangle(startX + i*25, startY, 20, 20, { label: char });
+      Composite.add(engine.world, body);
 
-    letters.push({
-      body,
-      span,
-      initX: body.position.x,
-      initY: body.position.y
-    });
+      // (C) 推到 letters[]
+      letters.push({
+        body,
+        span,
+        initX: body.position.x,
+        initY: body.position.y
+      });
+    }, delay);
   }
 
-  // 5) 用 requestAnimationFrame 同步 Body -> span
-  function updateDOM() {
+  // 6) 同步函式: 每幀根據 body.position 更新span
+  function syncDOM() {
     letters.forEach(item => {
-      let b = item.body, s = item.span;
-      // body(0,0)相對於 container 左上角
+      const b = item.body;
+      const s = item.span;
       s.style.left = (b.position.x - 10) + 'px';
       s.style.top  = (b.position.y - 10) + 'px';
       s.style.transform = `rotate(${b.angle}rad)`;
     });
-    requestAnimationFrame(updateDOM);
+    requestAnimationFrame(syncDOM);
   }
-  requestAnimationFrame(updateDOM);
+  requestAnimationFrame(syncDOM);
 
-  // 6) 事件: 選到 D => explode; 否則 reassemble
+  // 7) 監聽radio => D=爆炸, 否則復原
   const radios = document.querySelectorAll('input[name="feedback_choice"]');
   radios.forEach(radio => {
     radio.addEventListener('change', function() {
@@ -134,21 +139,23 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // 8) 爆炸函式
   function explodeLetters() {
     letters.forEach(item => {
       Body.setVelocity(item.body, { x: 0, y: 0 });
       Body.setAngularVelocity(item.body, 0);
-      // 隨機拋射力
       let fx = (Math.random() - 0.5) * 0.02;
       let fy = -0.05 * (Math.random() + 0.5);
       Body.applyForce(item.body, item.body.position, { x: fx, y: fy });
     });
   }
+
+  // 9) 復原函式
   function reassembleLetters() {
     letters.forEach(item => {
       Body.setPosition(item.body, { x: item.initX, y: item.initY });
       Body.setAngle(item.body, 0);
-      Body.setVelocity(item.body, { x:0, y:0 });
+      Body.setVelocity(item.body, { x: 0, y: 0 });
       Body.setAngularVelocity(item.body, 0);
     });
   }
