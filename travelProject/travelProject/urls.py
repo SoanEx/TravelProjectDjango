@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from accounts.views import index_view
 from camaramap import views
+from personalPage import views as personalPage_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     # 將 accounts 的路由接在某個 prefix，例如 /accounts/
@@ -30,4 +31,5 @@ urlpatterns = [
     path('api/nearby_places/', views.get_nearby_places, name='get_nearby_places'),
     path('api/itinerary/', views.generate_itinerary, name='generate_itinerary'),
     path("get_google_maps_key/", views.get_google_maps_key, name="get_google_maps_key"),
+    path('personalPage/', personalPage_views.personal_page, name='personal_page')
 ]
