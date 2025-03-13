@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'phonenumber_field',  # 電話號碼欄位自動轉換
     'camaramap',
     'rest_framework',
+    "personalPage"
 ]
 
 MIDDLEWARE = [
