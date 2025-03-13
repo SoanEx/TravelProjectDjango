@@ -11,3 +11,4 @@ travelProject/db.sqlite3
 env
 *.sqlite3
 .vscode/settings.json
+jdk-23.0.2/
