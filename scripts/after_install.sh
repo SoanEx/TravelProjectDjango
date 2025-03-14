@@ -3,13 +3,17 @@ set -e
 
 echo "[AfterInstall] Installing requirements & migrations..."
 
-cd /home/ec2-user/myproject/TravelProjectDjango
+# 1) 進入 manage.py 所在目錄
+cd /home/ec2-user/myproject/TravelProjectDjango/travelProject
 
-# 如果你要使用 Python-3.10.11 或已事先裝好的 venv，可視情況調整
-# source Python-3.10.11/venv/bin/activate
-# pip install -r requirements.txt
+# 2) 啟用新的 /home/ec2-user/myproject/venv
+source /home/ec2-user/myproject/venv/bin/activate
 
-# python manage.py migrate
-# python manage.py collectstatic --noinput
+# 3) 安裝 requirements (注意: ../requirements.txt)
+pip install -r ../requirements.txt
+
+# 4) 執行 migrate、collectstatic
+python manage.py migrate
+python manage.py collectstatic --noinput
 
 echo "[AfterInstall] Done"
