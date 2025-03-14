@@ -8,8 +8,10 @@ if systemctl is-active --quiet gunicorn; then
   sudo systemctl stop gunicorn
 fi
 
-# 刪除除 .env 與 Python-3.10.11 以外的所有檔案/目錄
+# 切換至要清理的目錄
 cd /home/ec2-user/myproject/TravelProjectDjango
-ls -A | grep -v -E '^(Python-3\.10\.11|\.env)$' | xargs rm -rf
+
+# 刪除除 .env 與 Python-3.10.11 以外的所有檔案/目錄，使用 sudo 以避免 permission denied
+ls -A | grep -v -E '^(Python-3\.10\.11|\.env)$' | xargs sudo rm -rf
 
 echo "[BeforeInstall] Done"
