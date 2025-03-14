@@ -2,7 +2,6 @@ from django.shortcuts import render
 import json
 import pandas as pd
 from django.http import JsonResponse
-from django.shortcuts import render
 from geopy.distance import geodesic
 import os
 from django.conf import settings
@@ -10,6 +9,11 @@ import requests
 import openai
 import time
 from dotenv import load_dotenv
+from django.views.decorators.csrf import csrf_exempt
+from linebot import LineBotApi, WebhookHandler
+from linebot.exceptions import InvalidSignatureError
+from linebot.models import MessageEvent, TextMessage, TextSendMessage
+
 
 # Create your views here.
 load_dotenv()  # 載入 .env 變數
@@ -156,4 +160,88 @@ def generate_itinerary(request):
     )
     response_data = response.choices[0].message.content if response.choices else "無法生成行程"
     return JsonResponse({"itinerary": response_data})
+
+# 初始化 LINE Bot API
+line_bot_api = LineBotApi(os.getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+# OpenWeatherMap API URL
+WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather"
+
+@csrf_exempt
+def line_webhook(request):
+    """ 處理來自 LINE 的 Webhook 請求 """
+    if request.method == "POST":
+        signature = request.headers.get("X-Line-Signature")
+        body = request.body.decode("utf-8")
+
+        try:
+            # ✅ 初始化 LINE WebhookHandler
+            handler = WebhookHandler(os.getenv("LINE_CHANNEL_SECRET"))
+            handler.handle(body, signature)
+
+            events = json.loads(body)["events"]
+            for event in events:
+                if isinstance(event, MessageEvent) and isinstance(event.message, TextMessage):
+                    city = event.message.text
+                    weather_info = get_weather(city)
+
+                    reply_message = f"📍 {city} 天氣：\n{weather_info}"
+                    
+                    # ✅ 使用 `reply_message()` 而非 `push_message()`
+                    line_bot_api.reply_message(
+                        event.reply_token, TextSendMessage(text=reply_message)
+                    )
+
+            return JsonResponse({"status": "success"})
+        except InvalidSignatureError:
+            return JsonResponse({"error": "Invalid signature"}, status=400)
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+def get_weather(city):
+    """ 使用 OpenWeatherMap API 查詢天氣 """
+    params = {
+        "q": city,
+        "appid": os.getenv("OPENWEATHER_API_KEY"),
+        "units": "metric",
+        "lang": "zh_tw"
+    }
+    response = requests.get(WEATHER_API_URL, params=params)
+    data = response.json()
+
+    if response.status_code == 200 and "main" in data:
+        temp = data["main"]["temp"]
+        weather = data["weather"][0]["description"]
+        humidity = data["main"]["humidity"]
+        return f"🌡 溫度: {temp}°C\n☁ 天氣: {weather}\n💧 濕度: {humidity}%"
+    elif "message" in data:
+        return f"❌ 錯誤: {data['message']}"
+    else:
+        return "❌ 找不到該城市的天氣資訊，請確認城市名稱是否正確！"
+
+def google_translate(text, target="zh-TW"):
+    """ 使用 Google 翻譯 API 將文字翻譯成指定語言 """
+    GOOGLE_TRANSLATE_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")  
+    url = f"https://translation.googleapis.com/language/translate/v2"
+    
+    params = {
+        "q": text,
+        "target": target,
+        "key": GOOGLE_TRANSLATE_API_KEY
+    }
+    
+    response = requests.post(url, data=params)
+    result = response.json()
+
+    if "data" in result and "translations" in result["data"]:
+        return result["data"]["translations"][0]["translatedText"]
+    return text  # 若翻譯失敗則回傳原始文字
+
+def translate_text_api(request):
+    text = request.GET.get("text", "")
+    target = request.GET.get("target", "zh-TW")
+    
+    if not text:
+        return JsonResponse({"error": "請提供要翻譯的文本"}, status=400)
+
+    translated_text = google_translate(text, target)
+    return JsonResponse({"translatedText": translated_text})
 

@@ -204,9 +204,11 @@
                 }
             });
         }
-        
-        // **美化景點顯示**
-        function displayAttractions(places) {
+
+
+
+        // **景點顯示**
+        async function displayAttractions(places) {
             let list = document.getElementById("attractionsList");
             list.innerHTML = ""; // 清空現有列表
         
@@ -217,70 +219,95 @@
         
             console.log("✅ 正在顯示景點數量:", places.length);
             
-            places.forEach(place => {
-                let name = place.name || "無名稱";
+            for (const place of places) {
+                let originalName = place.name || "無名稱";
+                let translatedName = await translateText(originalName, "zh-TW");  // **翻譯成中文**
                 let address = place.vicinity || "地址不詳";
                 let rating = place.rating ? `⭐ ${place.rating}` : "⭐ 無評分";
                 let openingHours = place.opening_hours ? 
                     (place.opening_hours.open_now ? "🟢 營業中" : "🔴 已關門") : "⏳ 未提供營業時間";
-                let website = place.website ? `<a href="${place.website}" target="_blank">官方網站</a>` : "🌐 無網站";
         
+                // ✅ **使用 Google 搜尋 URL（支援中文名稱）**
+                let googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(translatedName)}`;
+        
+                // ✅ **獲取景點縮圖**
                 let apiKey = window.GOOGLE_API_KEY || "";
                 let photoUrl = place.photos && place.photos.length > 0
                     ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
                     : "https://via.placeholder.com/400?text=No+Image";
         
+                // ✅ **HTML 結構**
                 let li = document.createElement("li");
                 li.classList.add("attraction-item");
                 li.innerHTML = `
-                    <img src="${photoUrl}" alt="${name}" class="attraction-img">
+                    <a href="${googleSearchUrl}" target="_blank">
+                        <img src="${photoUrl}" alt="${translatedName}" class="attraction-img">
+                    </a>
                     <div class="attraction-info">
-                        <h3>${name}</h3>
+                        <h3>
+                            <a href="${googleSearchUrl}" target="_blank" style="text-decoration: none; color: #007bff;">
+                                ${translatedName} <!-- 確保顯示翻譯後的中文名稱 -->
+                            </a>
+                        </h3>
                         <p>${address}</p>
                         <p>${rating}</p>
                         <p>${openingHours}</p>
-                        <p>${website}</p>
                     </div>
                 `;
         
                 list.appendChild(li);
-            });
+            }
         }
-        function addAttractionsToMap(places) {
-            // 移除舊的標記
+
+        async function addAttractionsToMap(places) {
             attractionMarkers.forEach(marker => marker.setMap(null));
             attractionMarkers = [];
         
-            places.forEach(place => {
-                let position = { 
-                    lat: place.geometry.location.lat, 
-                    lng: place.geometry.location.lng 
-                };
+            for (const place of places) {
+                let position = { lat: place.geometry.location.lat, lng: place.geometry.location.lng };
+                let originalName = place.name || "無名稱";
+                let translatedName = await translateText(originalName, "zh-TW");  // **翻譯成中文**
         
-                // 創建地圖標記
                 let marker = new google.maps.Marker({
                     position: position,
                     map: map,
                     icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                    title: place.name
+                    title: translatedName
                 });
         
-                // **新增 InfoWindow (彈出標籤)**
+                let apiKey = window.GOOGLE_API_KEY || "";
+                let photoUrl = place.photos && place.photos.length > 0
+                    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
+                    : "https://via.placeholder.com/100?text=No+Image";
+        
+                let googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(translatedName)}`;
+        
                 let infoWindow = new google.maps.InfoWindow({
-                    content: `<strong>${place.name}</strong>`
+                    content: `
+                        <div style="text-align: center;">
+                            <img src="${photoUrl}" alt="${translatedName}" style="width: 100px; height: 100px; border-radius: 8px;">
+                            <br>
+                            <strong>
+                                <a href="${googleSearchUrl}" target="_blank">${translatedName}</a>
+                            </strong>
+                        </div>
+                    `
                 });
         
-                // **點擊標記時顯示景點名稱**
                 marker.addListener("click", () => {
                     infoWindow.open(map, marker);
                 });
         
-                // **自動開啟標籤**
                 infoWindow.open(map, marker);
-        
-                // **儲存標記，方便管理**
                 attractionMarkers.push(marker);
-            });
+            }
+        }
+
+                // **名稱翻譯**
+        async function translateText(text, targetLang = "zh-TW") {
+            const response = await fetch(`/api/translate?text=${encodeURIComponent(text)}&target=${targetLang}`);
+            const data = await response.json();
+            return data.translatedText || text;  // 預防 API 失敗時，仍顯示原始名稱
         }
 
         function getCSRFToken() {
