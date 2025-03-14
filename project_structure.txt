@@ -209,6 +209,7 @@
 │   │       ├── reportWebVitals.js
 │   │       └── setupTests.js
 │   ├── static
+│   ├── staticfiles
 │   ├── templates
 │   │   ├── base.html
 │   │   └── index.html
