@@ -12,6 +12,6 @@ fi
 cd /home/ec2-user/myproject/TravelProjectDjango
 
 # 刪除除 .env 與 Python-3.10.11 以外的所有檔案/目錄，使用 sudo 以避免 permission denied
-ls -A | grep -v -E '^(Python-3\.10\.11|\.env)$' | xargs sudo rm -rf
+ls -A | grep -v -E '^(Python-3\.10\.11|\.env|staticfiles)$' | xargs sudo rm -rf
 
 echo "[BeforeInstall] Done"
