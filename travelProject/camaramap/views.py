@@ -238,10 +238,20 @@ def google_translate(text, target="zh-TW"):
 def translate_text_api(request):
     text = request.GET.get("text", "")
     target = request.GET.get("target", "zh-TW")
-    
+
     if not text:
         return JsonResponse({"error": "請提供要翻譯的文本"}, status=400)
 
-    translated_text = google_translate(text, target)
-    return JsonResponse({"translatedText": translated_text})
+    GOOGLE_TRANSLATE_API_KEY = os.getenv("GOOGLE_TRANSLATE_API_KEY")
+    url = "https://translation.googleapis.com/language/translate/v2"
+    params = {"q": text, "target": target, "key": GOOGLE_TRANSLATE_API_KEY}
+
+    response = requests.post(url, data=params)
+    result = response.json()
+
+    if "data" in result and "translations" in result["data"]:
+        return JsonResponse({"translatedText": result["data"]["translations"][0]["translatedText"]})
+
+    return JsonResponse({"translatedText": text})  # 若翻譯失敗則回傳原始文字
+
 

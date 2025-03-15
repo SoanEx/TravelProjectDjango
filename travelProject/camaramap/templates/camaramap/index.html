@@ -76,9 +76,10 @@
     <input id="end" type="text" placeholder="目的地">
     <button onclick="planRoute()">規劃路線</button>
 
-    <h2>推薦景點</h2>
-    <button onclick="fetchAttractions()">查詢附近景點</button>
-    <ul id="attractionsList"></ul>
+<h2>推薦景點</h2>
+<button onclick="fetchAttractions()">查詢附近景點</button>
+<button onclick="fetchParking()">🚗 顯示附近停車場</button>
+<ul id="attractionsList"></ul>
 
     <div id="map" style="width: 100%; height: 500px;"></div>
 
@@ -88,6 +89,7 @@
         let directionsRenderer;
         let speedCameraMarkers = [];
         let attractionMarkers = [];
+        let parkingMarkers = [];
 
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
@@ -259,6 +261,7 @@
             }
         }
 
+
         async function addAttractionsToMap(places) {
             attractionMarkers.forEach(marker => marker.setMap(null));
             attractionMarkers = [];
@@ -303,6 +306,154 @@
             }
         }
 
+        async function fetchParking() {
+            let end = document.getElementById("end").value;
+            if (!end) {
+                alert("請先輸入目的地！");
+                return;
+            }
+        
+            let geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: end }, function (results, status) {
+                if (status === "OK") {
+                    let location = results[0].geometry.location;
+                    let lat = location.lat();
+                    let lng = location.lng();
+                    
+                    // **🔄 讓地圖移動到搜尋的中心點**
+                    map.setCenter({ lat: lat, lng: lng });
+                    map.setZoom(15); // 調整適當的縮放級別
+        
+                    fetch(`/api/nearby_places?lat=${lat}&lng=${lng}&keyword=parking`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("🅿️ 附近停車場 API 回應:", data);
+        
+                            if (data.error) {
+                                alert(`❌ API 錯誤: ${data.error}`);
+                                return;
+                            }
+        
+                            if (data.places && data.places.length > 0) {
+                                addParkingToMap(data.places);
+                                displayParking(data.places);
+                            } else {
+                                alert("🚨 沒有找到附近的停車場！");
+                            }
+                        })
+                        .catch(error => console.error("❌ 停車場 API 錯誤:", error));
+                } else {
+                    alert("無法解析目的地: " + status);
+                }
+            });
+        }
+        
+        // 🅿️ **在地圖上顯示停車場（與景點相同格式）**
+        async function addParkingToMap(places, centerLat, centerLng) {
+             // ✅ 清除舊的標記（確保變數已定義）
+            if (!Array.isArray(parkingMarkers)) {
+                parkingMarkers = [];
+            }
+
+            parkingMarkers.forEach(marker => marker.setMap(null));
+            parkingMarkers = [];
+        
+            let bounds = new google.maps.LatLngBounds(); // 📍 讓地圖適應所有標記
+        
+            for (const place of places) {
+                let position = place.geometry?.location;
+                if (!position || !position.lat || !position.lng) {
+                    console.warn("⚠️ 無效的停車場位置:", place);
+                    continue;  // 跳過錯誤的資料
+                }
+        
+                let translatedName = await translateText(place.name || "無名稱", "zh-TW");
+        
+                let marker = new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    icon: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                    title: translatedName
+                });
+        
+                let apiKey = window.GOOGLE_API_KEY || "";
+                let photoUrl = place.photos && place.photos.length > 0
+                    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
+                    : "https://via.placeholder.com/100?text=No+Image";
+        
+                let googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(translatedName)} 停車場`;
+        
+                let infoWindow = new google.maps.InfoWindow({
+                    content: `
+                        <div style="text-align: center;">
+                            <a href="${googleSearchUrl}" target="_blank">
+                                <img src="${photoUrl}" alt="${translatedName}" style="width: 100px; height: 100px; border-radius: 8px;">
+                            </a>
+                            <br>
+                            <strong>
+                                <a href="${googleSearchUrl}" target="_blank">${translatedName}</a>
+                            </strong>
+                        </div>
+                    `
+                });
+        
+                marker.addListener("click", () => {
+                    infoWindow.open(map, marker);
+                });
+        
+                parkingMarkers.push(marker);
+                bounds.extend(position); // 📍 擴展地圖邊界以包含標記
+            }
+        
+            // 📌 **確保地圖調整至適合的縮放級別**
+            if (places.length > 0) {
+                map.fitBounds(bounds);
+            } else {
+                map.setCenter({ lat: centerLat, lng: centerLng });
+                map.setZoom(15);
+            }
+        }
+        
+        // 🅿️ **在列表顯示停車場資訊（與景點相同格式）**
+        async function displayParking(places) {
+            let list = document.getElementById("attractionsList");
+            let parkingSection = document.createElement("div");
+            parkingSection.innerHTML = "<h3>🚗 附近停車場</h3>";
+            list.appendChild(parkingSection);
+        
+            for (const place of places) {
+                let originalName = place.name || "無名稱";
+                let translatedName = await translateText(originalName, "zh-TW");
+                let address = place.vicinity || "地址不詳";
+                let rating = place.rating ? `⭐ ${place.rating}` : "⭐ 無評分";
+        
+                let googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(translatedName)} 停車場`;
+        
+                let apiKey = window.GOOGLE_API_KEY || "";
+                let photoUrl = place.photos && place.photos.length > 0
+                    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
+                    : "https://via.placeholder.com/400?text=No+Image";
+        
+                let li = document.createElement("li");
+                li.classList.add("attraction-item");
+                li.innerHTML = `
+                    <a href="${googleSearchUrl}" target="_blank">
+                        <img src="${photoUrl}" alt="${translatedName}" class="attraction-img">
+                    </a>
+                    <div class="attraction-info">
+                        <h3>
+                            <a href="${googleSearchUrl}" target="_blank" style="text-decoration: none; color: #007bff;">
+                                ${translatedName}
+                            </a>
+                        </h3>
+                        <p>${address}</p>
+                        <p>${rating}</p>
+                    </div>
+                `;
+        
+                list.appendChild(li);
+            }
+        }
                 // **名稱翻譯**
         async function translateText(text, targetLang = "zh-TW") {
             const response = await fetch(`/api/translate?text=${encodeURIComponent(text)}&target=${targetLang}`);
