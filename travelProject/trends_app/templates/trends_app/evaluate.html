@@ -63,58 +63,165 @@
         </thead>
         <tbody id="compareTbody"></tbody>
       </table>
+          <!-- (3) 兩個 canvas, 分別繪製兩種圖表 -->
+      <h4>圖表 1：實際值 vs. 預測值 (折線圖)</h4>
+      <canvas id="lineChart" width="600" height="300"></canvas>
+
+      <h4 class="mt-4">圖表 2：誤差 (條狀圖)</h4>
+      <canvas id="barChart" width="600" height="300"></canvas>
     </div>
 </div>
 {% endblock content %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-document.getElementById('ajaxEvalBtn').onclick = function() {
-  const keyword = document.getElementById('keywordAjax').value.trim();
-  const windowSize = document.getElementById('windowSizeAjax').value.trim();
-  const trainRatio = document.getElementById('trainRatioAjax').value.trim();
-
-  // 防止空關鍵字
-  if (!keyword) {
-    alert('請輸入關鍵字');
-    return;
-  }
-
-  // 組合 URL
-  const query = `?keyword=${encodeURIComponent(keyword)}`
-              + `&window_size=${encodeURIComponent(windowSize)}`
-              + `&train_ratio=${encodeURIComponent(trainRatio)}`;
-
-  // 假設後端路由為 /trends/evaluate/
-  fetch('/trends/evaluate/' + query)
-    .then(res => res.json())
-    .then(data => {
-      console.log(data);
-      if (!data.success) {
-        alert(data.message || '評估失敗');
+    let myLineChart = null;
+    let myBarChart = null;
+    
+    document.getElementById('ajaxEvalBtn').onclick = function() {
+      const keyword = document.getElementById('keywordAjax').value.trim();
+      const windowSize = document.getElementById('windowSizeAjax').value.trim();
+      const trainRatio = document.getElementById('trainRatioAjax').value.trim();
+    
+      if(!keyword){
+        alert("請輸入關鍵字");
         return;
       }
-      // 顯示結果
-      document.getElementById('evalResultDiv').style.display = 'block';
-      document.getElementById('mseSpan').textContent = data.mse.toFixed(2);
-      document.getElementById('r2Span').textContent = data.r2.toFixed(3);
-      document.getElementById('testCountSpan').textContent = data.test_count;
-
-      // 顯示前幾筆 compare
-      const compareTbody = document.getElementById('compareTbody');
-      compareTbody.innerHTML = '';
-      data.compare.slice(0, 5).forEach(item => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${item.date}</td>
-                        <td>${item.actual.toFixed(1)}</td>
-                        <td>${item.predicted.toFixed(1)}</td>`;
-        compareTbody.appendChild(tr);
+    
+      const query = `?keyword=${encodeURIComponent(keyword)}`
+                  + `&window_size=${encodeURIComponent(windowSize)}`
+                  + `&train_ratio=${encodeURIComponent(trainRatio)}`;
+    
+      fetch('/trends/evaluate/' + query)
+        .then(res => res.json())
+        .then(data => {
+          console.log(data);
+          if(!data.success) {
+            alert(data.message || '評估失敗');
+            return;
+          }
+          // 顯示結果
+          document.getElementById('evalResultDiv').style.display = 'block';
+          document.getElementById('mseSpan').textContent = data.mse.toFixed(2);
+          document.getElementById('r2Span').textContent = data.r2.toFixed(3);
+          document.getElementById('testCountSpan').textContent = data.test_count;
+    
+          // 解析對比資料
+          const compareTbody = document.getElementById('compareTbody');
+          compareTbody.innerHTML = '';
+    
+          // 準備陣列：dates[], actuals[], preds[], errors[]
+          let dates = [];
+          let actuals = [];
+          let preds = [];
+          let errors = []; // actual - predicted
+    
+          // 只顯示前5筆於表格，圖表則可完整繪製
+          data.compare.slice(0, 5).forEach(item => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${item.date}</td>
+                            <td>${item.actual.toFixed(1)}</td>
+                            <td>${item.predicted.toFixed(1)}</td>`;
+            compareTbody.appendChild(tr);
+          });
+    
+          // 取全部 compare (或只要前 N 筆) 來畫圖
+          data.compare.forEach(item => {
+            dates.push(item.date);
+            actuals.push(item.actual);
+            preds.push(item.predicted);
+            errors.push(item.actual - item.predicted);
+          });
+    
+          // 建立 / 更新圖表 (Line Chart)
+          drawLineChart(dates, actuals, preds);
+    
+          // 建立 / 更新圖表 (Bar Chart)
+          drawBarChart(dates, errors);
+        })
+        .catch(err => {
+          console.error(err);
+          alert('請求失敗');
+        });
+    };
+    
+    // 2. 繪製折線圖: 實際 vs. 預測
+    function drawLineChart(labels, actualData, predData) {
+      // 若已有 chart 物件，先銷毀，避免重複疊加
+      if(myLineChart) {
+        myLineChart.destroy();
+      }
+    
+      const ctx = document.getElementById('lineChart').getContext('2d');
+      myLineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '實際值',
+              data: actualData,
+              borderColor: 'blue',
+              backgroundColor: 'rgba(0,0,255,0.1)',
+              fill: false,
+              tension: 0.1
+            },
+            {
+              label: '預測值',
+              data: predData,
+              borderColor: 'red',
+              backgroundColor: 'rgba(255,0,0,0.1)',
+              fill: false,
+              tension: 0.1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: false,
+            }
+          }
+        }
       });
-    })
-    .catch(err => {
-      console.error(err);
-      alert('請求失敗');
-    });
-};
-</script>
+    }
+    
+    // 3. 繪製條狀圖: 誤差
+    function drawBarChart(labels, errorData) {
+      // 若已有 chart 物件，先銷毀
+      if(myBarChart) {
+        myBarChart.destroy();
+      }
+    
+      const ctx = document.getElementById('barChart').getContext('2d');
+      myBarChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: '誤差(實際 - 預測)',
+              data: errorData,
+              backgroundColor: 'rgba(75,192,192,0.5)',
+              borderColor: 'rgba(75,192,192,1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: false, // 誤差可能有正負
+            }
+          }
+        }
+      });
+    }
+    </script>
+
+
 {% endblock scripts %}
