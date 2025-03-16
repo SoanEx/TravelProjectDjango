@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'rest_framework',
     "personalPage",
     'funstuff',
+    'trends_app',  # 新增的趨勢分析應用程式
 ]
 
 MIDDLEWARE = [
