@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}
+Google Trends Demo
+{% endblock title %}
+
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-4">Google Trends - {{ keyword }}</h1>
+
+  <div class="btn-group mb-3" role="group">
+    <button id="fetchBtn" class="btn btn-primary">抓取最新資料 (Pytrends)</button>
+    <button id="trainBtn" class="btn btn-secondary">訓練模型</button>
+    <button id="predictBtn" class="btn btn-warning">預測未來 7 天</button>
+  </div>
+
+  <div id="msg" class="text-info mb-3"></div>
+
+  <div id="chartContainer" class="my-4" style="max-width:800px;">
+    <canvas id="myChart"></canvas>
+  </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // 1. 從後端 Context 拿資料
+  const dates = JSON.parse('{{ dates|safe }}'.replace(/&#34;/g, '"'));
+  const interests = JSON.parse('{{ interests|safe }}'.replace(/&#34;/g, '"'));
+
+  // 2. 建立 Chart.js
+  const ctx = document.getElementById('myChart').getContext('2d');
+  const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: '歷史搜尋熱度',
+        data: interests,
+        borderColor: 'blue',
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, suggestedMax: 100 }
+      }
+    }
+  });
+
+  // 3. 訊息顯示函式
+  const msgDiv = document.getElementById('msg');
+  function showMsg(text, type='info') {
+    msgDiv.className = `text-${type}`;
+    msgDiv.textContent = text;
+  }
+
+  // 4. 按鈕事件
+  document.getElementById('fetchBtn').onclick = () => {
+    fetch('/fetch/')
+      .then(res => res.json())
+      .then(data => {
+        if(data.status === 'ok') {
+          showMsg(`成功新增 ${data.new_count} 筆資料！`, 'success');
+          // 可選：直接重新載入 or 直接更新圖表
+          setTimeout(() => window.location.reload(), 1000);
+        } else {
+          showMsg('抓取失敗', 'danger');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showMsg('抓取失敗', 'danger');
+      });
+  };
+
+  document.getElementById('trainBtn').onclick = () => {
+    fetch('/train/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          showMsg('模型訓練完成！', 'success');
+        } else {
+          showMsg('資料不足或訓練失敗', 'danger');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showMsg('訓練失敗', 'danger');
+      });
+  };
+
+  document.getElementById('predictBtn').onclick = () => {
+    fetch('/predict/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'ok') {
+          const predData = data.predictions; 
+          const futureDates = predData.map(item => item.date);
+          const futureValues = predData.map(item => item.interest);
+
+          // 移除舊的「未來預測」線
+          const idx = myChart.data.datasets.findIndex(ds => ds.label === '未來預測');
+          if (idx >= 0) { myChart.data.datasets.splice(idx, 1); }
+
+          // 新增新的預測線
+          myChart.data.datasets.push({
+            label: '未來預測',
+            data: [...Array(dates.length).fill(null), ...futureValues],
+            borderColor: 'red',
+            fill: false
+          });
+
+          // 延長 x 軸 (labels)
+          myChart.data.labels = [...dates, ...futureDates];
+          myChart.update();
+
+          showMsg('預測完成！(紅線)', 'success');
+        } else {
+          showMsg('預測失敗', 'danger');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showMsg('預測失敗', 'danger');
+      });
+  };
+</script>
+{% endblock scripts %}

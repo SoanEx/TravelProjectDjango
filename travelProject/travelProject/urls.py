@@ -32,5 +32,6 @@ urlpatterns = [
     path('api/itinerary/', views.generate_itinerary, name='generate_itinerary'),
     path("get_google_maps_key/", views.get_google_maps_key, name="get_google_maps_key"),
     path('funstuff/', include('funstuff.urls')),
-    path('personalPage/', personalPage_views.personal_page, name='personal_page')
+    path('personalPage/', personalPage_views.personal_page, name='personal_page'),
+    path('trends/', include('trends_app.urls')),  #拖尾逗號
 ]
