@@ -217,6 +217,36 @@ def get_weather(city):
     else:
         return "❌ 找不到該城市的天氣資訊，請確認城市名稱是否正確！"
 
+def get_weather_info(request):
+    """ 取得當地天氣資訊 """
+    lat = request.GET.get("lat")
+    lon = request.GET.get("lon")
+
+    if not lat or not lon:
+        return JsonResponse({"error": "請提供經緯度"}, status=400)
+
+    # 使用 OpenWeatherMap API 獲取天氣資訊
+    api_key = os.getenv("OPENWEATHER_API_KEY") # 確保 settings.py 設定了 API Key
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=zh_tw"
+
+    response = requests.get(url)
+    data = response.json()
+
+    if response.status_code != 200:
+        return JsonResponse({"error": "無法獲取天氣資訊"}, status=500)
+
+    # 回傳天氣資訊
+    weather_info = {
+        "temperature": data["main"]["temp"],
+        "description": data["weather"][0]["description"],
+        "humidity": data["main"]["humidity"],
+        "wind_speed": data["wind"]["speed"],
+        "icon": f"http://openweathermap.org/img/wn/{data['weather'][0]['icon']}@2x.png",
+        "location": data["name"],
+    }
+    return JsonResponse(weather_info)
+
+
 def google_translate(text, target="zh-TW"):
     """ 使用 Google 翻譯 API 將文字翻譯成指定語言 """
     GOOGLE_TRANSLATE_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")  

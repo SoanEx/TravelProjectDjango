@@ -34,4 +34,5 @@ urlpatterns = [
     path("get_google_maps_key/", views.get_google_maps_key, name="get_google_maps_key"),
     path("line/webhook/", line_webhook, name="line_webhook"),
     path("api/translate/", views.translate_text_api, name="translate_text_api"),
+    path("api/weather/", views.get_weather_info, name="get_weather_info"),
 ]
