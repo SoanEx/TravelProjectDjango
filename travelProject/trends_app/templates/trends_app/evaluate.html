@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}
+模型評估結果
+{% endblock title %}
+
+{% block content %}
+<div class="container py-4">
+    <h1>模型評估結果</h1>
+  
+    <hr>
+  
+    <!-- (1) AJAX 參數輸入 -->
+    <div class="card p-3 my-4">
+      <h4>模型評估參數 (AJAX 方式)</h4>
+      <div class="mb-3">
+        <label class="form-label">關鍵字</label>
+        <input type="text" id="keywordAjax" class="form-control" value="Taiwan travel" placeholder="Taiwan travel">
+        <small class="text-muted">請輸入想要分析的 Google Trends 關鍵字，如「Japan travel」。</small>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">window_size</label>
+        <input type="number" id="windowSizeAjax" class="form-control" value="7">
+        <small class="text-muted">模型一次使用多少天的歷史資料來預測下一天（如 7 代表使用前 7 天）。</small>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">train_ratio</label>
+        <input type="number" step="0.1" id="trainRatioAjax" class="form-control" value="0.8">
+        <small class="text-muted">訓練/測試分割比例（0.8 表示 80% 數據用於訓練，其餘 20% 用於測試）。</small>
+      </div>
+      <button id="ajaxEvalBtn" class="btn btn-primary">AJAX 執行評估</button>
+    </div>
+  
+    <!-- (2) AJAX 結果區：預設隱藏 -->
+    <div id="evalResultDiv" style="display:none;">
+      <hr>
+      <h5>AJAX 新評估結果</h5>
+      <p>
+        <strong>MSE</strong>: <span id="mseSpan"></span><br>
+        <small class="text-muted">
+          （Mean Squared Error；值越接近 0 表示預測越精準）
+        </small>
+      </p>
+      <p>
+        <strong>R²</strong>: <span id="r2Span"></span><br>
+        <small class="text-muted">
+          （決定係數，越接近 1 表示模型解釋力越好。若低於 0 代表預測效果不佳）
+        </small>
+      </p>
+      <p>
+        <strong>測試筆數</strong>: <span id="testCountSpan"></span><br>
+        <small class="text-muted">
+          （使用多少筆資料進行測試評估）
+        </small>
+      </p>
+      <h6>部分對比資料 (前 5 筆):</h6>
+      <p class="text-muted">
+        下表顯示測試集中的部分日期，以及「實際值」與「模型預測值」的對比，可用來快速觀察模型的精確度。
+      </p>
+      <table class="table">
+        <thead>
+          <tr><th>日期</th><th>實際值</th><th>預測值</th></tr>
+        </thead>
+        <tbody id="compareTbody"></tbody>
+      </table>
+    </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+document.getElementById('ajaxEvalBtn').onclick = function() {
+  const keyword = document.getElementById('keywordAjax').value.trim();
+  const windowSize = document.getElementById('windowSizeAjax').value.trim();
+  const trainRatio = document.getElementById('trainRatioAjax').value.trim();
+
+  // 防止空關鍵字
+  if (!keyword) {
+    alert('請輸入關鍵字');
+    return;
+  }
+
+  // 組合 URL
+  const query = `?keyword=${encodeURIComponent(keyword)}`
+              + `&window_size=${encodeURIComponent(windowSize)}`
+              + `&train_ratio=${encodeURIComponent(trainRatio)}`;
+
+  // 假設後端路由為 /trends/evaluate/
+  fetch('/trends/evaluate/' + query)
+    .then(res => res.json())
+    .then(data => {
+      console.log(data);
+      if (!data.success) {
+        alert(data.message || '評估失敗');
+        return;
+      }
+      // 顯示結果
+      document.getElementById('evalResultDiv').style.display = 'block';
+      document.getElementById('mseSpan').textContent = data.mse.toFixed(2);
+      document.getElementById('r2Span').textContent = data.r2.toFixed(3);
+      document.getElementById('testCountSpan').textContent = data.test_count;
+
+      // 顯示前幾筆 compare
+      const compareTbody = document.getElementById('compareTbody');
+      compareTbody.innerHTML = '';
+      data.compare.slice(0, 5).forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${item.date}</td>
+                        <td>${item.actual.toFixed(1)}</td>
+                        <td>${item.predicted.toFixed(1)}</td>`;
+        compareTbody.appendChild(tr);
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      alert('請求失敗');
+    });
+};
+</script>
+{% endblock scripts %}

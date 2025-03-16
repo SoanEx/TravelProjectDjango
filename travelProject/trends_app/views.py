@@ -2,7 +2,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from trends_app.fetcher import fetch_google_trends
-from trends_app.ml_utils import train_model, predict_future
+from trends_app.ml_utils import train_model, predict_future, evaluate_model
 from trends_app.models import TrendData
 from datetime import datetime
 import json
@@ -65,3 +65,45 @@ def predict_view(request):
     for d, val in predictions:
         pred_list.append({'date': str(d), 'interest': val})
     return JsonResponse({'status': 'ok', 'predictions': pred_list})
+
+# ---------------------------------
+# 新增視圖: evaluate_model_view
+# ---------------------------------
+def evaluate_model_view(request):
+    """
+    新方法 - 評估模型 (包含訓練/測試分割, 計算 MSE, R2)
+    """
+    keyword = request.GET.get('keyword', '').strip()
+    if 'keyword' not in request.GET:
+        # 表示第一次進入 /evaluate/，沒有帶參數 => 渲染頁面
+        return render(request, 'trends_app/evaluate.html')
+
+    # 否則，就代表前端帶了 keyword(即使是空字串)
+    keyword = request.GET.get('keyword', '').strip()
+    if not keyword:
+        # 有帶參數，但內容為空 => 回傳 JSON 提醒
+        return JsonResponse({
+            'success': False,
+            'message': '請輸入關鍵字！(後端檢查)'
+        }, safe=False)
+    
+    # Case 2: 有帶參數 => 執行評估
+    window_size = int(request.GET.get('window_size', 7))
+    train_ratio = float(request.GET.get('train_ratio', 0.8))
+
+    result = evaluate_model(keyword=keyword, window_size=window_size, train_ratio=train_ratio)
+    # result 結構:
+    # {
+    #   'success': bool,
+    #   'message': str,
+    #   'mse': float,
+    #   'r2': float,
+    #   'test_count': int,
+    #   'compare': [ {date,actual,predicted}, ... ]
+    # }
+    # 我們可以將其帶到新 evaluate.html，或直接以 JSON 回傳
+
+    
+
+    # 若想在 HTML 顯示，就 render
+    return JsonResponse(result, safe=False)

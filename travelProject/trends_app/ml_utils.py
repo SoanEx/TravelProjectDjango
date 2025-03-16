@@ -5,6 +5,7 @@ import joblib
 import os
 from django.conf import settings
 from trends_app.models import TrendData
+from sklearn.metrics import mean_squared_error, r2_score
 
 MODEL_DIR = os.path.join(settings.BASE_DIR, 'ml_models')
 MODEL_PATH = os.path.join(MODEL_DIR, 'trend_model.pkl')
@@ -80,3 +81,76 @@ def predict_future(keyword="Taiwan travel", window_size=7, days_to_predict=7):
         current_features[-1] = pred_interest
 
     return predictions
+
+# -----------------------------
+# 2. 新增函式: evaluate_model
+# -----------------------------
+def evaluate_model(keyword="Taiwan travel", window_size=7, train_ratio=0.8):
+    """
+    新函式: 先做簡易的訓練-測試切分，計算 MSE / R2 分數，
+    並將測試對比資料一併回傳
+    """
+    qs = TrendData.objects.filter(keyword=keyword).order_by('date')
+    if qs.count() < window_size + 1:
+        return {
+            'success': False,
+            'message': '資料量不足，無法進行評估'
+        }
+
+    # 將 interest 數值取出
+    interests = [obj.interest for obj in qs]
+    dates = [obj.date for obj in qs]
+
+    # 產生窗格特徵
+    X_all, y_all = [], []
+    for i in range(window_size, len(interests)):
+        past_features = interests[i - window_size:i]
+        X_all.append(past_features)
+        y_all.append(interests[i])
+
+    X_all = np.array(X_all)
+    y_all = np.array(y_all)
+    date_all = dates[window_size:]
+
+    train_size = int(len(X_all) * train_ratio)
+    if train_size <= 0 or train_size >= len(X_all):
+        return {
+            'success': False,
+            'message': 'train_ratio 不合理，無法切分'
+        }
+
+    # 切分訓練 / 測試集
+    X_train, X_test = X_all[:train_size], X_all[train_size:]
+    y_train, y_test = y_all[:train_size], y_all[train_size:]
+    date_test = date_all[train_size:]
+
+    # 建立並訓練
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+
+    # 可選: 存檔 (若需要覆蓋舊的 model)
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    joblib.dump(model, MODEL_PATH)
+
+    # 測試預測
+    y_pred = model.predict(X_test)
+    mse_val = mean_squared_error(y_test, y_pred)
+    r2_val = r2_score(y_test, y_pred)
+
+    # 整理測試對比列表
+    compare_list = []
+    for i in range(len(y_test)):
+        compare_list.append({
+            'date': str(date_test[i]),
+            'actual': float(y_test[i]),
+            'predicted': float(y_pred[i])
+        })
+
+    return {
+        'success': True,
+        'message': '評估完成',
+        'mse': mse_val,
+        'r2': r2_val,
+        'test_count': len(X_test),
+        'compare': compare_list  # 依需求可只回傳前幾筆
+    }
