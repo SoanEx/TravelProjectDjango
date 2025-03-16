@@ -26,8 +26,8 @@ Google Trends Demo
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   // 1. 從後端 Context 拿資料
-  const dates = JSON.parse('{{ dates|safe }}'.replace(/&#34;/g, '"'));
-  const interests = JSON.parse('{{ interests|safe }}'.replace(/&#34;/g, '"'));
+  const dates = JSON.parse('{{ dates_json|safe }}'.replace(/&#34;/g, '"'));
+  const interests = JSON.parse('{{ interests_json|safe }}'.replace(/&#34;/g, '"'));
 
   // 2. 建立 Chart.js
   const ctx = document.getElementById('myChart').getContext('2d');
@@ -59,7 +59,7 @@ Google Trends Demo
 
   // 4. 按鈕事件
   document.getElementById('fetchBtn').onclick = () => {
-    fetch('/fetch/')
+    fetch('/trends/fetch/')
       .then(res => res.json())
       .then(data => {
         if(data.status === 'ok') {
@@ -77,7 +77,7 @@ Google Trends Demo
   };
 
   document.getElementById('trainBtn').onclick = () => {
-    fetch('/train/')
+    fetch('/trends/train/')
       .then(res => res.json())
       .then(data => {
         if (data.status === 'ok') {
@@ -93,7 +93,7 @@ Google Trends Demo
   };
 
   document.getElementById('predictBtn').onclick = () => {
-    fetch('/predict/')
+    fetch('/trends/predict/')
       .then(res => res.json())
       .then(data => {
         if (data.status === 'ok') {

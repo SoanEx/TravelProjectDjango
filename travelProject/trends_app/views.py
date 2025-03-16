@@ -5,6 +5,7 @@ from trends_app.fetcher import fetch_google_trends
 from trends_app.ml_utils import train_model, predict_future
 from trends_app.models import TrendData
 from datetime import datetime
+import json
 
 def index(request):
     """
@@ -19,16 +20,21 @@ def index(request):
     show_count = 60 if data_count > 60 else data_count
     recent_data = qs[data_count - show_count:]
 
+    dates_list = [str(obj.date) for obj in recent_data]
+    interests_list = [obj.interest for obj in recent_data]
+
+
     # 準備給模板或前端 JS 的資料
     dates = [str(obj.date) for obj in recent_data]
     interests = [obj.interest for obj in recent_data]
 
     context = {
         'keyword': keyword,
-        'dates': dates,         # e.g. ["2023-01-01", "2023-01-02", ...]
-        'interests': interests, # e.g. [34, 50, 45, ...]
+        'dates_json': json.dumps(dates_list),       # <— JSON 字串
+        'interests_json': json.dumps(interests_list)
     }
-    return render(request, 'trends/index.html', context)
+    print(dates_list[:5])
+    return render(request, 'trends_app/index.html', context)
 
 def fetch_data_view(request):
     """
