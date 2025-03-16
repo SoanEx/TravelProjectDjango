@@ -26,12 +26,13 @@
           </div>
           <div class="product-custom-col col-12">
               <div class="product-category-item">
-                  <a class="product-category-img img-zoom-effect" href="shop.html">
+                  <a class="product-category-img img-zoom-effect" href="{% url 'map_page' %}"> <!-- 地圖轉跳頁 -->
                       <img src="{% static 'assets/images/product/top-category/1-2-180x180.png' %}" alt="Top Category">
                   </a>
                   <div class="product-category-content pt-5">
                       <h2 class="title">
-                          <a href="shop.html">Wiper Blades</a>
+                        <!-- 地圖轉跳頁 -->
+                          <a href="{% url 'map_page' %}">Map Search</a>
                       </h2>
                   </div>
               </div>
