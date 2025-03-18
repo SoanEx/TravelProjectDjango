@@ -1,33 +1,39 @@
-{% extends "bookkeeping/base.html" %}
-{% block tilte %}details{% endblock tilte %}
+{% extends "base.html" %}
+<title>{% block title %}PersonalExpense{% endblock %}</title>
 {% block content %}
   <div class="table-responsive">
-    {% for user in user_list %}
-    {{user}}
-    <table class="table">
+  {% for user in user_list %}
+  </br>
+    <h5 align="center">{{user}}</h5>
+    <table class="table" style="width:30%;text-align:center" align="center" >
       <thead>
         <tr>
-          <th scope="col">type</th>
-          <th scope="col">total</th>
+          <th scope="col" width=15%>type</th>
+          <th scope="col" width=15%>total</th>
         </tr>
       </thead>
       <tbody>
-        {% for r in relation_list %}
-          {% if r.member == user %}
-          <tr>
-            <td>{{r.types}}</td>
-            <td>{{r.total}}</td>
-          </tr>
-          {% endif %}
-        {% endfor %}
+      {% for r in relation_list %}
+        {% if r.member == user %}
+        <tr>
+          <td>{{r.types}}</td>
+          <td>{{r.total}}</td>
+        </tr>
+        {% endif %}
+      {% endfor %} 
       </tbody>
 
       <tfoot>
         <tr>
-          <th scope="end"></th>
-          <td></td>
+          <th scope="end">Sum</th>
+          {% for usersum in usersum_list %}
+            {% if usersum.member == user %}
+              <td>{{usersum.total}}</td>
+            {% endif %}
+          {% endfor %}
         </tr>
-      </tfoot>  
+      </tfoot> 
+      
     </table>
     {% endfor %}
   </div>

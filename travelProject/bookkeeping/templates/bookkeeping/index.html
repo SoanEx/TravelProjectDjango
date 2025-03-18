@@ -1,9 +1,10 @@
-{% extends "bookkeeping/base.html" %}
-{% block tilte %}Home{% endblock tilte %}
+{% extends "base.html" %}
+<title>{% block title %}BookkeepingHome{% endblock %}</title>
 {% block content %}
 <center>
   <h3>
     Welcome to the bookkeeping. To get started, please click 'New Item'.
   </h3>
+
 </center>
 {% endblock content %}

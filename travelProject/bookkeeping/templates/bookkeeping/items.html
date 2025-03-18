@@ -1,16 +1,60 @@
-{% extends "bookkeeping/base.html" %}
-{% block tilte %}Items{% endblock tilte %}
+{% extends "base.html" %}
+<title>{% block title %}GroupExpense{% endblock %}</title>
+{% load static %}
+{% block scripts %}
+<script src="{% static 'canvasjs.min.js' %}"></script>   
+<head>
+  <script>
+    window.onload = function () {
+    var chart = new CanvasJS.Chart("chartContainer", {
+      theme: "dark2",
+      exportFileName: "Doughnut Chart",
+      exportEnabled: true,
+      animationEnabled: true,
+      title:{
+        text: "Group Expense"
+      },
+      legend:{
+        cursor: "pointer",
+        itemclick: explodePie
+      },
+      data: [{
+        type: "doughnut",
+        innerRadius: 90,
+        showInLegend: true,
+        toolTipContent: "<b>{name}</b>: ${y} (#percent%)",
+        indexLabel: "{name} - #percent%",
+        dataPoints: {{expense_data|safe}}
+      }]
+    });
+    chart.render();
+    
+    function explodePie (e) {
+      if(typeof (e.dataSeries.dataPoints[e.dataPointIndex].exploded) === "undefined" || !e.dataSeries.dataPoints[e.dataPointIndex].exploded) {
+        e.dataSeries.dataPoints[e.dataPointIndex].exploded = true;
+      } else {
+        e.dataSeries.dataPoints[e.dataPointIndex].exploded = false;
+      }
+      e.chart.render();
+    }
+    
+    }
+    </script>
+{% endblock scripts %}
 {% block content %}
-  <table class="table caption-top">
+<div id="chartContainer" style="height: 370px; max-width: 920px; margin: 0px auto;"></div>
+  </br>
+</head>
+  <table class="table caption-top" style="width:90%" align="center">
     <thead>
       <tr>
-        <th scope="col">No.</th>
-        <th scope="col">date</th>
-        <th scope="col">type</th>
-        <th scope="col">amount</th>
-        <th scope="col">note</th>
-        <th scope="col">members</th>
-        <th scope="col"></th>
+        <th scope="col" width=5%>No.</th>
+        <th scope="col" width=15%>date</th>
+        <th scope="col" width=10%>type</th>
+        <th scope="col" width=15%>amount</th>
+        <th scope="col" width=20%>note</th>
+        <th scope="col" width=35%>members</th>
+        <th scope="col" width=10%></th>
       </tr>
     </thead>
     <tbody>
@@ -33,7 +77,7 @@
         <form action="{% url 'del-item' %}" method="post">
           {% csrf_token %}
           <input type="hidden" name="id" value={{item.id}}>
-          <input type="submit" value="delet" class="btn-btn-dangeere btn-sm">
+          <input type="submit" value="delet" class="btn-btn-danger btn-sm" style="background-color:#FF5151;color:#ffffff">
         </form>
       </td>
     </tr>
@@ -49,4 +93,5 @@
       </tr>
     </tfoot>
   </table>
+
 {% endblock content %}
