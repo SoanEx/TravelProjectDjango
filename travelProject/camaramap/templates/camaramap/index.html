@@ -1,6 +1,49 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="keywords" content="#">
+    <meta name="description" content="#">
+    <title>Car Dealer html5  Bootstrap Template  | Homepage</title>
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/images/map_images/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/images/map_images/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/images/map_images/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" href="assets/images/map_images/favicon.ico">
+    <link rel="shortcut icon" href="assets/images/map_images/favicon.png">
+    <!-- Bootstrap -->
+    <link href="assets/css/map_css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fontawesome -->
+    <link href="assets/css/map_css/font-awesome.css" rel="stylesheet">
+    <!-- Flaticons -->
+    <link href="assets/css/map_css/font/flaticon.css" rel="stylesheet">
+    <!-- Slick Slider -->
+    <link href="assets/css/map_css/slick.css" rel="stylesheet">
+    <!-- Range Slider -->
+    <link href="assets/css/map_css/ion.rangeSlider.min.css" rel="stylesheet">
+    <!-- Datepicker -->
+    <link href="assets/css/map_css/datepicker.css" rel="stylesheet">
+    <!-- magnific popup -->
+    <link href="assets/css/map_css/magnific-popup.css" rel="stylesheet">
+    <!-- Nice Select -->
+    <link href="assets/css/map_css/nice-select.css" rel="stylesheet">
+    <!-- Custom Stylesheet -->
+    <link href="assets/css/map_css/style.css" rel="stylesheet">
+    <!-- Custom Responsive -->
+    <link href="assets/css/map_css/responsive.css" rel="stylesheet">
+  
+    <!-- CSS for IE -->
+    <!--[if lte IE 9]>
+            <link rel="stylesheet" type="text/css" href="css/ie.css" />
+        <![endif]-->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+          <script type='text/javascript' src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+          <script type='text/javascript' src="http://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.js"></script>
+        <![endif]-->
+    <!-- place -->
     <style>
         #attractionsList {
             list-style-type: none;
@@ -80,26 +123,194 @@
     </script>
 </head>
 <body>
-    <h2>輸入出發地與目的地</h2>
-    <input id="start" type="text" placeholder="出發地">
-    <input id="end" type="text" placeholder="目的地">
-    <button onclick="planRoute()">規劃路線</button>
-
-<h2>推薦景點</h2>
-<button onclick="fetchAttractions()">查詢附近景點</button>
-<button onclick="fetchParking()">🚗 顯示附近停車場</button>
-<ul id="attractionsList"></ul>
-<div class="weather-info" id="weather-info" style="display: none;">
-    <h3>🌤 當地天氣資訊</h3>
-    <p id="weather-location">📍 地點：</p>
-    <p id="weather-temp">🌡 溫度：</p>
-    <p id="weather-desc">☁ 天氣狀況：</p>
-    <p id="weather-humidity">💧 濕度：</p>
-    <p id="weather-wind">💨 風速：</p>
-</div>
-
+     <!-- Start Topbar -->
+  <header class="header">
+    <div class="topbar bg-theme">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 col-md-5">
+            <div class="leftside">
+              <ul class="custom-flex">
+                <li> <a href="#" class="text-custom-white"><i class="fab fa-facebook-f"></i></a> </li>
+                <li> <a href="#" class="text-custom-white"><i class="fab fa-twitter"></i></a> </li>
+                <li> <a href="#" class="text-custom-white"><i class="fab fa-instagram"></i></a> </li>
+                <li> <a href="#" class="text-custom-white"><i class="fab fa-linkedin"></i></a> </li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-7">
+            <div class="rightside full-height">
+              <ul class="custom-flex full-height">
+                <li class="book-appointment"> <a href="booking.html"> Booking Now </a> </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navigation-wrapper">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <nav>
+              <div class="main-navigation">
+                <div class="logo"> <a href="index.html"> <img src="assets/images/logo.png" class="img-fluid" alt="logo"> </a> </div>
+                <div class="main-menu">
+                  <ul class="custom-flex">
+                    <li class="menu-item active"> <a href="index.html">Home</a> </li>
+                    <li class="menu-item menu-item-has-children"> <a href="#">Inventory</a>
+                      <ul class="submenu custom">
+                        <li class="menu-item"> <a href="cars.html">Full Width</a> </li>
+                        <li class="menu-item"> <a href="cars-left-sidebar.html">Left Sidebar</a> </li>
+                        <li class="menu-item"> <a href="cars-right-sidebar.html">Right Sidebar</a> </li>
+                        <li class="menu-item"> <a href="car-detail.html">Inventory Detail</a> </li>
+                      </ul>
+                    </li>
+                    <li class="menu-item menu-item-has-children"> <a href="#">Blog</a>
+                      <ul class="submenu custom">
+                        <li class="menu-item"> <a href="blog.html">Blog Grid</a> </li>
+                        <li class="menu-item"> <a href="blog-left-sidebar.html">Blog Left</a> </li>
+                        <li class="menu-item"> <a href="blog-right-sidebar.html">Blog right</a> </li>
+                        <li class="menu-item"> <a href="blog-details.html">Blog Detail</a> </li>
+                        <li class="menu-item"> <a href="blog-details-left-sidebar.html">Blog Detail Left</a> </li>
+                        <li class="menu-item"> <a href="blog-details-right-sidebar.html">Blog Detail Right</a> </li>
+                      </ul>
+                    </li>
+                    <li class="menu-item"> <a href="about.html">About</a> </li>
+                    <li class="menu-item menu-item-has-children"> <a href="#">Pages</a>
+                      <ul class="submenu custom">
+                        <li class="menu-item"> <a href="booking.html">Booking</a> </li>
+                        <li class="menu-item"> <a href="faqs.html">Faq</a> </li>
+                        <li class="menu-item"> <a href="gallery.html">Gallery</a> </li>
+                        <li class="menu-item"> <a href="404.html">404</a> </li>
+                        <li class="menu-item"> <a href="coming-soon.html">Coming Soon</a> </li>
+                      </ul>
+                    </li>
+                    <li class="menu-item"> <a href="contact.html">Contact</a> </li>
+                  </ul>
+                </div>
+                <div class="hamburger-menu">
+                  <div class="menu-btn"> <span></span> <span></span> <span></span> </div>
+                </div>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <!-- End Topbar -->
+  <!-- Header -->
+<!-- Start Slider (變更為 Google 地圖) -->
+<div class="slider p-relative">
+  <div class="main-banner">
     <div id="map" style="width: 100%; height: 500px;"></div>
-
+  </div>
+</div>
+<!-- End Slider -->
+ <!-- Start Banner tabs (修改為輸入出發地 & 目的地 + 查詢按鈕) -->
+<div class="container">
+  <div class="banner-tabs">
+    <div class="row">
+      <div class="col-12">
+        <div class="tabs">
+          <div class="tab-content">
+            <div class="tab-pane active" id="search">
+              <div class="tab-inner">
+                <form>
+                  <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                      <div class="form-group">
+                        <label class="fs-14 text-custom-white fw-600">出發地</label>
+                        <input id="start" type="text" class="form-control" placeholder="輸入出發地">
+                      </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                      <div class="form-group">
+                        <label class="fs-14 text-custom-white fw-600">目的地</label>
+                        <input id="end" type="text" class="form-control" placeholder="輸入目的地">
+                      </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12 text-center">
+                      <button type="button" class="btn btn-primary" onclick="planRoute()">規劃路線</button>
+                      <button type="button" class="btn btn-success" onclick="fetchAttractions()">查詢景點</button>
+                      <button type="button" class="btn btn-warning" onclick="fetchParking()">🚗 停車場</button>
+                    </div>
+                  </div>
+                </form>
+              </div> <!-- tab-inner -->
+            </div> <!-- tab-pane -->
+          </div> <!-- tab-content -->
+        </div> <!-- tabs -->
+      </div> <!-- col-12 -->
+    </div> <!-- row -->
+  </div> <!-- banner-tabs -->
+</div> <!-- container -->
+<!-- End Banner Tabs -->
+  <!-- Start About Us -->
+  <section class="section-padding about-us">
+      <div class="row">
+        <div class="col-xl-6 col-lg-6 p-0 m-0">
+          <div class="about-right-side full-height">
+            <div class="about-img full-height">
+              <img src="assets/images/about_2.jpg" class="img-fluid image-fit" alt="img">
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-6 col-lg-6 p-0 m-0 align-self-center text-left">
+          <div class="about-left-side mb-md-80">
+            <div class="section-header style-left">
+              <div class="section-heading">
+                <h3>Welcome To The <span class="text-custom">Car Dealer</span> </h3>
+                <div class="section-description">
+                </div>
+              </div>
+            </div>
+            <p class="pt-2">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.
+              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.</p>
+            <p class="pt-2">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.</p>
+            <p class="pt-2">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text. Lorem Ipsum has been the industry's standard dummy text.
+              Lorem Ipsum is simply dummy.</p>
+            <a href="#" class="btn btn-sm animated-button victoria-one">Reserve Now</a>
+          </div>
+        </div>
+      </div>
+  </section>
+  <!-- End About Us -->
+  <!-- Start Our work -->
+ <!-- Start 天氣資訊 -->
+<section class="weather-info section-padding bg-light-white">
+  <div class="container">
+    <div class="section-header text-center">
+      <h3 class="text-custom-black">當地 <span class="text-custom">天氣資訊</span></h3>
+    </div>
+    <div class="text-center">
+      <p id="weather-location">📍 地點：</p>
+      <p id="weather-temp">🌡 溫度：</p>
+      <p id="weather-desc">☁ 天氣狀況：</p>
+      <p id="weather-humidity">💧 濕度：</p>
+      <p id="weather-wind">💨 風速：</p>
+      <img id="weather-icon" src="" alt="天氣圖示" style="display: none;">
+    </div>
+  </div>
+</section>
+<!-- End 天氣資訊 -->
+<!-- Start Our Work (改為顯示景點 & 停車場資訊) -->
+<section class="section-padding our-work-sec bg-light-white">
+  <div class="container">
+    <div class="section-header text-center">
+      <h3 class="text-custom-black">景點 & <span class="text-custom">停車場資訊</span></h3>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <ul id="attractionsList"></ul>
+        <ul id="parkingList"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Our Work -->
+  <!-- End Our work -->
     <script>
         let map;
         let directionsService;
@@ -118,25 +329,6 @@
             directionsRenderer = new google.maps.DirectionsRenderer();
             directionsRenderer.setMap(map);
         
-            // ✅ 嘗試獲取使用者當前位置
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        let userLocation = {
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        };
-        
-                        // 🔄 更新地圖中心點
-                        map.setCenter(userLocation);
-                    },
-                    () => {
-                        console.warn("⚠️ 無法獲取使用者位置，將使用預設中心點");
-                    }
-                );
-            } else {
-                console.warn("⚠️ 瀏覽器不支援 Geolocation API");
-            }
         }
 
         function planRoute() {
@@ -556,6 +748,29 @@
         window.onload = loadGoogleMaps;
 
     </script>
+        <!-- Place all Scripts Here -->
+    <!-- jQuery -->
+    <script src="assets/js/map_js/jquery.min.js"></script>
+    <!-- Popper -->
+    <script src="assets/js/map_js/popper.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="assets/js/map_js/bootstrap.min.js"></script>
+    <!-- Range Slider -->
+    <script src="assets/js/map_js/ion.rangeSlider.min.js"></script>
+    <!-- Slick Slider -->
+    <script src="assets/js/map_js/slick.min.js"></script>
+    <!-- Datepicker -->
+    <script src="assets/js/map_js/datepicker.js"></script>
+    <script src="assets/js/map_js/datepicker.en.js"></script>
+    <!-- Isotope Gallery -->
+    <script src="assets/js/map_js/isotope.pkgd.min.js"></script>
+    <!-- Nice Select -->
+    <script src="assets/js/map_js/jquery.nice-select.js"></script>
+    <!-- magnific popup -->
+    <script src="assets/js/map_js/jquery.magnific-popup.min.js"></script>
+    <!-- Custom Js -->
+    <script src="assets/js/map_js/custom.js"></script>
+    <!-- /Place all Scripts Here -->
 
 </body>
 </html>
