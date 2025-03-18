@@ -1,5 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}表單 + 飛散文字疊在前面 + 延遲出現{% endblock title %}
+
+{% block content %}
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,31 +12,31 @@
     <meta name="description" content="#">
     <title>Car Dealer html5  Bootstrap Template  | Homepage</title>
     <!-- Fav and touch icons -->
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/images/map_images/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/images/map_images/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/images/map_images/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" href="assets/images/map_images/favicon.ico">
-    <link rel="shortcut icon" href="assets/images/map_images/favicon.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{% static 'assets/images/map_images/favicon.ico' %}">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static 'assets/images/map_images/favicon.ico' %}">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static 'assets/images/map_images/favicon.ico' %}">
+    <link rel="apple-touch-icon-precomposed" href="{% static 'assets/images/map_images/favicon.ico' %}">
+    <link rel="shortcut icon" href="{% static 'assets/images/map_images/favicon.png' %}">
     <!-- Bootstrap -->
-    <link href="assets/css/map_css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/bootstrap.min.css' %}" rel="stylesheet">
     <!-- Fontawesome -->
-    <link href="assets/css/map_css/font-awesome.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/font-awesome.css' %}" rel="stylesheet">
     <!-- Flaticons -->
-    <link href="assets/css/map_css/font/flaticon.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/font/flaticon.css' %}" rel="stylesheet">
     <!-- Slick Slider -->
-    <link href="assets/css/map_css/slick.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/slick.css' %}" rel="stylesheet">
     <!-- Range Slider -->
-    <link href="assets/css/map_css/ion.rangeSlider.min.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/ion.rangeSlider.min.css' %}" rel="stylesheet">
     <!-- Datepicker -->
-    <link href="assets/css/map_css/datepicker.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/datepicker.css' %}" rel="stylesheet">
     <!-- magnific popup -->
-    <link href="assets/css/map_css/magnific-popup.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/magnific-popup.css' %}" rel="stylesheet">
     <!-- Nice Select -->
-    <link href="assets/css/map_css/nice-select.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/nice-select.css' %}" rel="stylesheet">
     <!-- Custom Stylesheet -->
-    <link href="assets/css/map_css/style.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/style.css' %}" rel="stylesheet">
     <!-- Custom Responsive -->
-    <link href="assets/css/map_css/responsive.css" rel="stylesheet">
+    <link href="{% static 'assets/css/map_css/responsive.css' %}" rel="stylesheet">
   
     <!-- CSS for IE -->
     <!--[if lte IE 9]>
@@ -154,7 +158,7 @@
           <div class="col-12">
             <nav>
               <div class="main-navigation">
-                <div class="logo"> <a href="index.html"> <img src="assets/images/logo.png" class="img-fluid" alt="logo"> </a> </div>
+                <div class="logo"> <a href="index.html"> <img src="{% static 'assets/images/logo.png' %}" class="img-fluid" alt="logo"> </a> </div>
                 <div class="main-menu">
                   <ul class="custom-flex">
                     <li class="menu-item active"> <a href="index.html">Home</a> </li>
@@ -253,7 +257,7 @@
         <div class="col-xl-6 col-lg-6 p-0 m-0">
           <div class="about-right-side full-height">
             <div class="about-img full-height">
-              <img src="assets/images/about_2.jpg" class="img-fluid image-fit" alt="img">
+              <img src="{% static 'assets/images/about_2.jpg' %}" class="img-fluid image-fit" alt="img">
             </div>
           </div>
         </div>
@@ -309,7 +313,10 @@
     </div>
   </div>
 </section>
+
+{% endblock content %}
 <!-- End Our Work -->
+{% block scripts %}
   <!-- End Our work -->
     <script>
         let map;
@@ -772,5 +779,4 @@
     <script src="assets/js/map_js/custom.js"></script>
     <!-- /Place all Scripts Here -->
 
-</body>
-</html>
+{% endblock scripts %}
