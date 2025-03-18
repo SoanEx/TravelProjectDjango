@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}表單 + 飛散文字疊在前面 + 延遲出現{% endblock title %}
+{% block title %}旅遊規劃{% endblock title %}
 
 {% block content %}
 <head>
@@ -56,6 +56,9 @@
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
+            max-height: none !important; /* 取消最大高度 */
+            height: auto !important;  /* 讓內容根據實際大小擴展 */
+            overflow: visible !important; /* 取消滾動條 */
         }
 
         .attraction-item {
@@ -64,7 +67,7 @@
             width: 280px;
             background: #fff;
             border-radius: 10px;
-            overflow: hidden;
+            overflow: auto;
             box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
         }
@@ -102,6 +105,11 @@
             box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
         }
+
+        body {
+          overflow: auto !important;
+        }
+        
     </style>
     <meta charset="UTF-8">
     <title>旅遊計畫</title>
@@ -127,6 +135,7 @@
     </script>
 </head>
 <body>
+  
      <!-- Start Topbar -->
   <header class="header">
     <div class="topbar bg-theme">
@@ -156,48 +165,6 @@
       <div class="container">
         <div class="row">
           <div class="col-12">
-            <nav>
-              <div class="main-navigation">
-                <div class="logo"> <a href="index.html"> <img src="{% static 'assets/images/logo.png' %}" class="img-fluid" alt="logo"> </a> </div>
-                <div class="main-menu">
-                  <ul class="custom-flex">
-                    <li class="menu-item active"> <a href="index.html">Home</a> </li>
-                    <li class="menu-item menu-item-has-children"> <a href="#">Inventory</a>
-                      <ul class="submenu custom">
-                        <li class="menu-item"> <a href="cars.html">Full Width</a> </li>
-                        <li class="menu-item"> <a href="cars-left-sidebar.html">Left Sidebar</a> </li>
-                        <li class="menu-item"> <a href="cars-right-sidebar.html">Right Sidebar</a> </li>
-                        <li class="menu-item"> <a href="car-detail.html">Inventory Detail</a> </li>
-                      </ul>
-                    </li>
-                    <li class="menu-item menu-item-has-children"> <a href="#">Blog</a>
-                      <ul class="submenu custom">
-                        <li class="menu-item"> <a href="blog.html">Blog Grid</a> </li>
-                        <li class="menu-item"> <a href="blog-left-sidebar.html">Blog Left</a> </li>
-                        <li class="menu-item"> <a href="blog-right-sidebar.html">Blog right</a> </li>
-                        <li class="menu-item"> <a href="blog-details.html">Blog Detail</a> </li>
-                        <li class="menu-item"> <a href="blog-details-left-sidebar.html">Blog Detail Left</a> </li>
-                        <li class="menu-item"> <a href="blog-details-right-sidebar.html">Blog Detail Right</a> </li>
-                      </ul>
-                    </li>
-                    <li class="menu-item"> <a href="about.html">About</a> </li>
-                    <li class="menu-item menu-item-has-children"> <a href="#">Pages</a>
-                      <ul class="submenu custom">
-                        <li class="menu-item"> <a href="booking.html">Booking</a> </li>
-                        <li class="menu-item"> <a href="faqs.html">Faq</a> </li>
-                        <li class="menu-item"> <a href="gallery.html">Gallery</a> </li>
-                        <li class="menu-item"> <a href="404.html">404</a> </li>
-                        <li class="menu-item"> <a href="coming-soon.html">Coming Soon</a> </li>
-                      </ul>
-                    </li>
-                    <li class="menu-item"> <a href="contact.html">Contact</a> </li>
-                  </ul>
-                </div>
-                <div class="hamburger-menu">
-                  <div class="menu-btn"> <span></span> <span></span> <span></span> </div>
-                </div>
-              </div>
-            </nav>
           </div>
         </div>
       </div>
@@ -251,39 +218,9 @@
   </div> <!-- banner-tabs -->
 </div> <!-- container -->
 <!-- End Banner Tabs -->
-  <!-- Start About Us -->
-  <section class="section-padding about-us">
-      <div class="row">
-        <div class="col-xl-6 col-lg-6 p-0 m-0">
-          <div class="about-right-side full-height">
-            <div class="about-img full-height">
-              <img src="{% static 'assets/images/about_2.jpg' %}" class="img-fluid image-fit" alt="img">
-            </div>
-          </div>
-        </div>
-        <div class="col-xl-6 col-lg-6 p-0 m-0 align-self-center text-left">
-          <div class="about-left-side mb-md-80">
-            <div class="section-header style-left">
-              <div class="section-heading">
-                <h3>Welcome To The <span class="text-custom">Car Dealer</span> </h3>
-                <div class="section-description">
-                </div>
-              </div>
-            </div>
-            <p class="pt-2">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.
-              Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.</p>
-            <p class="pt-2">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.</p>
-            <p class="pt-2">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text. Lorem Ipsum has been the industry's standard dummy text.
-              Lorem Ipsum is simply dummy.</p>
-            <a href="#" class="btn btn-sm animated-button victoria-one">Reserve Now</a>
-          </div>
-        </div>
-      </div>
-  </section>
-  <!-- End About Us -->
   <!-- Start Our work -->
  <!-- Start 天氣資訊 -->
-<section class="weather-info section-padding bg-light-white">
+ <section id="weather-info" class="weather-info section-padding bg-light-white">
   <div class="container">
     <div class="section-header text-center">
       <h3 class="text-custom-black">當地 <span class="text-custom">天氣資訊</span></h3>
@@ -294,7 +231,6 @@
       <p id="weather-desc">☁ 天氣狀況：</p>
       <p id="weather-humidity">💧 濕度：</p>
       <p id="weather-wind">💨 風速：</p>
-      <img id="weather-icon" src="" alt="天氣圖示" style="display: none;">
     </div>
   </div>
 </section>
@@ -325,7 +261,10 @@
         let speedCameraMarkers = [];
         let attractionMarkers = [];
         let parkingMarkers = [];
-
+              
+                document.addEventListener("DOMContentLoaded", function() {
+                document.body.style.overflow = "auto";  // 確保頁面載入時可以滾動
+            });
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
                 zoom: 13,
@@ -696,8 +635,12 @@
         }
 
         function fetchWeatherInfo(lat, lon) {
-            let weatherContainer = document.getElementById("weather-info");
-            if (!weatherContainer) return;
+          console.log(`✅ 呼叫 fetchWeatherInfo(${lat}, ${lon})`);
+          let weatherContainer = document.getElementById("weather-info");
+          if (!weatherContainer) {
+              console.error("❌ 找不到 #weather-info 區塊！");
+              return;
+          }
         
             // **✅ 點擊後才顯示天氣資訊區塊**
             weatherContainer.style.display = "block";
