@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}表單 + 飛散文字疊在前面 + 延遲出現{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h3 class="mb-4 text-center">使用者體驗調查</h3>
+
+      <form class="card p-4">
+        <p>請問您的使用者體驗如何？</p>
+        {{ form.as_p }}
+
+        <button type="submit" class="btn btn-primary mt-3">送出</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 絕對定位覆蓋層：z-index高，pointer-events:none，可讓字母飛散在前 -->
+<div id="lettersOverlay"></div>
+
+<style>
+#lettersOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none; /* 不攔截滑鼠，後面表單可被點擊 */
+}
+.letterSpan {
+  position: absolute;
+  font-size: 24px;
+  font-weight: bold;
+  transform-origin: center center;
+}
+</style>
+{% endblock content %}
+
+{% block scripts %}
+<!-- Matter.js CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const Engine = Matter.Engine,
+        Runner = Matter.Runner,
+        Bodies = Matter.Bodies,
+        Composite = Matter.Composite,
+        Body = Matter.Body;
+
+  // 1) 建立引擎
+  let engine = Engine.create();
+  let runner = Runner.create();
+  Runner.run(runner, engine);
+
+  // 2) 建立覆蓋層
+  const overlay = document.getElementById('lettersOverlay');
+  let overlayW = overlay.clientWidth;
+  let overlayH = overlay.clientHeight;
+
+  // 3) 四面牆 (讓字母可以飛到上面 -200, 也可自行調)
+  const thick = 50;
+  let ceiling   = Bodies.rectangle(overlayW / 2, -200, overlayW, thick, { isStatic: true });
+  let ground    = Bodies.rectangle(overlayW / 2, overlayH + thick/2 - 200, overlayW, thick, { isStatic: true });
+  let leftWall  = Bodies.rectangle(-thick/2, overlayH/2, thick, overlayH, { isStatic: true });
+  let rightWall = Bodies.rectangle(overlayW + thick/2, overlayH/2, thick, overlayH, { isStatic: true });
+  Composite.add(engine.world, [ceiling, ground, leftWall, rightWall]);
+
+  // 4) 後端帶入字串，預設 "PHYSICS!"
+  const textFromServer = "{{ explosion_text|default:'PHYSICS!' }}";
+
+  // letters陣列(裝 body、span等資訊)，爆炸/復原會用到
+  let letters = [];
+
+  // 設定字母初始座標 (可自行調整)
+  let startX = overlayW / 2 - (textFromServer.length * 25) / 2;
+  let startY = 200;  // 200px 從視窗頂端算起
+
+  // 5) 「延遲 + stagger」創建字母
+  // firstDelay = 第一個字母延遲時間(毫秒)
+  // staggerDelay = 後續每個字母間隔(毫秒)
+  let firstDelay = 1000;    // 第一個字母延遲1秒
+  let staggerDelay = 300;   // 之後每個字母相隔0.3秒
+
+  for (let i = 0; i < textFromServer.length; i++) {
+    // 為每個字母設定它的顯示時間
+    let delay = firstDelay + i * staggerDelay;
+    let char = textFromServer[i];
+
+    // 用 setTimeout 讓第 i 個字母在 delay 時間後創建
+    setTimeout(() => {
+      // (A) 建 span
+      let span = document.createElement('span');
+      span.classList.add('letterSpan');
+      span.innerText = char;
+      overlay.appendChild(span);
+
+      // (B) 建 body
+      let body = Bodies.rectangle(startX + i*25, startY, 20, 20, { label: char });
+      Composite.add(engine.world, body);
+
+      // (C) 推到 letters[]
+      letters.push({
+        body,
+        span,
+        initX: body.position.x,
+        initY: body.position.y
+      });
+    }, delay);
+  }
+
+  // 6) 同步函式: 每幀根據 body.position 更新span
+  function syncDOM() {
+    letters.forEach(item => {
+      const b = item.body;
+      const s = item.span;
+      s.style.left = (b.position.x - 10) + 'px';
+      s.style.top  = (b.position.y - 10) + 'px';
+      s.style.transform = `rotate(${b.angle}rad)`;
+    });
+    requestAnimationFrame(syncDOM);
+  }
+  requestAnimationFrame(syncDOM);
+
+  // 7) 監聽radio => D=爆炸, 否則復原
+  const radios = document.querySelectorAll('input[name="feedback_choice"]');
+  radios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.value === 'D') {
+        explodeLetters();
+      } else {
+        reassembleLetters();
+      }
+    });
+  });
+
+  // 8) 爆炸函式
+  function explodeLetters() {
+    letters.forEach(item => {
+      Body.setVelocity(item.body, { x: 0, y: 0 });
+      Body.setAngularVelocity(item.body, 0);
+      let fx = (Math.random() - 0.5) * 0.02;
+      let fy = -0.05 * (Math.random() + 0.5);
+      Body.applyForce(item.body, item.body.position, { x: fx, y: fy });
+    });
+  }
+
+  // 9) 復原函式
+  function reassembleLetters() {
+    letters.forEach(item => {
+      Body.setPosition(item.body, { x: item.initX, y: item.initY });
+      Body.setAngle(item.body, 0);
+      Body.setVelocity(item.body, { x: 0, y: 0 });
+      Body.setAngularVelocity(item.body, 0);
+    });
+  }
+});
+</script>
+{% endblock scripts %}

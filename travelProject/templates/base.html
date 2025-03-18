@@ -276,5 +276,9 @@
 
   <!-- Main JS (模板主要的功能) -->
   <script src="{% static 'assets/js/main.js' %}"></script>
+
+  <!-- 預留給子模板插入 script 的區塊 -->
+  {% block scripts %}
+  {% endblock scripts %}
 </body>
 </html>

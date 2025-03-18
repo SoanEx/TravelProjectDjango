@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from accounts.views import index_view
 from camaramap import views
+from personalPage import views as personalPage_views
 from camaramap.views import line_webhook
 
 urlpatterns = [
@@ -32,6 +33,9 @@ urlpatterns = [
     path('api/nearby_places/', views.get_nearby_places, name='get_nearby_places'),
     path('itinerary/', views.generate_itinerary, name='generate_itinerary'),
     path("get_google_maps_key/", views.get_google_maps_key, name="get_google_maps_key"),
+    path('funstuff/', include('funstuff.urls')),
+    path('trends/', include('trends_app.urls')),  #拖尾逗號
+    path('personalPage/', personalPage_views.personal_page, name='personal_page'),
     path("line/webhook/", line_webhook, name="line_webhook"),
     path("api/translate/", views.translate_text_api, name="translate_text_api"),
     path("api/weather/", views.get_weather_info, name="get_weather_info"),

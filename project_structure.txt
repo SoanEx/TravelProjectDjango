@@ -2,6 +2,7 @@
 ├── .gitignore
 ├── .vscode
 │   └── settings.json
+├── appspec.yml
 ├── django1test.pem
 ├── hello_world.py
 ├── poetry.lock
@@ -9,403 +10,14 @@
 ├── pyproject.toml
 ├── README.md
 ├── requirements.txt
+├── scripts
+│   ├── after_install.sh
+│   ├── before_install.sh
+│   └── start_server.sh
 ├── setup.bat
 ├── setup.ps1
+├── ssh.txt
 ├── travelProject
-│   ├── 202502005
-│   │   ├── html
-│   │   │   ├── 404.html
-│   │   │   ├── about.html
-│   │   │   ├── assets
-│   │   │   │   ├── css
-│   │   │   │   │   ├── plugins
-│   │   │   │   │   │   ├── animate.min.css
-│   │   │   │   │   │   ├── ion.rangeSlider.min.css
-│   │   │   │   │   │   ├── jquery-ui.min.css
-│   │   │   │   │   │   ├── magnific-popup.min.css
-│   │   │   │   │   │   ├── nice-select.css
-│   │   │   │   │   │   ├── plugins.min.css
-│   │   │   │   │   │   └── swiper-bundle.min.css
-│   │   │   │   │   ├── style.css
-│   │   │   │   │   ├── style.min.css
-│   │   │   │   │   └── vendor
-│   │   │   │   │       ├── font-awesome.min.css
-│   │   │   │   │       ├── Pe-icon-7-stroke.css
-│   │   │   │   │       └── vendor.min.css
-│   │   │   │   ├── fonts
-│   │   │   │   │   ├── FontAwesome.otf
-│   │   │   │   │   ├── fontawesome-webfont.eot
-│   │   │   │   │   ├── fontawesome-webfont.svg
-│   │   │   │   │   ├── fontawesome-webfont.ttf
-│   │   │   │   │   ├── fontawesome-webfont.woff
-│   │   │   │   │   ├── fontawesome-webfont.woff2
-│   │   │   │   │   ├── Pe-icon-7-stroke.eot
-│   │   │   │   │   ├── Pe-icon-7-stroke.svg
-│   │   │   │   │   ├── Pe-icon-7-stroke.ttf
-│   │   │   │   │   └── Pe-icon-7-stroke.woff
-│   │   │   │   ├── images
-│   │   │   │   │   ├── about
-│   │   │   │   │   │   ├── banner
-│   │   │   │   │   │   │   ├── 1-1-400x500.jpg
-│   │   │   │   │   │   │   ├── 1-2-400x500.jpg
-│   │   │   │   │   │   │   └── 1-3-400x500.jpg
-│   │   │   │   │   │   └── team
-│   │   │   │   │   │       ├── 1-1-400x442.jpg
-│   │   │   │   │   │       ├── 1-2-400x442.jpg
-│   │   │   │   │   │       └── 1-3-400x442.jpg
-│   │   │   │   │   ├── background-img
-│   │   │   │   │   │   ├── 1-1-1920x1107.jpg
-│   │   │   │   │   │   ├── 1-2-1920x716.jpg
-│   │   │   │   │   │   ├── 1-3-1920x208.png
-│   │   │   │   │   │   ├── 1-4-1920x419.png
-│   │   │   │   │   │   └── inner-bg
-│   │   │   │   │   │       └── 1-1-496x566.png
-│   │   │   │   │   ├── banner
-│   │   │   │   │   │   ├── 1-1-400x250.jpg
-│   │   │   │   │   │   ├── 1-2-400x250.jpg
-│   │   │   │   │   │   ├── 1-3-400x250.jpg
-│   │   │   │   │   │   ├── 2-1-407x529.png
-│   │   │   │   │   │   ├── 2-1-620x257.jpg
-│   │   │   │   │   │   ├── 2-2-620x257.jpg
-│   │   │   │   │   │   ├── 2-3-620x257.jpg
-│   │   │   │   │   │   ├── 2-4-620x257.jpg
-│   │   │   │   │   │   └── inner-img
-│   │   │   │   │   │       └── 1-1-201x57.png
-│   │   │   │   │   ├── blog
-│   │   │   │   │   │   ├── avatar
-│   │   │   │   │   │   │   ├── 1-1-320x280.png
-│   │   │   │   │   │   │   ├── 2-1-36x36.png
-│   │   │   │   │   │   │   ├── 3-1-101x101.png
-│   │   │   │   │   │   │   ├── 3-2-101x101.png
-│   │   │   │   │   │   │   ├── 3-3-101x101.png
-│   │   │   │   │   │   │   └── signature
-│   │   │   │   │   │   │       └── bateman.png
-│   │   │   │   │   │   ├── banner
-│   │   │   │   │   │   │   ├── 1-1-400x489.jpg
-│   │   │   │   │   │   │   ├── 1-2-400x400.jpg
-│   │   │   │   │   │   │   └── 1-3-840x335.jpg
-│   │   │   │   │   │   ├── blockquote
-│   │   │   │   │   │   │   └── quotation.png
-│   │   │   │   │   │   ├── large-size
-│   │   │   │   │   │   │   └── 1-1-840x526.jpg
-│   │   │   │   │   │   ├── medium-size
-│   │   │   │   │   │   │   ├── 1-1-400x250.jpg
-│   │   │   │   │   │   │   ├── 1-2-400x250.jpg
-│   │   │   │   │   │   │   ├── 1-3-400x250.jpg
-│   │   │   │   │   │   │   ├── 1-4-400x250.jpg
-│   │   │   │   │   │   │   └── 1-5-400x250.jpg
-│   │   │   │   │   │   ├── page-navigation
-│   │   │   │   │   │   │   ├── 1-1-98x75.png
-│   │   │   │   │   │   │   └── 1-2-98x75.png
-│   │   │   │   │   │   └── small-size
-│   │   │   │   │   │       ├── 1-1-98x75.jpg
-│   │   │   │   │   │       ├── 1-2-98x75.jpg
-│   │   │   │   │   │       ├── 1-3-98x75.jpg
-│   │   │   │   │   │       └── 1-4-98x75.jpg
-│   │   │   │   │   ├── brand
-│   │   │   │   │   │   ├── 1-1.png
-│   │   │   │   │   │   ├── 1-2.png
-│   │   │   │   │   │   ├── 1-3.png
-│   │   │   │   │   │   ├── 1-4.png
-│   │   │   │   │   │   ├── 1-5.png
-│   │   │   │   │   │   └── 1-6.png
-│   │   │   │   │   ├── breadcrumb
-│   │   │   │   │   │   └── bg
-│   │   │   │   │   │       └── 1-1-1920x400.jpg
-│   │   │   │   │   ├── contact
-│   │   │   │   │   │   └── 1-1-520x278.png
-│   │   │   │   │   ├── error-404
-│   │   │   │   │   │   └── 1.png
-│   │   │   │   │   ├── favicon.ico
-│   │   │   │   │   ├── logo
-│   │   │   │   │   │   ├── dark.png
-│   │   │   │   │   │   └── light.png
-│   │   │   │   │   ├── megamenu
-│   │   │   │   │   │   └── banner
-│   │   │   │   │   │       └── 1.jpg
-│   │   │   │   │   ├── newsletter
-│   │   │   │   │   │   └── 1-1-491x529.png
-│   │   │   │   │   ├── payment
-│   │   │   │   │   │   └── 1.png
-│   │   │   │   │   ├── product
-│   │   │   │   │   │   ├── icon
-│   │   │   │   │   │   │   ├── 1.png
-│   │   │   │   │   │   │   ├── 2.png
-│   │   │   │   │   │   │   ├── 3.png
-│   │   │   │   │   │   │   ├── 4.png
-│   │   │   │   │   │   │   └── 5.png
-│   │   │   │   │   │   ├── large-size
-│   │   │   │   │   │   │   ├── 2-1-618x578.jpg
-│   │   │   │   │   │   │   ├── 2-2-618x578.jpg
-│   │   │   │   │   │   │   ├── 2-3-618x578.jpg
-│   │   │   │   │   │   │   ├── 2-4-618x578.jpg
-│   │   │   │   │   │   │   ├── 2-5-618x578.jpg
-│   │   │   │   │   │   │   └── 2-6-618x578.jpg
-│   │   │   │   │   │   ├── medium-size
-│   │   │   │   │   │   │   ├── new-product
-│   │   │   │   │   │   │   │   ├── 1-1-620x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-2-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-3-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-4-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-5-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-6-290x350.jpg
-│   │   │   │   │   │   │   │   └── 1-7-290x350.jpg
-│   │   │   │   │   │   │   ├── product-slider
-│   │   │   │   │   │   │   │   ├── 1-1-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-2-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-3-290x350.jpg
-│   │   │   │   │   │   │   │   └── 1-4-290x350.jpg
-│   │   │   │   │   │   │   ├── shop
-│   │   │   │   │   │   │   │   ├── 1-10-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-11-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-12-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-1-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-2-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-3-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-4-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-5-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-6-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-7-290x350.jpg
-│   │   │   │   │   │   │   │   ├── 1-8-290x350.jpg
-│   │   │   │   │   │   │   │   └── 1-9-290x350.jpg
-│   │   │   │   │   │   │   └── special-deals
-│   │   │   │   │   │   │       ├── 1-1-620x350.jpg
-│   │   │   │   │   │   │       ├── 1-2-290x350.jpg
-│   │   │   │   │   │   │       ├── 1-3-290x350.jpg
-│   │   │   │   │   │   │       ├── 1-4-290x350.jpg
-│   │   │   │   │   │   │       ├── 1-5-290x350.jpg
-│   │   │   │   │   │   │       ├── 2-1-290x350.jpg
-│   │   │   │   │   │   │       ├── 2-2-290x350.jpg
-│   │   │   │   │   │   │       ├── 2-3-290x350.jpg
-│   │   │   │   │   │   │       └── banner
-│   │   │   │   │   │   │           ├── 1-1-290x748.jpg
-│   │   │   │   │   │   │           └── 2-1-290x350.jpg
-│   │   │   │   │   │   ├── small-size
-│   │   │   │   │   │   │   ├── 1-1-70x70.png
-│   │   │   │   │   │   │   ├── 1-2-70x70.png
-│   │   │   │   │   │   │   ├── 1-3-70x70.png
-│   │   │   │   │   │   │   ├── 1-4-70x70.png
-│   │   │   │   │   │   │   ├── 1-5-70x70.png
-│   │   │   │   │   │   │   ├── 2-1-112x112.png
-│   │   │   │   │   │   │   ├── 2-2-112x112.png
-│   │   │   │   │   │   │   └── 2-3-112x112.png
-│   │   │   │   │   │   └── top-category
-│   │   │   │   │   │       ├── 1-1-180x180.png
-│   │   │   │   │   │       ├── 1-2-180x180.png
-│   │   │   │   │   │       ├── 1-3-180x180.png
-│   │   │   │   │   │       ├── 1-4-180x180.png
-│   │   │   │   │   │       ├── 1-5-180x180.png
-│   │   │   │   │   │       └── 1-6-180x180.png
-│   │   │   │   │   ├── shape
-│   │   │   │   │   │   ├── 1.png
-│   │   │   │   │   │   └── 2.png
-│   │   │   │   │   ├── shipping
-│   │   │   │   │   │   ├── bg
-│   │   │   │   │   │   │   └── 1-1-1280x202.jpg
-│   │   │   │   │   │   ├── icon
-│   │   │   │   │   │   │   ├── earphones.png
-│   │   │   │   │   │   │   ├── home.png
-│   │   │   │   │   │   │   ├── message.png
-│   │   │   │   │   │   │   ├── phone.png
-│   │   │   │   │   │   │   ├── plane.png
-│   │   │   │   │   │   │   └── shield.png
-│   │   │   │   │   │   └── shape
-│   │   │   │   │   │       └── 1.png
-│   │   │   │   │   ├── slider
-│   │   │   │   │   │   ├── arrow
-│   │   │   │   │   │   │   ├── left-arrow.png
-│   │   │   │   │   │   │   └── right-arrow.png
-│   │   │   │   │   │   ├── bg
-│   │   │   │   │   │   │   ├── 1-1.jpg
-│   │   │   │   │   │   │   ├── 1-2.jpg
-│   │   │   │   │   │   │   └── 2-1.jpg
-│   │   │   │   │   │   └── inner-img
-│   │   │   │   │   │       ├── 2-1-654x444.png
-│   │   │   │   │   │       └── 2-2-654x444.png
-│   │   │   │   │   └── testimonial
-│   │   │   │   │       └── user
-│   │   │   │   │           ├── 1.png
-│   │   │   │   │           ├── 2.png
-│   │   │   │   │           ├── 3.png
-│   │   │   │   │           ├── inner-icon
-│   │   │   │   │           │   └── 1.png
-│   │   │   │   │           └── shape
-│   │   │   │   │               └── 1.png
-│   │   │   │   ├── js
-│   │   │   │   │   ├── main.js
-│   │   │   │   │   ├── main.min.js
-│   │   │   │   │   ├── plugins
-│   │   │   │   │   │   ├── ion.rangeSlider.min.js
-│   │   │   │   │   │   ├── jquery.magnific-popup.min.js
-│   │   │   │   │   │   ├── jquery.nice-select.js
-│   │   │   │   │   │   ├── jquery.zoom.min.js
-│   │   │   │   │   │   ├── jquery-ui.min.js
-│   │   │   │   │   │   ├── mailchimp-ajax.js
-│   │   │   │   │   │   ├── parallax.min.js
-│   │   │   │   │   │   ├── swiper-bundle.min.js
-│   │   │   │   │   │   ├── tippy.min.js
-│   │   │   │   │   │   └── wow.min.js
-│   │   │   │   │   ├── plugins.min.js
-│   │   │   │   │   ├── vendor
-│   │   │   │   │   │   ├── bootstrap.bundle.min.js
-│   │   │   │   │   │   ├── jquery-3.6.0.min.js
-│   │   │   │   │   │   ├── jquery-migrate-3.3.2.min.js
-│   │   │   │   │   │   └── modernizr-3.11.2.min.js
-│   │   │   │   │   └── vendor.min.js
-│   │   │   │   └── scss
-│   │   │   │       ├── _404.scss
-│   │   │   │       ├── _about.scss
-│   │   │   │       ├── _animation.scss
-│   │   │   │       ├── _banner.scss
-│   │   │   │       ├── _blog.scss
-│   │   │   │       ├── _brand.scss
-│   │   │   │       ├── _breadcrumb.scss
-│   │   │   │       ├── _cart.scss
-│   │   │   │       ├── _checkout.scss
-│   │   │   │       ├── _common.scss
-│   │   │   │       ├── _compare.scss
-│   │   │   │       ├── _contact.scss
-│   │   │   │       ├── _faq.scss
-│   │   │   │       ├── _footer.scss
-│   │   │   │       ├── _header.scss
-│   │   │   │       ├── _login-register.scss
-│   │   │   │       ├── _modal.scss
-│   │   │   │       ├── _my-account.scss
-│   │   │   │       ├── _navigation.scss
-│   │   │   │       ├── _newsletter.scss
-│   │   │   │       ├── _offcanvas.scss
-│   │   │   │       ├── _product.scss
-│   │   │   │       ├── _shipping.scss
-│   │   │   │       ├── _shop.scss
-│   │   │   │       ├── _sidebar.scss
-│   │   │   │       ├── _slider.scss
-│   │   │   │       ├── _testimonial.scss
-│   │   │   │       ├── _variabls.scss
-│   │   │   │       ├── _wishlist.scss
-│   │   │   │       ├── bootstrap
-│   │   │   │       │   ├── _accordion.scss
-│   │   │   │       │   ├── _alert.scss
-│   │   │   │       │   ├── _badge.scss
-│   │   │   │       │   ├── _breadcrumb.scss
-│   │   │   │       │   ├── _button-group.scss
-│   │   │   │       │   ├── _buttons.scss
-│   │   │   │       │   ├── _card.scss
-│   │   │   │       │   ├── _carousel.scss
-│   │   │   │       │   ├── _close.scss
-│   │   │   │       │   ├── _containers.scss
-│   │   │   │       │   ├── _dropdown.scss
-│   │   │   │       │   ├── _forms.scss
-│   │   │   │       │   ├── _functions.scss
-│   │   │   │       │   ├── _grid.scss
-│   │   │   │       │   ├── _helpers.scss
-│   │   │   │       │   ├── _images.scss
-│   │   │   │       │   ├── _list-group.scss
-│   │   │   │       │   ├── _maps.scss
-│   │   │   │       │   ├── _mixins.scss
-│   │   │   │       │   ├── _modal.scss
-│   │   │   │       │   ├── _nav.scss
-│   │   │   │       │   ├── _navbar.scss
-│   │   │   │       │   ├── _offcanvas.scss
-│   │   │   │       │   ├── _pagination.scss
-│   │   │   │       │   ├── _placeholders.scss
-│   │   │   │       │   ├── _popover.scss
-│   │   │   │       │   ├── _progress.scss
-│   │   │   │       │   ├── _reboot.scss
-│   │   │   │       │   ├── _root.scss
-│   │   │   │       │   ├── _spinners.scss
-│   │   │   │       │   ├── _tables.scss
-│   │   │   │       │   ├── _toasts.scss
-│   │   │   │       │   ├── _tooltip.scss
-│   │   │   │       │   ├── _transitions.scss
-│   │   │   │       │   ├── _type.scss
-│   │   │   │       │   ├── _utilities.scss
-│   │   │   │       │   ├── _variables.scss
-│   │   │   │       │   ├── bootstrap.scss
-│   │   │   │       │   ├── bootstrap-grid.scss
-│   │   │   │       │   ├── bootstrap-reboot.scss
-│   │   │   │       │   ├── bootstrap-utilities.scss
-│   │   │   │       │   ├── forms
-│   │   │   │       │   │   ├── _floating-labels.scss
-│   │   │   │       │   │   ├── _form-check.scss
-│   │   │   │       │   │   ├── _form-control.scss
-│   │   │   │       │   │   ├── _form-range.scss
-│   │   │   │       │   │   ├── _form-select.scss
-│   │   │   │       │   │   ├── _form-text.scss
-│   │   │   │       │   │   ├── _input-group.scss
-│   │   │   │       │   │   ├── _labels.scss
-│   │   │   │       │   │   └── _validation.scss
-│   │   │   │       │   ├── helpers
-│   │   │   │       │   │   ├── _clearfix.scss
-│   │   │   │       │   │   ├── _color-bg.scss
-│   │   │   │       │   │   ├── _colored-links.scss
-│   │   │   │       │   │   ├── _position.scss
-│   │   │   │       │   │   ├── _ratio.scss
-│   │   │   │       │   │   ├── _stacks.scss
-│   │   │   │       │   │   ├── _stretched-link.scss
-│   │   │   │       │   │   ├── _text-truncation.scss
-│   │   │   │       │   │   ├── _visually-hidden.scss
-│   │   │   │       │   │   └── _vr.scss
-│   │   │   │       │   ├── mixins
-│   │   │   │       │   │   ├── _alert.scss
-│   │   │   │       │   │   ├── _backdrop.scss
-│   │   │   │       │   │   ├── _banner.scss
-│   │   │   │       │   │   ├── _border-radius.scss
-│   │   │   │       │   │   ├── _box-shadow.scss
-│   │   │   │       │   │   ├── _breakpoints.scss
-│   │   │   │       │   │   ├── _buttons.scss
-│   │   │   │       │   │   ├── _caret.scss
-│   │   │   │       │   │   ├── _clearfix.scss
-│   │   │   │       │   │   ├── _color-scheme.scss
-│   │   │   │       │   │   ├── _container.scss
-│   │   │   │       │   │   ├── _deprecate.scss
-│   │   │   │       │   │   ├── _forms.scss
-│   │   │   │       │   │   ├── _gradients.scss
-│   │   │   │       │   │   ├── _grid.scss
-│   │   │   │       │   │   ├── _image.scss
-│   │   │   │       │   │   ├── _list-group.scss
-│   │   │   │       │   │   ├── _lists.scss
-│   │   │   │       │   │   ├── _pagination.scss
-│   │   │   │       │   │   ├── _reset-text.scss
-│   │   │   │       │   │   ├── _resize.scss
-│   │   │   │       │   │   ├── _table-variants.scss
-│   │   │   │       │   │   ├── _text-truncate.scss
-│   │   │   │       │   │   ├── _transition.scss
-│   │   │   │       │   │   ├── _utilities.scss
-│   │   │   │       │   │   └── _visually-hidden.scss
-│   │   │   │       │   ├── utilities
-│   │   │   │       │   │   └── _api.scss
-│   │   │   │       │   └── vendor
-│   │   │   │       │       └── _rfs.scss
-│   │   │   │       └── style.scss
-│   │   │   ├── blog.html
-│   │   │   ├── blog-detail.html
-│   │   │   ├── blog-listview.html
-│   │   │   ├── cart.html
-│   │   │   ├── checkout.html
-│   │   │   ├── compare.html
-│   │   │   ├── contact.html
-│   │   │   ├── faq.html
-│   │   │   ├── index.html
-│   │   │   ├── index-2.html
-│   │   │   ├── login-register.html
-│   │   │   ├── my-account.html
-│   │   │   ├── shop.html
-│   │   │   ├── shop-grid-fullwidth.html
-│   │   │   ├── shop-list-fullwidth.html
-│   │   │   ├── shop-list-left-sidebar.html
-│   │   │   ├── shop-list-right-sidebar.html
-│   │   │   ├── shop-right-sidebar.html
-│   │   │   ├── single-product.html
-│   │   │   ├── single-product-affiliate.html
-│   │   │   ├── single-product-group.html
-│   │   │   ├── single-product-sale.html
-│   │   │   ├── single-product-sticky.html
-│   │   │   ├── single-product-variable.html
-│   │   │   └── wishlist.html
-│   │   ├── ReadMe.txt
-│   │   ├── 下载字体.url
-│   │   ├── 下载网页特效.url
-│   │   └── 下载网页模板.url
 │   ├── accounts
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -437,369 +49,167 @@
 │   │   ├── tests.py
 │   │   ├── urls.py
 │   │   └── views.py
+│   ├── bookkeeping
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── admin.cpython-310.pyc
+│   │   │   ├── apps.cpython-310.pyc
+│   │   │   ├── forms.cpython-310.pyc
+│   │   │   ├── models.cpython-310.pyc
+│   │   │   ├── urls.cpython-310.pyc
+│   │   │   └── views.cpython-310.pyc
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── forms.py
+│   │   ├── migrations
+│   │   │   ├── __init__.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-310.pyc
+│   │   │   │   └── 0001_initial.cpython-310.pyc
+│   │   │   └── 0001_initial.py
+│   │   ├── models.py
+│   │   ├── templates
+│   │   │   └── bookkeeping
+│   │   │       ├── base.html
+│   │   │       ├── details.html
+│   │   │       ├── index.html
+│   │   │       ├── items.html
+│   │   │       ├── nav.html
+│   │   │       └── newitem.html
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── camaramap
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── admin.cpython-310.pyc
+│   │   │   ├── apps.cpython-310.pyc
+│   │   │   ├── models.cpython-310.pyc
+│   │   │   └── views.cpython-310.pyc
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── migrations
+│   │   │   ├── __init__.py
+│   │   │   ├── __pycache__
+│   │   │   │   ├── __init__.cpython-310.pyc
+│   │   │   │   ├── 0001_initial.cpython-310.pyc
+│   │   │   │   └── 0002_delete_speedcamera.cpython-310.pyc
+│   │   │   ├── 0001_initial.py
+│   │   │   └── 0002_delete_speedcamera.py
+│   │   ├── models.py
+│   │   ├── speed_cameras.csv
+│   │   ├── templates
+│   │   │   └── camaramap
+│   │   │       ├── dynamicmap.html
+│   │   │       ├── index.html
+│   │   │       └── speed_camera_map.html
+│   │   ├── tests.py
+│   │   └── views.py
+│   ├── db.sqlite3
+│   ├── funstuff
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── admin.cpython-310.pyc
+│   │   │   ├── apps.cpython-310.pyc
+│   │   │   ├── forms.cpython-310.pyc
+│   │   │   ├── models.cpython-310.pyc
+│   │   │   ├── urls.cpython-310.pyc
+│   │   │   └── views.cpython-310.pyc
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── forms.py
+│   │   ├── migrations
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       └── __init__.cpython-310.pyc
+│   │   ├── mixins.py
+│   │   ├── models.py
+│   │   ├── static
+│   │   │   └── funstuff
+│   │   │       └── js
+│   │   │           ├── auto_close_switch.js
+│   │   │           └── explosive_quiz.js
+│   │   ├── templates
+│   │   │   └── funstuff
+│   │   │       └── widgets
+│   │   │           ├── auto_close_switch.html
+│   │   │           ├── explosive_quiz.html
+│   │   │           ├── feedback_explosive.html
+│   │   │           ├── feedback_explosive_physics.html
+│   │   │           └── real2Dphisi.html
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   ├── utils.py
+│   │   └── views.py
 │   ├── manage.py
+│   ├── personalPage
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── admin.cpython-310.pyc
+│   │   │   ├── apps.cpython-310.pyc
+│   │   │   ├── models.cpython-310.pyc
+│   │   │   └── views.cpython-310.pyc
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── migrations
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   │       └── __init__.cpython-310.pyc
+│   │   ├── models.py
+│   │   ├── static
+│   │   │   └── react
+│   │   │       ├── asset-manifest.json
+│   │   │       ├── favicon.ico
+│   │   │       ├── index.html
+│   │   │       ├── logo192.png
+│   │   │       ├── logo512.png
+│   │   │       ├── manifest.json
+│   │   │       ├── robots.txt
+│   │   │       └── static
+│   │   │           ├── css
+│   │   │           │   ├── main.f855e6bc.css
+│   │   │           │   └── main.f855e6bc.css.map
+│   │   │           ├── js
+│   │   │           │   ├── 453.ab49e6c3.chunk.js
+│   │   │           │   ├── 453.ab49e6c3.chunk.js.map
+│   │   │           │   ├── main.4d68078e.js
+│   │   │           │   ├── main.4d68078e.js.LICENSE.txt
+│   │   │           │   └── main.4d68078e.js.map
+│   │   │           └── media
+│   │   │               └── logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg
+│   │   ├── templates
+│   │   │   └── react
+│   │   │       └── personalPage.html
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   ├── personalpage-frontend
+│   │   ├── .gitignore
+│   │   ├── package.json
+│   │   ├── package-lock.json
+│   │   ├── public
+│   │   │   ├── favicon.ico
+│   │   │   ├── index.html
+│   │   │   ├── logo192.png
+│   │   │   ├── logo512.png
+│   │   │   ├── manifest.json
+│   │   │   └── robots.txt
+│   │   ├── README.md
+│   │   └── src
+│   │       ├── App.css
+│   │       ├── App.js
+│   │       ├── App.test.js
+│   │       ├── index.css
+│   │       ├── index.js
+│   │       ├── logo.svg
+│   │       ├── reportWebVitals.js
+│   │       └── setupTests.js
 │   ├── static
-│   │   └── assets
-│   │       ├── css
-│   │       │   ├── plugins
-│   │       │   │   ├── animate.min.css
-│   │       │   │   ├── ion.rangeSlider.min.css
-│   │       │   │   ├── jquery-ui.min.css
-│   │       │   │   ├── magnific-popup.min.css
-│   │       │   │   ├── nice-select.css
-│   │       │   │   ├── plugins.min.css
-│   │       │   │   └── swiper-bundle.min.css
-│   │       │   ├── style.css
-│   │       │   ├── style.min.css
-│   │       │   └── vendor
-│   │       │       ├── font-awesome.min.css
-│   │       │       ├── Pe-icon-7-stroke.css
-│   │       │       └── vendor.min.css
-│   │       ├── fonts
-│   │       │   ├── FontAwesome.otf
-│   │       │   ├── fontawesome-webfont.eot
-│   │       │   ├── fontawesome-webfont.svg
-│   │       │   ├── fontawesome-webfont.ttf
-│   │       │   ├── fontawesome-webfont.woff
-│   │       │   ├── fontawesome-webfont.woff2
-│   │       │   ├── Pe-icon-7-stroke.eot
-│   │       │   ├── Pe-icon-7-stroke.svg
-│   │       │   ├── Pe-icon-7-stroke.ttf
-│   │       │   └── Pe-icon-7-stroke.woff
-│   │       ├── images
-│   │       │   ├── about
-│   │       │   │   ├── banner
-│   │       │   │   │   ├── 1-1-400x500.jpg
-│   │       │   │   │   ├── 1-2-400x500.jpg
-│   │       │   │   │   └── 1-3-400x500.jpg
-│   │       │   │   └── team
-│   │       │   │       ├── 1-1-400x442.jpg
-│   │       │   │       ├── 1-2-400x442.jpg
-│   │       │   │       └── 1-3-400x442.jpg
-│   │       │   ├── background-img
-│   │       │   │   ├── 1-1-1920x1107.jpg
-│   │       │   │   ├── 1-2-1920x716.jpg
-│   │       │   │   ├── 1-3-1920x208.png
-│   │       │   │   ├── 1-4-1920x419.png
-│   │       │   │   └── inner-bg
-│   │       │   │       └── 1-1-496x566.png
-│   │       │   ├── banner
-│   │       │   │   ├── 1-1-400x250.jpg
-│   │       │   │   ├── 1-2-400x250.jpg
-│   │       │   │   ├── 1-3-400x250.jpg
-│   │       │   │   ├── 2-1-407x529.png
-│   │       │   │   ├── 2-1-620x257.jpg
-│   │       │   │   ├── 2-2-620x257.jpg
-│   │       │   │   ├── 2-3-620x257.jpg
-│   │       │   │   ├── 2-4-620x257.jpg
-│   │       │   │   └── inner-img
-│   │       │   │       └── 1-1-201x57.png
-│   │       │   ├── blog
-│   │       │   │   ├── avatar
-│   │       │   │   │   ├── 1-1-320x280.png
-│   │       │   │   │   ├── 2-1-36x36.png
-│   │       │   │   │   ├── 3-1-101x101.png
-│   │       │   │   │   ├── 3-2-101x101.png
-│   │       │   │   │   ├── 3-3-101x101.png
-│   │       │   │   │   └── signature
-│   │       │   │   │       └── bateman.png
-│   │       │   │   ├── banner
-│   │       │   │   │   ├── 1-1-400x489.jpg
-│   │       │   │   │   ├── 1-2-400x400.jpg
-│   │       │   │   │   └── 1-3-840x335.jpg
-│   │       │   │   ├── blockquote
-│   │       │   │   │   └── quotation.png
-│   │       │   │   ├── large-size
-│   │       │   │   │   └── 1-1-840x526.jpg
-│   │       │   │   ├── medium-size
-│   │       │   │   │   ├── 1-1-400x250.jpg
-│   │       │   │   │   ├── 1-2-400x250.jpg
-│   │       │   │   │   ├── 1-3-400x250.jpg
-│   │       │   │   │   ├── 1-4-400x250.jpg
-│   │       │   │   │   └── 1-5-400x250.jpg
-│   │       │   │   ├── page-navigation
-│   │       │   │   │   ├── 1-1-98x75.png
-│   │       │   │   │   └── 1-2-98x75.png
-│   │       │   │   └── small-size
-│   │       │   │       ├── 1-1-98x75.jpg
-│   │       │   │       ├── 1-2-98x75.jpg
-│   │       │   │       ├── 1-3-98x75.jpg
-│   │       │   │       └── 1-4-98x75.jpg
-│   │       │   ├── brand
-│   │       │   │   ├── 1-1.png
-│   │       │   │   ├── 1-2.png
-│   │       │   │   ├── 1-3.png
-│   │       │   │   ├── 1-4.png
-│   │       │   │   ├── 1-5.png
-│   │       │   │   └── 1-6.png
-│   │       │   ├── breadcrumb
-│   │       │   │   └── bg
-│   │       │   │       └── 1-1-1920x400.jpg
-│   │       │   ├── contact
-│   │       │   │   └── 1-1-520x278.png
-│   │       │   ├── error-404
-│   │       │   │   └── 1.png
-│   │       │   ├── favicon.ico
-│   │       │   ├── logo
-│   │       │   │   ├── dark.png
-│   │       │   │   └── light.png
-│   │       │   ├── megamenu
-│   │       │   │   └── banner
-│   │       │   │       └── 1.jpg
-│   │       │   ├── newsletter
-│   │       │   │   └── 1-1-491x529.png
-│   │       │   ├── payment
-│   │       │   │   └── 1.png
-│   │       │   ├── product
-│   │       │   │   ├── icon
-│   │       │   │   │   ├── 1.png
-│   │       │   │   │   ├── 2.png
-│   │       │   │   │   ├── 3.png
-│   │       │   │   │   ├── 4.png
-│   │       │   │   │   └── 5.png
-│   │       │   │   ├── large-size
-│   │       │   │   │   ├── 2-1-618x578.jpg
-│   │       │   │   │   ├── 2-2-618x578.jpg
-│   │       │   │   │   ├── 2-3-618x578.jpg
-│   │       │   │   │   ├── 2-4-618x578.jpg
-│   │       │   │   │   ├── 2-5-618x578.jpg
-│   │       │   │   │   └── 2-6-618x578.jpg
-│   │       │   │   ├── medium-size
-│   │       │   │   │   ├── new-product
-│   │       │   │   │   │   ├── 1-1-620x350.jpg
-│   │       │   │   │   │   ├── 1-2-290x350.jpg
-│   │       │   │   │   │   ├── 1-3-290x350.jpg
-│   │       │   │   │   │   ├── 1-4-290x350.jpg
-│   │       │   │   │   │   ├── 1-5-290x350.jpg
-│   │       │   │   │   │   ├── 1-6-290x350.jpg
-│   │       │   │   │   │   └── 1-7-290x350.jpg
-│   │       │   │   │   ├── product-slider
-│   │       │   │   │   │   ├── 1-1-290x350.jpg
-│   │       │   │   │   │   ├── 1-2-290x350.jpg
-│   │       │   │   │   │   ├── 1-3-290x350.jpg
-│   │       │   │   │   │   └── 1-4-290x350.jpg
-│   │       │   │   │   ├── shop
-│   │       │   │   │   │   ├── 1-10-290x350.jpg
-│   │       │   │   │   │   ├── 1-11-290x350.jpg
-│   │       │   │   │   │   ├── 1-12-290x350.jpg
-│   │       │   │   │   │   ├── 1-1-290x350.jpg
-│   │       │   │   │   │   ├── 1-2-290x350.jpg
-│   │       │   │   │   │   ├── 1-3-290x350.jpg
-│   │       │   │   │   │   ├── 1-4-290x350.jpg
-│   │       │   │   │   │   ├── 1-5-290x350.jpg
-│   │       │   │   │   │   ├── 1-6-290x350.jpg
-│   │       │   │   │   │   ├── 1-7-290x350.jpg
-│   │       │   │   │   │   ├── 1-8-290x350.jpg
-│   │       │   │   │   │   └── 1-9-290x350.jpg
-│   │       │   │   │   └── special-deals
-│   │       │   │   │       ├── 1-1-620x350.jpg
-│   │       │   │   │       ├── 1-2-290x350.jpg
-│   │       │   │   │       ├── 1-3-290x350.jpg
-│   │       │   │   │       ├── 1-4-290x350.jpg
-│   │       │   │   │       ├── 1-5-290x350.jpg
-│   │       │   │   │       ├── 2-1-290x350.jpg
-│   │       │   │   │       ├── 2-2-290x350.jpg
-│   │       │   │   │       ├── 2-3-290x350.jpg
-│   │       │   │   │       └── banner
-│   │       │   │   │           ├── 1-1-290x748.jpg
-│   │       │   │   │           └── 2-1-290x350.jpg
-│   │       │   │   ├── small-size
-│   │       │   │   │   ├── 1-1-70x70.png
-│   │       │   │   │   ├── 1-2-70x70.png
-│   │       │   │   │   ├── 1-3-70x70.png
-│   │       │   │   │   ├── 1-4-70x70.png
-│   │       │   │   │   ├── 1-5-70x70.png
-│   │       │   │   │   ├── 2-1-112x112.png
-│   │       │   │   │   ├── 2-2-112x112.png
-│   │       │   │   │   └── 2-3-112x112.png
-│   │       │   │   └── top-category
-│   │       │   │       ├── 1-1-180x180.png
-│   │       │   │       ├── 1-2-180x180.png
-│   │       │   │       ├── 1-3-180x180.png
-│   │       │   │       ├── 1-4-180x180.png
-│   │       │   │       ├── 1-5-180x180.png
-│   │       │   │       └── 1-6-180x180.png
-│   │       │   ├── shape
-│   │       │   │   ├── 1.png
-│   │       │   │   └── 2.png
-│   │       │   ├── shipping
-│   │       │   │   ├── bg
-│   │       │   │   │   └── 1-1-1280x202.jpg
-│   │       │   │   ├── icon
-│   │       │   │   │   ├── earphones.png
-│   │       │   │   │   ├── home.png
-│   │       │   │   │   ├── message.png
-│   │       │   │   │   ├── phone.png
-│   │       │   │   │   ├── plane.png
-│   │       │   │   │   └── shield.png
-│   │       │   │   └── shape
-│   │       │   │       └── 1.png
-│   │       │   ├── slider
-│   │       │   │   ├── arrow
-│   │       │   │   │   ├── left-arrow.png
-│   │       │   │   │   └── right-arrow.png
-│   │       │   │   ├── bg
-│   │       │   │   │   ├── 1-1.jpg
-│   │       │   │   │   ├── 1-2.jpg
-│   │       │   │   │   └── 2-1.jpg
-│   │       │   │   └── inner-img
-│   │       │   │       ├── 2-1-654x444.png
-│   │       │   │       └── 2-2-654x444.png
-│   │       │   └── testimonial
-│   │       │       └── user
-│   │       │           ├── 1.png
-│   │       │           ├── 2.png
-│   │       │           ├── 3.png
-│   │       │           ├── inner-icon
-│   │       │           │   └── 1.png
-│   │       │           └── shape
-│   │       │               └── 1.png
-│   │       ├── js
-│   │       │   ├── main.js
-│   │       │   ├── main.min.js
-│   │       │   ├── plugins
-│   │       │   │   ├── ion.rangeSlider.min.js
-│   │       │   │   ├── jquery.magnific-popup.min.js
-│   │       │   │   ├── jquery.nice-select.js
-│   │       │   │   ├── jquery.zoom.min.js
-│   │       │   │   ├── jquery-ui.min.js
-│   │       │   │   ├── mailchimp-ajax.js
-│   │       │   │   ├── parallax.min.js
-│   │       │   │   ├── swiper-bundle.min.js
-│   │       │   │   ├── tippy.min.js
-│   │       │   │   └── wow.min.js
-│   │       │   ├── plugins.min.js
-│   │       │   ├── vendor
-│   │       │   │   ├── bootstrap.bundle.min.js
-│   │       │   │   ├── jquery-3.6.0.min.js
-│   │       │   │   ├── jquery-migrate-3.3.2.min.js
-│   │       │   │   └── modernizr-3.11.2.min.js
-│   │       │   └── vendor.min.js
-│   │       └── scss
-│   │           ├── _404.scss
-│   │           ├── _about.scss
-│   │           ├── _animation.scss
-│   │           ├── _banner.scss
-│   │           ├── _blog.scss
-│   │           ├── _brand.scss
-│   │           ├── _breadcrumb.scss
-│   │           ├── _cart.scss
-│   │           ├── _checkout.scss
-│   │           ├── _common.scss
-│   │           ├── _compare.scss
-│   │           ├── _contact.scss
-│   │           ├── _faq.scss
-│   │           ├── _footer.scss
-│   │           ├── _header.scss
-│   │           ├── _login-register.scss
-│   │           ├── _modal.scss
-│   │           ├── _my-account.scss
-│   │           ├── _navigation.scss
-│   │           ├── _newsletter.scss
-│   │           ├── _offcanvas.scss
-│   │           ├── _product.scss
-│   │           ├── _shipping.scss
-│   │           ├── _shop.scss
-│   │           ├── _sidebar.scss
-│   │           ├── _slider.scss
-│   │           ├── _testimonial.scss
-│   │           ├── _variabls.scss
-│   │           ├── _wishlist.scss
-│   │           ├── bootstrap
-│   │           │   ├── _accordion.scss
-│   │           │   ├── _alert.scss
-│   │           │   ├── _badge.scss
-│   │           │   ├── _breadcrumb.scss
-│   │           │   ├── _button-group.scss
-│   │           │   ├── _buttons.scss
-│   │           │   ├── _card.scss
-│   │           │   ├── _carousel.scss
-│   │           │   ├── _close.scss
-│   │           │   ├── _containers.scss
-│   │           │   ├── _dropdown.scss
-│   │           │   ├── _forms.scss
-│   │           │   ├── _functions.scss
-│   │           │   ├── _grid.scss
-│   │           │   ├── _helpers.scss
-│   │           │   ├── _images.scss
-│   │           │   ├── _list-group.scss
-│   │           │   ├── _maps.scss
-│   │           │   ├── _mixins.scss
-│   │           │   ├── _modal.scss
-│   │           │   ├── _nav.scss
-│   │           │   ├── _navbar.scss
-│   │           │   ├── _offcanvas.scss
-│   │           │   ├── _pagination.scss
-│   │           │   ├── _placeholders.scss
-│   │           │   ├── _popover.scss
-│   │           │   ├── _progress.scss
-│   │           │   ├── _reboot.scss
-│   │           │   ├── _root.scss
-│   │           │   ├── _spinners.scss
-│   │           │   ├── _tables.scss
-│   │           │   ├── _toasts.scss
-│   │           │   ├── _tooltip.scss
-│   │           │   ├── _transitions.scss
-│   │           │   ├── _type.scss
-│   │           │   ├── _utilities.scss
-│   │           │   ├── _variables.scss
-│   │           │   ├── bootstrap.scss
-│   │           │   ├── bootstrap-grid.scss
-│   │           │   ├── bootstrap-reboot.scss
-│   │           │   ├── bootstrap-utilities.scss
-│   │           │   ├── forms
-│   │           │   │   ├── _floating-labels.scss
-│   │           │   │   ├── _form-check.scss
-│   │           │   │   ├── _form-control.scss
-│   │           │   │   ├── _form-range.scss
-│   │           │   │   ├── _form-select.scss
-│   │           │   │   ├── _form-text.scss
-│   │           │   │   ├── _input-group.scss
-│   │           │   │   ├── _labels.scss
-│   │           │   │   └── _validation.scss
-│   │           │   ├── helpers
-│   │           │   │   ├── _clearfix.scss
-│   │           │   │   ├── _color-bg.scss
-│   │           │   │   ├── _colored-links.scss
-│   │           │   │   ├── _position.scss
-│   │           │   │   ├── _ratio.scss
-│   │           │   │   ├── _stacks.scss
-│   │           │   │   ├── _stretched-link.scss
-│   │           │   │   ├── _text-truncation.scss
-│   │           │   │   ├── _visually-hidden.scss
-│   │           │   │   └── _vr.scss
-│   │           │   ├── mixins
-│   │           │   │   ├── _alert.scss
-│   │           │   │   ├── _backdrop.scss
-│   │           │   │   ├── _banner.scss
-│   │           │   │   ├── _border-radius.scss
-│   │           │   │   ├── _box-shadow.scss
-│   │           │   │   ├── _breakpoints.scss
-│   │           │   │   ├── _buttons.scss
-│   │           │   │   ├── _caret.scss
-│   │           │   │   ├── _clearfix.scss
-│   │           │   │   ├── _color-scheme.scss
-│   │           │   │   ├── _container.scss
-│   │           │   │   ├── _deprecate.scss
-│   │           │   │   ├── _forms.scss
-│   │           │   │   ├── _gradients.scss
-│   │           │   │   ├── _grid.scss
-│   │           │   │   ├── _image.scss
-│   │           │   │   ├── _list-group.scss
-│   │           │   │   ├── _lists.scss
-│   │           │   │   ├── _pagination.scss
-│   │           │   │   ├── _reset-text.scss
-│   │           │   │   ├── _resize.scss
-│   │           │   │   ├── _table-variants.scss
-│   │           │   │   ├── _text-truncate.scss
-│   │           │   │   ├── _transition.scss
-│   │           │   │   ├── _utilities.scss
-│   │           │   │   └── _visually-hidden.scss
-│   │           │   ├── utilities
-│   │           │   │   └── _api.scss
-│   │           │   └── vendor
-│   │           │       └── _rfs.scss
-│   │           └── style.scss
+│   ├── staticfiles
 │   ├── templates
 │   │   ├── base.html
 │   │   └── index.html

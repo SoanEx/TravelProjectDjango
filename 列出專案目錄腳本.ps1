@@ -10,7 +10,7 @@ function Tree {
     )
 
     # 取得當前目錄下的所有檔案與資料夾，並排除 .venv 目錄
-    $items = Get-ChildItem -Path $Path -Exclude ".venv" | Sort-Object Name
+    $items = Get-ChildItem -Path $Path -Exclude ".venv","jdk-23.0.2","assets" | Sort-Object Name
     $count = $items.Count
     $output = @()  # 用來存儲輸出內容
 

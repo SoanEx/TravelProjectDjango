@@ -1,0 +1,50 @@
+<!-- funstuff/templates/funstuff/widgets/auto_close_switch.html -->
+<label class="funstuff-switch">
+    <input type="checkbox" id="autoCloseSwitch">
+    <span class="slider round"></span>
+  </label>
+  
+  <style>
+  /* 一個簡易的 switch 外觀示例 */
+  .funstuff-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+  }
+  
+  .funstuff-switch input {
+      display: none;
+  }
+  
+  .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+  }
+  
+  .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px; width: 26px;
+      left: 4px; bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+      background-color: #ff8585;
+  }
+  
+  input:checked + .slider:before {
+      transform: translateX(26px);
+  }
+  </style>
+  
+  <!-- 引入 JS (可用 static tag, 或者直接在其他模板裡引入也行) -->
+  <script src="{% static 'funstuff/js/auto_close_switch.js' %}"></script>
+  

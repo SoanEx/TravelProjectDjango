@@ -1,0 +1,45 @@
+<!-- funstuff/templates/funstuff/widgets/explosive_quiz.html -->
+<!--
+  這是一個可重用的 "爆炸表單" widget。
+  任何地方只要 {% include 'funstuff/widgets/explosive_quiz.html' %}，
+  並確保後端有提供 form / correct_answer / explosion_text 等 context 即可。
+-->
+
+<form method="POST" id="explosiveQuizForm">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">送出</button>
+</form>
+
+<!-- 只有在答對的時候才顯示爆炸文字 -->
+{% if correct_answer %}
+<div class="explosion-container" id="explosionText">
+    {% for char in explosion_text %}
+        <span class="letter">{{ char }}</span>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div id="quizData" data-correct="{{ correct_answer|yesno:'true,false' }}" 
+     data-explosion-text="{{ explosion_text }}">
+    <!-- 這個區塊只用來存資料 -->
+</div>
+
+<style>
+.explosion-container {
+    display: inline-block;
+    position: relative;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+.letter {
+    display: inline-block;
+    position: relative;
+}
+</style>
+
+<!-- 引入負責「爆炸動畫」的 JS 檔，請確認已在 base.html 或此處 load static -->
+<script src="{% static 'funstuff/js/explosive_quiz.js' %}"></script>
+
+
