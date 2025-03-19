@@ -63,24 +63,26 @@
         #foodList {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center; /* 🔹 讓內容在小螢幕上置中 */
+            justify-content: space-between; /* 🔹 讓項目平均分布 */
             gap: 15px;
             padding: 0;
             list-style-type: none;
         }
         
-        /* 🔹 每個項目 (景點、停車場、美食) */
+        /* ✅ 景點、美食、停車場資訊框架 */
         .attraction-item, 
         .parking-item, 
         .food-item {
-            display: flex;
-            flex-direction: column;
+            flex: 1 1 calc(33.333% - 10px);  /* 📌 讓每列最多 3 欄，並考慮間距 */
+            max-width: 400px; /* ✅ 避免項目過大 */
+            min-width: 280px; /* ✅ 避免項目過小 */
             background: #fff;
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
-        } 
+        }
+
         
         /* 🔹 滑鼠懸停時放大 */
         .attraction-item:hover, 
@@ -137,29 +139,36 @@
         }
         
         /* 📌 **RWD 設定 (適應不同螢幕大小)** */
-
-        /* ✅ **大螢幕 (桌機 & 平板橫向)**
-          - 每個項目寬度 **280px** (最多 3~4 列) */
-        @media (min-width: 1024px) {
-          .attraction-item, .parking-item, .food-item {
-              width: 280px;
-          }
+        /* ⚡ **大螢幕 (桌機 & 平板橫向)**
+          - 每列最多顯示 4 欄 */
+          @media (min-width: 1200px) {
+            .attraction-item, .parking-item, .food-item {
+                flex: 1 1 calc(25% - 10px); /* 4 欄 */
+            }
         }
 
-        /* ✅ **中等螢幕 (平板 & 小筆電)**
-        - 每個項目寬度 **45%** (最多 2 列) */
-        @media (max-width: 1023px) {
-          .attraction-item, .parking-item, .food-item {
-              width: 45%;
-          }
+        /* ⚡ **中等螢幕 (平板 & 小筆電)**
+          - 每列最多顯示 3 欄 */
+        @media (max-width: 1199px) {
+            .attraction-item, .parking-item, .food-item {
+                flex: 1 1 calc(33.333% - 10px); /* 3 欄 */
+            }
         }
 
-        /* ✅ **小螢幕 (手機)**
-        - 每個項目寬度 **100%** (單列顯示) */
+        /* ⚡ **小螢幕 (手機)**
+          - 每列最多顯示 2 欄 */
         @media (max-width: 768px) {
-          .attraction-item, .parking-item, .food-item {
-              width: 100%;
-          }
+            .attraction-item, .parking-item, .food-item {
+                flex: 1 1 calc(50% - 10px); /* 2 欄 */
+            }
+        }
+
+        /* ⚡ **極小螢幕 (手機直向)**
+          - 每列最多顯示 1 欄 */
+        @media (max-width: 480px) {
+            .attraction-item, .parking-item, .food-item {
+                flex: 1 1 100%; /* 1 欄 */
+            }
         }
         
     </style>
