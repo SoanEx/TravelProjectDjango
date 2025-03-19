@@ -49,7 +49,15 @@
         <![endif]-->
     <!-- place -->
     <style>
-        #attractionsList {
+        
+        /* 預設隱藏景點 & 停車場資訊區塊（標題 & 內容） */
+        #attractions-section, #parking-section {
+          display: none;
+        }
+        /* 預設隱藏景點 & 停車場資訊 */
+        #attractionsList,
+        #parkingList {
+            display: none;
             list-style-type: none;
             padding: 0;
             margin-top: 20px;
@@ -60,8 +68,9 @@
             height: auto !important;  /* 讓內容根據實際大小擴展 */
             overflow: visible !important; /* 取消滾動條 */
         }
-
-        .attraction-item {
+        
+        /* 景點 & 停車場項目樣式 */
+        .attraction-item, .parking-item {
             display: flex;
             flex-direction: column;
             width: 280px;
@@ -72,18 +81,21 @@
             transition: transform 0.2s;
         }
 
-        .attraction-item:hover {
-            transform: scale(1.05);
+        /* 滑鼠懸停放大 */
+        .attraction-item:hover, .parking-item:hover {
+          transform: scale(1.05);
+        }
+        /* 圖片樣式 */
+        .attraction-img, .parking-img {
+          width: 100%;
+          height: 180px;
+          object-fit: cover;
         }
 
-        .attraction-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
 
-        .attraction-info {
-            padding: 15px;
+        /* 景點資訊區塊 */
+        .attraction-info, .parking-info {
+          padding: 15px;
         }
 
         .attraction-info h3 {
@@ -96,9 +108,9 @@
             margin: 5px 0;
             color: #555;
         }
-
+        /* 預設隱藏天氣資訊 */
         .weather-info {
-            display: none;  /* 預設隱藏天氣資訊 */
+            display: none;  
             background: #f9f9f9;
             padding: 15px;
             border-radius: 8px;
@@ -236,14 +248,27 @@
 </section>
 <!-- End 天氣資訊 -->
 <!-- Start Our Work (改為顯示景點 & 停車場資訊) -->
-<section class="section-padding our-work-sec bg-light-white">
+<!-- 景點 & 停車場資訊 -->
+<section id="attractions-section" class="section-padding our-work-sec bg-light-white">
   <div class="container">
     <div class="section-header text-center">
-      <h3 class="text-custom-black">景點 & <span class="text-custom">停車場資訊</span></h3>
+      <h3 class="text-custom-black">附近<span class="text-custom">景點資訊</span></h3>
     </div>
     <div class="row">
       <div class="col-12">
         <ul id="attractionsList"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="parking-section" class="section-padding our-work-sec bg-light-white" style="display: none;">
+  <div class="container">
+    <div class="section-header text-left">  <!-- ✅ 修改為 text-left 讓標題靠左 -->
+      <h3 class="text-custom-black">🚗 附近 <span class="text-custom">停車場</span></h3>
+    </div>
+    <div class="row">
+      <div class="col-12">
         <ul id="parkingList"></ul>
       </div>
     </div>
@@ -391,11 +416,15 @@
             list.innerHTML = ""; // 清空現有列表
         
             if (!places || places.length === 0) {
-                list.innerHTML = "<p>🚫 沒有找到景點，請更換地點再試。</p>";
-                return;
-            }
-        
-            console.log("✅ 正在顯示景點數量:", places.length);
+                console.log("🚨 沒有景點資料，隱藏景點區塊");
+                document.getElementById("attractions-section").style.display = "none";
+                  return;
+              }
+
+            console.log("✅ 顯示景點數量:", places.length);  // ✅ 確認是否有資料
+            
+            document.getElementById("attractions-section").style.display = "block";  // ✅ 顯示景點區塊
+            document.getElementById("attractionsList").style.display = "flex";  // ✅ 顯示景點列表
             
             for (const place of places) {
                 let originalName = place.name || "無名稱";
@@ -595,44 +624,91 @@
         
         // 🅿️ **在列表顯示停車場資訊（與景點相同格式）**
         async function displayParking(places) {
-            let list = document.getElementById("attractionsList");
-            let parkingSection = document.createElement("div");
-            parkingSection.innerHTML = "<h3>🚗 附近停車場</h3>";
-            list.appendChild(parkingSection);
+          let parkingSection = document.getElementById("parking-section");  // 取得停車場區塊
+          let parkingList = document.getElementById("parkingList");  // 取得停車場列表
+      
+          // ✅ 清空舊的停車場資訊
+          parkingList.innerHTML = "";
+      
+          // ✅ 如果沒有停車場資訊，隱藏區塊 & 結束函式
+          if (!places || places.length === 0) {
+            parkingSection.style.display = "none";  // 🔹 確保搜尋景點時不影響顯示狀態
+            return;
+        }
+      
+          // ✅ 有停車場資訊時，顯示區塊
+          parkingSection.style.display = "block";
+      
+          // 🔹 依序加入停車場資訊
+          for (const place of places) {
+              let originalName = place.name || "無名稱";
+              let translatedName = await translateText(originalName, "zh-TW");
+              let address = place.vicinity || "地址不詳";
+              let rating = place.rating ? `⭐ ${place.rating}` : "⭐ 無評分";
+      
+              let googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(translatedName)} 停車場`;
+      
+              let apiKey = window.GOOGLE_API_KEY || "";
+              let photoUrl = place.photos && place.photos.length > 0
+                  ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
+                  : "https://via.placeholder.com/400?text=No+Image";
+      
+              let li = document.createElement("li");
+              li.classList.add("attraction-item");
+              li.innerHTML = `
+                  <a href="${googleSearchUrl}" target="_blank">
+                      <img src="${photoUrl}" alt="${translatedName}" class="attraction-img">
+                  </a>
+                  <div class="attraction-info">
+                      <h3>
+                          <a href="${googleSearchUrl}" target="_blank" style="text-decoration: none; color: #007bff;">
+                              ${translatedName}
+                          </a>
+                      </h3>
+                      <p>${address}</p>
+                      <p>${rating}</p>
+                  </div>
+              `;
+      
+              parkingList.appendChild(li);
+          }
+      }
+        function showAttractions() {
+          let attractionsSection = document.getElementById("attractions-section");
+          let attractionsList = document.getElementById("attractionsList");
+      
+          if (attractionsList.children.length > 0) {  
+              attractionsSection.style.display = "block";  // ✅ 有資料才顯示景點區塊
+          } else {
+              attractionsSection.style.display = "none";  // ❌ 沒有資料時隱藏
+          }
+        }
+      
+        function showParking() {
+            let parkingSection = document.getElementById("parking-section");
+            let parkingList = document.getElementById("parkingList");
         
-            for (const place of places) {
-                let originalName = place.name || "無名稱";
-                let translatedName = await translateText(originalName, "zh-TW");
-                let address = place.vicinity || "地址不詳";
-                let rating = place.rating ? `⭐ ${place.rating}` : "⭐ 無評分";
-        
-                let googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(translatedName)} 停車場`;
-        
-                let apiKey = window.GOOGLE_API_KEY || "";
-                let photoUrl = place.photos && place.photos.length > 0
-                    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
-                    : "https://via.placeholder.com/400?text=No+Image";
-        
-                let li = document.createElement("li");
-                li.classList.add("attraction-item");
-                li.innerHTML = `
-                    <a href="${googleSearchUrl}" target="_blank">
-                        <img src="${photoUrl}" alt="${translatedName}" class="attraction-img">
-                    </a>
-                    <div class="attraction-info">
-                        <h3>
-                            <a href="${googleSearchUrl}" target="_blank" style="text-decoration: none; color: #007bff;">
-                                ${translatedName}
-                            </a>
-                        </h3>
-                        <p>${address}</p>
-                        <p>${rating}</p>
-                    </div>
-                `;
-        
-                list.appendChild(li);
+            if (parkingList.children.length > 0) {  
+                parkingSection.style.display = "block";  // ✅ 有資料才顯示停車場區塊
+            } else {
+                parkingSection.style.display = "none";  // ❌ 沒有資料時隱藏
             }
         }
+        
+        // **點擊「查詢景點」時**
+            document.querySelector(".btn-success").addEventListener("click", function () {
+            fetchAttractions().then(() => {
+                showAttractions();  // ✅ 只有景點有資料才顯示
+            });
+        });
+        
+        // **點擊「顯示停車場」時**
+            document.querySelector(".btn-warning").addEventListener("click", function () {
+            fetchParking().then(() => {
+                showParking();  // ✅ 只有停車場有資料才顯示
+            });
+        });
+
 
         function fetchWeatherInfo(lat, lon) {
           console.log(`✅ 呼叫 fetchWeatherInfo(${lat}, ${lon})`);
