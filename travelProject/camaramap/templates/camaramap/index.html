@@ -50,61 +50,75 @@
     <!-- place -->
     <style>
         
-        /* 預設隱藏景點 & 停車場資訊區塊（標題 & 內容） */
-        #attractions-section, #parking-section {
-          display: none;
-        }
-        /* 預設隱藏景點 & 停車場資訊 */
-        #attractionsList,
-        #parkingList {
+        /* 🔹 預設隱藏區塊 */
+        #attractions-section, 
+        #parking-section, 
+        #food-section {
             display: none;
-            list-style-type: none;
-            padding: 0;
-            margin-top: 20px;
+        }
+
+        /* 🔹 景點、停車場、美食資訊區塊統一樣式 */
+        #attractionsList,
+        #parkingList,
+        #foodList {
             display: flex;
             flex-wrap: wrap;
+            justify-content: center; /* 🔹 讓內容在小螢幕上置中 */
             gap: 15px;
-            max-height: none !important; /* 取消最大高度 */
-            height: auto !important;  /* 讓內容根據實際大小擴展 */
-            overflow: visible !important; /* 取消滾動條 */
+            padding: 0;
+            list-style-type: none;
         }
         
-        /* 景點 & 停車場項目樣式 */
-        .attraction-item, .parking-item {
+        /* 🔹 每個項目 (景點、停車場、美食) */
+        .attraction-item, 
+        .parking-item, 
+        .food-item {
             display: flex;
             flex-direction: column;
-            width: 280px;
             background: #fff;
             border-radius: 10px;
-            overflow: auto;
+            overflow: hidden;
             box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
+        } 
+        
+        /* 🔹 滑鼠懸停時放大 */
+        .attraction-item:hover, 
+        .parking-item:hover, 
+        .food-item:hover {
+            transform: scale(1.05);
         }
 
-        /* 滑鼠懸停放大 */
-        .attraction-item:hover, .parking-item:hover {
-          transform: scale(1.05);
-        }
-        /* 圖片樣式 */
-        .attraction-img, .parking-img {
-          width: 100%;
-          height: 180px;
-          object-fit: cover;
+        /* 🔹 圖片樣式 */
+        .attraction-img, 
+        .parking-img, 
+        .food-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
         }
 
-
-        /* 景點資訊區塊 */
-        .attraction-info, .parking-info {
-          padding: 15px;
+        /* 🔹 內容資訊 */
+        .attraction-info, 
+        .parking-info, 
+        .food-info {
+            padding: 15px;
+            text-align: center;  /* 🔹 讓內容在小螢幕上置中 */
         }
 
-        .attraction-info h3 {
+        /* 🔹 標題樣式 */
+        .attraction-info h3, 
+        .parking-info h3, 
+        .food-info h3 {
             margin: 0;
             font-size: 1.1em;
             color: #007bff;
         }
 
-        .attraction-info p {
+        /* 🔹 文字樣式 */
+        .attraction-info p, 
+        .parking-info p, 
+        .food-info p {
             margin: 5px 0;
             color: #555;
         }
@@ -120,6 +134,32 @@
 
         body {
           overflow: auto !important;
+        }
+        
+        /* 📌 **RWD 設定 (適應不同螢幕大小)** */
+
+        /* ✅ **大螢幕 (桌機 & 平板橫向)**
+          - 每個項目寬度 **280px** (最多 3~4 列) */
+        @media (min-width: 1024px) {
+          .attraction-item, .parking-item, .food-item {
+              width: 280px;
+          }
+        }
+
+        /* ✅ **中等螢幕 (平板 & 小筆電)**
+        - 每個項目寬度 **45%** (最多 2 列) */
+        @media (max-width: 1023px) {
+          .attraction-item, .parking-item, .food-item {
+              width: 45%;
+          }
+        }
+
+        /* ✅ **小螢幕 (手機)**
+        - 每個項目寬度 **100%** (單列顯示) */
+        @media (max-width: 768px) {
+          .attraction-item, .parking-item, .food-item {
+              width: 100%;
+          }
         }
         
     </style>
@@ -162,14 +202,6 @@
                 <li> <a href="#" class="text-custom-white"><i class="fab fa-linkedin"></i></a> </li>
               </ul>
             </div>
-          </div>
-          <div class="col-lg-6 col-md-7">
-            <div class="rightside full-height">
-              <ul class="custom-flex full-height">
-                <li class="book-appointment"> <a href="booking.html"> Booking Now </a> </li>
-              </ul>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -248,7 +280,7 @@
 </section>
 <!-- End 天氣資訊 -->
 <!-- Start Our Work (改為顯示景點 & 停車場資訊) -->
-<!-- 景點 & 停車場資訊 -->
+<!-- 景點資訊區塊 -->
 <section id="attractions-section" class="section-padding our-work-sec bg-light-white">
   <div class="container">
     <div class="section-header text-center">
@@ -259,12 +291,32 @@
         <ul id="attractionsList"></ul>
       </div>
     </div>
+    <!-- 🔹 新增搜尋美食 & 搜尋停車場按鈕 (預設隱藏) -->
+    <div class="text-center" id="additional-buttons" style="display: none;">
+      <button type="button" class="btn btn-danger" id="search-food">🍽 搜尋附近美食</button>
+      <button type="button" class="btn btn-warning" id="search-parking">🚗 搜尋附近停車場</button>
+    </div>
   </div>
 </section>
 
+<!-- 美食資訊區塊 (預設隱藏) -->
+<section id="food-section" class="section-padding our-work-sec bg-light-white" style="display: none;">
+  <div class="container">
+    <div class="section-header text-left">
+      <h3 class="text-custom-black">🍽 附近 <span class="text-custom">美食推薦</span></h3>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <ul id="foodList"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 停車場資訊區塊 (預設隱藏) -->
 <section id="parking-section" class="section-padding our-work-sec bg-light-white" style="display: none;">
   <div class="container">
-    <div class="section-header text-left">  <!-- ✅ 修改為 text-left 讓標題靠左 -->
+    <div class="section-header text-left">
       <h3 class="text-custom-black">🚗 附近 <span class="text-custom">停車場</span></h3>
     </div>
     <div class="row">
@@ -398,21 +450,37 @@
                         if (data.places && data.places.length > 0) {
                             addAttractionsToMap(data.places);
                             displayAttractions(data.places);
-                        } else {
-                            alert("🚨 無法獲取景點資訊！");
+                            
+                        // ✅ **顯示額外按鈕 (美食 & 停車場)**
+                        let additionalButtons = document.getElementById("additional-buttons");
+                        additionalButtons.style.display = "block";  
+
+                        // ✅ **只綁定一次事件**
+                        if (!document.getElementById("search-food").dataset.bound) {
+                            document.getElementById("search-food").addEventListener("click", fetchFood);
+                            document.getElementById("search-food").dataset.bound = "true";  // 避免重複綁定
                         }
-                    })
-                    .catch(error => console.error("❌ 景點 API 錯誤:", error));
-                } else {
-                    alert("無法解析目的地: " + status);
-                }
-            });
+
+                        if (!document.getElementById("search-parking").dataset.bound) {
+                            document.getElementById("search-parking").addEventListener("click", fetchParking);
+                            document.getElementById("search-parking").dataset.bound = "true";  // 避免重複綁定
+                        }
+                    } else {
+                        alert("🚨 無法獲取景點資訊！");
+                    }
+                })
+                .catch(error => console.error("❌ 景點 API 錯誤:", error));
+        } else {
+            alert("無法解析目的地: " + status);
         }
+    });
+}
 
 
         // **景點顯示**
         async function displayAttractions(places) {
             let list = document.getElementById("attractionsList");
+            let additionalButtons = document.getElementById("additional-buttons"); // 🔹 取得搜尋美食 & 搜尋停車場按鈕區塊
             list.innerHTML = ""; // 清空現有列表
         
             if (!places || places.length === 0) {
@@ -510,7 +578,63 @@
                 attractionMarkers.push(marker);
             }
         }
-
+        async function fetchFood() {
+          let end = document.getElementById("end").value;
+          if (!end) {
+              alert("請先輸入目的地！");
+              return;
+          }
+      
+          let geocoder = new google.maps.Geocoder();
+          geocoder.geocode({ address: end }, function(results, status) {
+              if (status === "OK") {
+                  let location = results[0].geometry.location;
+                  let lat = location.lat();
+                  let lng = location.lng();
+      
+                  fetch(`/api/nearby_places?lat=${lat}&lng=${lng}&keyword=restaurant`)
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.places && data.places.length > 0) {
+                          displayFood(data.places);
+                      } else {
+                          alert("🚨 沒有找到美食！");
+                      }
+                  })
+                  .catch(error => console.error("❌ 美食 API 錯誤:", error));
+              }
+          });
+      }
+      
+        async function displayFood(places) {
+            let list = document.getElementById("foodList");
+            list.innerHTML = ""; 
+            document.getElementById("food-section").style.display = "block";
+        
+            for (const place of places) {
+                let translatedName = await translateText(place.name || "無名稱", "zh-TW");
+                let address = place.vicinity || "地址不詳";
+                let rating = place.rating ? `⭐ ${place.rating}` : "⭐ 無評分";
+                let googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(translatedName)} 餐廳`;
+                let photoUrl = place.photos && place.photos.length > 0
+                    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${window.GOOGLE_API_KEY}`
+                    : "https://via.placeholder.com/400?text=No+Image";
+        
+                let li = document.createElement("li");
+                li.classList.add("attraction-item");
+                li.innerHTML = `
+                    <a href="${googleSearchUrl}" target="_blank">
+                        <img src="${photoUrl}" alt="${translatedName}" class="attraction-img">
+                    </a>
+                    <div class="attraction-info">
+                        <h3>${translatedName}</h3>
+                        <p>${address}</p>
+                        <p>${rating}</p>
+                    </div>
+                `;
+                list.appendChild(li);
+            }
+        }
         async function fetchParking() {
             let end = document.getElementById("end").value;
             if (!end) {
@@ -676,6 +800,7 @@
         function showAttractions() {
           let attractionsSection = document.getElementById("attractions-section");
           let attractionsList = document.getElementById("attractionsList");
+          
       
           if (attractionsList.children.length > 0) {  
               attractionsSection.style.display = "block";  // ✅ 有資料才顯示景點區塊
