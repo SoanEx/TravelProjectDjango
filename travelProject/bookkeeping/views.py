@@ -13,40 +13,48 @@ def newitem(request):
     if request.method == "POST":
         if fm.is_valid():
             fm_info = fm.save()
-            inserted_id = fm_info.id
             vlist = request.POST.getlist('membercheckbox',[])
             for v in vlist:
                 MemberRelation.objects.create(
-                    no_id = inserted_id,
+                    no_id = fm_info.id,
+                    created_id = fm_info.created_by_id,
                     member = v,
                     types = request.POST.get('types'),
                     avg = (float(request.POST.get('amount'))/len(vlist))) 
-           
+
+            memberRelationlist = MemberRelation.objects.filter(no_id=fm_info.id)
+            for i in memberRelationlist:
+                for j in memberlist:
+                    if i.created_id == j.id and i.member == j.username:
+                        i.avg = 0
+                        i.save()
+
             return redirect('/bookkeeping/items') 
     else:
         return render(request, 'bookkeeping/newitem.html', {'form': fm,'member_list':memberlist})
 
 class Items(View):
     def get(self, request):
-        typeslist = Record.objects.values('types')
         type_amount =  Record.objects.values('types').annotate(total = Sum('amount'))
+        print(type_amount)
         expensedata = []
-        for i in typeslist:
-            for j in type_amount:
-                if j['types'] == i['types']:
-                    expensedata.append({ "y": float(j["total"]), "name": i['types'] })
+        for j in type_amount:
+                expensedata.append({ "y": float(j["total"]), "name": j['types'] })
+        print(expensedata)
         itemslist = Record.objects.all()
         totals = 0
         for item in itemslist:
             totals += item.amount
         selectlist = MemberRelation.objects.all()
         return render(request,"bookkeeping/items.html",{"items_list":itemslist,"select_list":selectlist,"total":totals,"expense_data" : expensedata})
-    
+
 class DelItem(View):
     def post(self, request):
         id = request.POST.get('id')
         delet_item = Record.objects.get(id=id)
+        delet_MemberRelation = MemberRelation.objects.filter(no_id=id)
         delet_item.delete()
+        delet_MemberRelation.delete()
         return redirect("/bookkeeping/items")
 
 class Details(View):
