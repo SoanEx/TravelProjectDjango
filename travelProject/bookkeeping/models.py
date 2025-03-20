@@ -19,6 +19,7 @@ class Record(models.Model):
     
 class MemberRelation(models.Model):
     no_id = models.IntegerField()
+    created_id = models.IntegerField()
     member = models.CharField(max_length=255)
     avg = models.FloatField(default=0)
     types = models.CharField(max_length=20)
