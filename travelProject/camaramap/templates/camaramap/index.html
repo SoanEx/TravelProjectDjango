@@ -258,7 +258,6 @@
                     <div class="col-lg-4 col-md-12 text-center">
                       <button type="button" class="btn btn-primary" onclick="planRoute()">規劃路線</button>
                       <button type="button" class="btn btn-success" onclick="fetchAttractions()">查詢景點</button>
-                      <button type="button" class="btn btn-warning" onclick="fetchParking()">🚗 停車場</button>
                     </div>
                   </div>
                 </form>
@@ -347,6 +346,7 @@
         let speedCameraMarkers = [];
         let attractionMarkers = [];
         let parkingMarkers = [];
+        let foodMarkers = []; 
               
                 document.addEventListener("DOMContentLoaded", function() {
                 document.body.style.overflow = "auto";  // 確保頁面載入時可以滾動
@@ -605,7 +605,8 @@
                   .then(response => response.json())
                   .then(data => {
                       if (data.places && data.places.length > 0) {
-                          displayFood(data.places);
+                          addFoodToMap(data.places);  // ✅ 在地圖上標記美食
+                          displayFood(data.places);   // ✅ 在網頁上顯示美食資訊
                       } else {
                           alert("🚨 沒有找到美食！");
                       }
@@ -644,6 +645,70 @@
                 list.appendChild(li);
             }
         }
+        // 🍽 **在地圖上顯示美食資訊**
+        async function addFoodToMap(places) {
+          // ✅ 清除舊的美食標記（確保變數已定義）
+          if (!Array.isArray(foodMarkers)) {
+              foodMarkers = [];
+          }
+          foodMarkers.forEach(marker => marker.setMap(null));
+          foodMarkers = [];
+
+          let bounds = new google.maps.LatLngBounds(); // 📍 讓地圖適應所有標記
+
+          for (const place of places) {
+              let position = place.geometry?.location;
+              if (!position || !position.lat || !position.lng) {
+                  console.warn("⚠️ 無效的美食位置:", place);
+                  continue;  // 跳過錯誤的資料
+              }
+
+              let translatedName = await translateText(place.name || "無名稱", "zh-TW");
+
+              let marker = new google.maps.Marker({
+                  position: position,
+                  map: map,
+                  icon: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png", // 🔶 美食標記顏色
+                  title: translatedName
+              });
+
+              let apiKey = window.GOOGLE_API_KEY || "";
+              let photoUrl = place.photos && place.photos.length > 0
+                  ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=200&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
+                  : "https://via.placeholder.com/100?text=No+Image";
+
+              let googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(translatedName)} 餐廳`;
+
+              let infoWindow = new google.maps.InfoWindow({
+                  content: `
+                      <div style="text-align: center;">
+                          <a href="${googleSearchUrl}" target="_blank">
+                              <img src="${photoUrl}" alt="${translatedName}" style="width: 100px; height: 100px; border-radius: 8px;">
+                          </a>
+                          <br>
+                          <strong>
+                              <a href="${googleSearchUrl}" target="_blank">${translatedName}</a>
+                          </strong>
+                      </div>
+                  `
+              });
+
+              marker.addListener("click", () => {
+                  infoWindow.open(map, marker);
+              });
+
+              foodMarkers.push(marker);
+              bounds.extend(position); // 📍 擴展地圖邊界以包含標記
+          }
+
+          // 📌 **確保地圖調整至適合的縮放級別**
+          if (places.length > 0) {
+              map.fitBounds(bounds);
+          }
+        }
+
+
+
         async function fetchParking() {
             let end = document.getElementById("end").value;
             if (!end) {
