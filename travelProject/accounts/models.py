@@ -1,4 +1,4 @@
-# models.py
+# accounts/models.py
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -26,6 +26,8 @@ class Profile(models.Model):
     # 用來存已驗證通過的 device_id 清單，示範直接用 TextField 存 JSON
     known_devices = models.TextField(default='[]')
 
+    is_guest = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.user.username}'s profile"
 
@@ -50,3 +52,5 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
