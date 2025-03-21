@@ -1,25 +1,161 @@
 {% extends "base.html" %}
-<title>{% block title %}NewItem{% endblock %}</title>
-{% block content %}
-<table>
-  <td width=40%>　</td>
-  <td>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    Member:
-  </br>
-    {% for member in member_list %}
-    <div class="form-check form-check-inline">
-      <input class="form-check-input" style = "border:1px solid rgba(255, 255, 255, 1)" type="checkbox" name = "membercheckbox" id="{{member}}" value="{{member}}"">
-      <label class="form-check-label" for="{{member}}">{{member}}</label>
-    </div>
-    {% endfor %}
-    <br>
-    <input type="submit" value="save" style="margin-top: 10px" />
-  </form>
-  </td>
-  <td width=40%>　</td>
-<table>
-{% endblock content %}
+{% load static %}
 
+{% block title %}NewItem{% endblock %}
+
+{% block content %}
+<!-- ================= Bootstrap 5 + Bootstrap Datepicker ================= -->
+
+<div class="container my-4">
+
+  <!-- 標題置中 -->
+  <h2 class="text-center mb-4">建立新帳目</h2>
+  
+  <form method="post" class="needs-validation">
+    {% csrf_token %}
+
+    <!-- 1) 建立者顯示 -->
+    <div class="row mb-3">
+      <label class="col-sm-2 col-form-label text-end">
+        目前建立者
+      </label>
+      <div class="col-sm-6">
+        <p class="form-control-plaintext">
+          {{ request.user.username }}
+        </p>
+      </div>
+    </div>
+
+    <!-- 2) 迭代 ModelForm 欄位 -->
+    {% for field in form %}
+      <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-sm-2 col-form-label text-end">
+          {{ field.label }}
+        </label>
+        <div class="col-sm-6">
+
+          <!-- 若欄位是 date，就包在 input-group 以顯示icon -->
+          {% if field.name == "date" %}
+            <div class="input-group" id="datepicker-container">
+              {{ field }} <!-- 這裡應該是 type="text" 以免出現原生date -->
+              <span class="input-group-text">
+                <i class="bi bi-calendar-date"></i>
+              </span>
+            </div>
+          {% else %}
+            {{ field }}
+          {% endif %}
+
+          {% if field.help_text %}
+            <small class="text-muted d-block">{{ field.help_text }}</small>
+          {% endif %}
+          {% for error in field.errors %}
+            <div class="text-danger small">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+
+    <!-- 3) 搜尋成員 (使用 AJAX) -->
+    <div class="row mb-3">
+      <label class="col-sm-2 col-form-label text-end">搜尋成員</label>
+      <div class="col-sm-6">
+        <input type="text" id="searchKeyword" class="form-control" placeholder="輸入名稱或電話">
+      </div>
+      <div class="col-sm-4">
+        <!-- 按鈕改為 type="button" 避免提交表單 -->
+        <button type="button" class="btn btn-primary" id="btnSearch">
+          搜尋
+        </button>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- 4) 勾選成員 -->
+    <div class="row mb-3">
+      <label class="col-sm-2 col-form-label text-end">勾選成員</label>
+      <div class="col-sm-10" id="memberListArea">
+        <!-- 原本就顯示一些預設成員 (若有) -->
+        {% for member in member_list %}
+          <div class="form-check form-check-inline">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              name="membercheckbox" 
+              id="member-{{ forloop.counter }}" 
+              value="{{ member.username }}"
+            >
+            <label class="form-check-label" for="member-{{ forloop.counter }}">
+              {{ member.username }}
+            </label>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 5) 送出按鈕 -->
+    <div class="row mb-3">
+      <div class="col-sm-10 offset-sm-2">
+        <button type="submit" class="btn btn-success">儲存</button>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<!-- ================= Scripts (若 base.html 裝了可省略) ================= -->
+<!-- jQuery (Bootstrap Datepicker 通常需要) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap 5 JS (若尚未載入) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Datepicker CSS/JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+
+<!-- 這是初始化 Bootstrap Datepicker + AJAX 搜尋 -->
+<script>
+  $(document).ready(function() {
+    // 1) Bootstrap Datepicker 初始化
+    $('#datepicker-container input').datepicker({
+      format: 'yyyy-mm-dd',      // Bootstrap Datepicker 用 'yyyy-mm-dd'
+      autoclose: true,
+      todayHighlight: true
+    });
+
+    // 2) AJAX 搜尋
+    $('#btnSearch').on('click', function(){
+      var keyword = $('#searchKeyword').val().trim();
+      $.ajax({
+        url: "{% url 'search_member_api' %}",
+        method: "GET",
+        data: { keyword: keyword },
+        success: function(response) {
+          // response.members = [ {id,username}, ... ]
+          var members = response.members;
+          var html = '';
+          for (var i = 0; i < members.length; i++){
+            var m = members[i];
+            html += `
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox"
+                  name="membercheckbox"
+                  id="member-${i}"
+                  value="${m.username}">
+                <label class="form-check-label" for="member-${i}">
+                  ${m.username}
+                </label>
+              </div>
+            `;
+          }
+          // 更新 #memberListArea
+          $('#memberListArea').html(html);
+        },
+        error: function() {
+          alert("搜尋失敗或發生錯誤");
+        }
+      });
+    });
+  });
+</script>
+{% endblock content %}

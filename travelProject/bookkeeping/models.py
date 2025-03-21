@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 class Record(models.Model):
     created_by = models.ForeignKey(User,on_delete=models.CASCADE)
-    date = models.CharField(max_length=60)
+    date = models.DateField()
     type_choiches=[
         ('food','food'),
         ('transport','transport'),
@@ -18,8 +18,8 @@ class Record(models.Model):
     note = models.CharField(max_length=255,blank=True)
     
 class MemberRelation(models.Model):
-    no_id = models.IntegerField()
-    created_id = models.IntegerField()
+    record = models.ForeignKey(Record, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     member = models.CharField(max_length=255)
     avg = models.FloatField(default=0)
     types = models.CharField(max_length=20)

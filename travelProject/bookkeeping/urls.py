@@ -25,4 +25,5 @@ urlpatterns = [
     path("items/",views.Items.as_view(),name="items"),
     path("del-item",views.DelItem.as_view(),name="del-item"),
     path("newitem/",views.newitem,name="newitem"),
+    path('search_member_api/',views.search_member_api, name='search_member_api'),
 ]

@@ -10,4 +10,5 @@ urlpatterns = [
     path('google_auth_verify/', views.google_auth_verify, name='google_auth_verify'),
     path('test_twilio/', views.test_twilio, name='test_twilio'),  
     path('accounts/google_redirect/callback/', views.google_redirect_callback, name='google_redirect_callback'),
+    path('search-user/', views.search_user_view, name='search_user'),
 ]

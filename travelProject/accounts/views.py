@@ -3,6 +3,7 @@
 import random
 import os
 
+import uuid
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 from django.contrib.auth import authenticate, login
@@ -18,6 +19,9 @@ import phonenumbers
 
 from .forms import RegistrationForm  # 驗證表單
 from .forms import RegistrationLoginForm
+
+from django.db.models import Q
+from accounts.models import Profile
 
 
 def parse_e164_phone(country_code, local_phone):
@@ -293,3 +297,32 @@ def google_redirect_callback(request):
 
 def index_view(request):
     return render(request, 'index.html')
+
+def create_guest_user():
+    # 產生「guest_隨機8碼」的 username
+    random_username = f"guest_{uuid.uuid4().hex[:8]}"
+    
+    # password=None 表示不給任何密碼（僅能用程式自動登入）
+    user = User.objects.create_user(username=random_username, password=None)
+    
+    # 設定 Profile 為 guest
+    user.profile.is_guest = True
+    user.profile.save()
+    
+    return user
+
+def search_user_view(request):
+    keyword = request.GET.get('q', '').strip()
+
+    queryset = User.objects.filter(is_staff=False, is_superuser=False)
+
+    if keyword:
+        queryset = queryset.filter(
+            Q(username__icontains=keyword) |
+            Q(profile__phone_number__icontains=keyword)
+        )
+
+    return render(request, 'accounts/user_search_result.html', {
+        'results': queryset,
+        'keyword': keyword
+    })
