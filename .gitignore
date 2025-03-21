@@ -59,7 +59,7 @@ django1test.pem
 # Visual Studio Code / 工作區設定
 # (VSCode 的設定通常是個人化或專案內部環境化，可視情況忽略)
 # ------------------------------------------------------------------------------
-.vscode
+/.vscode/
 *.code-workspace
 travelProject/travelProject/TravelProjectDjango.code-workspace
 
