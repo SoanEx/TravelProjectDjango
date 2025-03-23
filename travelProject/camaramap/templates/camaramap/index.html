@@ -709,7 +709,7 @@
   async function translateText(text, targetLang = "zh-TW") {
     debugLog("translateText() -> start:", text);
     try {
-      const res = await fetch(`/api/translate?text=${encodeURIComponent(text)}&target=${targetLang}`);
+      const res = await fetch(`/api/translate/?text=${encodeURIComponent(text)}&target=${targetLang}`);
       const data = await res.json();
       debugLog("translateText() -> success, translatedText:", data.translatedText);
       return data.translatedText || text;
@@ -752,6 +752,4 @@
 
 </script>
 
-<!-- Bootstrap JS (若需Bootstrap組件則保留, 否則可移除) -->
-<script src="{% static 'assets/js/map_js/bootstrap.min.js' %}"></script>
 {% endblock scripts %}

@@ -92,7 +92,7 @@ def get_speed_cameras(request):
     """ 接收 AJAX 請求，回傳符合路線的測速照相點 """
     try:
         print("✅ 收到請求")  # Debug
-        print("🔹 Request Body:", request.body)
+        # print("🔹 Request Body:", request.body)
 
         # 嘗試解析 JSON
         data = json.loads(request.body)
