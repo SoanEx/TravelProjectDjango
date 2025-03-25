@@ -104,6 +104,10 @@
   </form>
 </div>
 
+{% endblock content %}
+
+
+{% block scripts %}
 <!-- ================= Scripts (若 base.html 裝了可省略) ================= -->
 <!-- jQuery (Bootstrap Datepicker 通常需要) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -158,4 +162,5 @@
     });
   });
 </script>
-{% endblock content %}
+
+{% endblock scripts %}
