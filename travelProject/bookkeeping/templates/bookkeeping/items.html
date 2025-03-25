@@ -68,7 +68,7 @@
       <td>{{item.note}}</td>
       <td>
         {% for m in select_list %}
-          {% if item.id == m.no_id %}
+          {% if item.id == m.record_id %}
           {{m.member}}
           {% endif %}
         {% endfor %}
