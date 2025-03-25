@@ -82,7 +82,7 @@ class Items(View):
 
         # 如果你想要顯示該使用者相關的 MemberRelation，可根據需求再過濾
         # 例如若只想顯示「該使用者本人建立的」：
-        selectlist = MemberRelation.objects.filter(created_by=request.user)
+        selectlist = MemberRelation.objects.filter(created_id=request.user.id)
 
         return render(request, "bookkeeping/items.html", {
             "items_list": itemslist,
