@@ -7,9 +7,8 @@ class RecordForm(forms.ModelForm):
         model = Record
         fields = ['date', 'types', 'amount', 'note']  # created_by可手動指定
         widgets = {
-            'date': forms.DateInput(
+            'date': forms.TextInput(
                 attrs={
-                    'type': 'date',   # HTML5 date input
                     'class': 'form-control'
                 }
             )

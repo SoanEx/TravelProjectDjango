@@ -31,16 +31,23 @@
 │   │   ├── admin.py
 │   │   ├── apps.py
 │   │   ├── forms.py
+│   │   ├── management
+│   │   │   ├── __init__.py
+│   │   │   └── commands
+│   │   │       ├── __init__.py
+│   │   │       └── cleanup_guests.py
 │   │   ├── migrations
 │   │   │   ├── __init__.py
 │   │   │   ├── __pycache__
 │   │   │   │   ├── __init__.cpython-310.pyc
 │   │   │   │   ├── 0001_initial.cpython-310.pyc
 │   │   │   │   ├── 0002_alter_profile_phone_number.cpython-310.pyc
-│   │   │   │   └── 0003_profile_known_devices_profile_phone_verified_and_more.cpython-310.pyc
+│   │   │   │   ├── 0003_profile_known_devices_profile_phone_verified_and_more.cpython-310.pyc
+│   │   │   │   └── 0004_profile_is_guest.cpython-310.pyc
 │   │   │   ├── 0001_initial.py
 │   │   │   ├── 0002_alter_profile_phone_number.py
-│   │   │   └── 0003_profile_known_devices_profile_phone_verified_and_more.py
+│   │   │   ├── 0003_profile_known_devices_profile_phone_verified_and_more.py
+│   │   │   └── 0004_profile_is_guest.py
 │   │   ├── models.py
 │   │   ├── templates
 │   │   │   └── accounts
@@ -66,16 +73,22 @@
 │   │   │   ├── __init__.py
 │   │   │   ├── __pycache__
 │   │   │   │   ├── __init__.cpython-310.pyc
-│   │   │   │   └── 0001_initial.cpython-310.pyc
-│   │   │   └── 0001_initial.py
+│   │   │   │   ├── 0001_initial.cpython-310.pyc
+│   │   │   │   ├── 0002_memberrelation_created_id_alter_memberrelation_no_id_and_more.cpython-310.pyc
+│   │   │   │   ├── 0003_rename_created_id_memberrelation_created_by_and_more.cpython-310.pyc
+│   │   │   │   └── 0004_alter_record_date.cpython-310.pyc
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_memberrelation_created_id_alter_memberrelation_no_id_and_more.py
+│   │   │   ├── 0003_rename_created_id_memberrelation_created_by_and_more.py
+│   │   │   └── 0004_alter_record_date.py
 │   │   ├── models.py
+│   │   ├── static
+│   │   │   └── canvasjs.min.js
 │   │   ├── templates
 │   │   │   └── bookkeeping
-│   │   │       ├── base.html
 │   │   │       ├── details.html
 │   │   │       ├── index.html
 │   │   │       ├── items.html
-│   │   │       ├── nav.html
 │   │   │       └── newitem.html
 │   │   ├── tests.py
 │   │   ├── urls.py
@@ -145,6 +158,8 @@
 │   │   ├── utils.py
 │   │   └── views.py
 │   ├── manage.py
+│   ├── ml_models
+│   │   └── trend_model.pkl
 │   ├── personalPage
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -209,21 +224,266 @@
 │   │       ├── reportWebVitals.js
 │   │       └── setupTests.js
 │   ├── static
+│   │   └── images
+│   │       ├── no-image-dark.png
+│   │       ├── no-image-dark-large.png
+│   │       └── parkling.png
 │   ├── staticfiles
+│   │   ├── admin
+│   │   │   ├── css
+│   │   │   │   ├── autocomplete.css
+│   │   │   │   ├── base.css
+│   │   │   │   ├── changelists.css
+│   │   │   │   ├── dark_mode.css
+│   │   │   │   ├── dashboard.css
+│   │   │   │   ├── forms.css
+│   │   │   │   ├── login.css
+│   │   │   │   ├── nav_sidebar.css
+│   │   │   │   ├── responsive.css
+│   │   │   │   ├── responsive_rtl.css
+│   │   │   │   ├── rtl.css
+│   │   │   │   ├── unusable_password_field.css
+│   │   │   │   ├── vendor
+│   │   │   │   │   └── select2
+│   │   │   │   │       ├── LICENSE-SELECT2.md
+│   │   │   │   │       ├── select2.css
+│   │   │   │   │       └── select2.min.css
+│   │   │   │   └── widgets.css
+│   │   │   ├── img
+│   │   │   │   ├── calendar-icons.svg
+│   │   │   │   ├── gis
+│   │   │   │   │   ├── move_vertex_off.svg
+│   │   │   │   │   └── move_vertex_on.svg
+│   │   │   │   ├── icon-addlink.svg
+│   │   │   │   ├── icon-alert.svg
+│   │   │   │   ├── icon-calendar.svg
+│   │   │   │   ├── icon-changelink.svg
+│   │   │   │   ├── icon-clock.svg
+│   │   │   │   ├── icon-deletelink.svg
+│   │   │   │   ├── icon-hidelink.svg
+│   │   │   │   ├── icon-no.svg
+│   │   │   │   ├── icon-unknown.svg
+│   │   │   │   ├── icon-unknown-alt.svg
+│   │   │   │   ├── icon-viewlink.svg
+│   │   │   │   ├── icon-yes.svg
+│   │   │   │   ├── inline-delete.svg
+│   │   │   │   ├── LICENSE
+│   │   │   │   ├── README.txt
+│   │   │   │   ├── search.svg
+│   │   │   │   ├── selector-icons.svg
+│   │   │   │   ├── sorting-icons.svg
+│   │   │   │   ├── tooltag-add.svg
+│   │   │   │   └── tooltag-arrowright.svg
+│   │   │   └── js
+│   │   │       ├── actions.js
+│   │   │       ├── admin
+│   │   │       │   ├── DateTimeShortcuts.js
+│   │   │       │   └── RelatedObjectLookups.js
+│   │   │       ├── autocomplete.js
+│   │   │       ├── calendar.js
+│   │   │       ├── cancel.js
+│   │   │       ├── change_form.js
+│   │   │       ├── core.js
+│   │   │       ├── filters.js
+│   │   │       ├── inlines.js
+│   │   │       ├── jquery.init.js
+│   │   │       ├── nav_sidebar.js
+│   │   │       ├── popup_response.js
+│   │   │       ├── prepopulate.js
+│   │   │       ├── prepopulate_init.js
+│   │   │       ├── SelectBox.js
+│   │   │       ├── SelectFilter2.js
+│   │   │       ├── theme.js
+│   │   │       ├── unusable_password_field.js
+│   │   │       ├── urlify.js
+│   │   │       └── vendor
+│   │   │           ├── jquery
+│   │   │           │   ├── jquery.js
+│   │   │           │   ├── jquery.min.js
+│   │   │           │   └── LICENSE.txt
+│   │   │           ├── select2
+│   │   │           │   ├── i18n
+│   │   │           │   │   ├── af.js
+│   │   │           │   │   ├── ar.js
+│   │   │           │   │   ├── az.js
+│   │   │           │   │   ├── bg.js
+│   │   │           │   │   ├── bn.js
+│   │   │           │   │   ├── bs.js
+│   │   │           │   │   ├── ca.js
+│   │   │           │   │   ├── cs.js
+│   │   │           │   │   ├── da.js
+│   │   │           │   │   ├── de.js
+│   │   │           │   │   ├── dsb.js
+│   │   │           │   │   ├── el.js
+│   │   │           │   │   ├── en.js
+│   │   │           │   │   ├── es.js
+│   │   │           │   │   ├── et.js
+│   │   │           │   │   ├── eu.js
+│   │   │           │   │   ├── fa.js
+│   │   │           │   │   ├── fi.js
+│   │   │           │   │   ├── fr.js
+│   │   │           │   │   ├── gl.js
+│   │   │           │   │   ├── he.js
+│   │   │           │   │   ├── hi.js
+│   │   │           │   │   ├── hr.js
+│   │   │           │   │   ├── hsb.js
+│   │   │           │   │   ├── hu.js
+│   │   │           │   │   ├── hy.js
+│   │   │           │   │   ├── id.js
+│   │   │           │   │   ├── is.js
+│   │   │           │   │   ├── it.js
+│   │   │           │   │   ├── ja.js
+│   │   │           │   │   ├── ka.js
+│   │   │           │   │   ├── km.js
+│   │   │           │   │   ├── ko.js
+│   │   │           │   │   ├── lt.js
+│   │   │           │   │   ├── lv.js
+│   │   │           │   │   ├── mk.js
+│   │   │           │   │   ├── ms.js
+│   │   │           │   │   ├── nb.js
+│   │   │           │   │   ├── ne.js
+│   │   │           │   │   ├── nl.js
+│   │   │           │   │   ├── pl.js
+│   │   │           │   │   ├── ps.js
+│   │   │           │   │   ├── pt.js
+│   │   │           │   │   ├── pt-BR.js
+│   │   │           │   │   ├── ro.js
+│   │   │           │   │   ├── ru.js
+│   │   │           │   │   ├── sk.js
+│   │   │           │   │   ├── sl.js
+│   │   │           │   │   ├── sq.js
+│   │   │           │   │   ├── sr.js
+│   │   │           │   │   ├── sr-Cyrl.js
+│   │   │           │   │   ├── sv.js
+│   │   │           │   │   ├── th.js
+│   │   │           │   │   ├── tk.js
+│   │   │           │   │   ├── tr.js
+│   │   │           │   │   ├── uk.js
+│   │   │           │   │   ├── vi.js
+│   │   │           │   │   ├── zh-CN.js
+│   │   │           │   │   └── zh-TW.js
+│   │   │           │   ├── LICENSE.md
+│   │   │           │   ├── select2.full.js
+│   │   │           │   └── select2.full.min.js
+│   │   │           └── xregexp
+│   │   │               ├── LICENSE.txt
+│   │   │               ├── xregexp.js
+│   │   │               └── xregexp.min.js
+│   │   ├── bow8234.bow
+│   │   ├── funstuff
+│   │   │   └── js
+│   │   │       ├── auto_close_switch.js
+│   │   │       └── explosive_quiz.js
+│   │   ├── images
+│   │   │   └── parkling.png
+│   │   ├── react
+│   │   │   ├── asset-manifest.json
+│   │   │   ├── favicon.ico
+│   │   │   ├── index.html
+│   │   │   ├── logo192.png
+│   │   │   ├── logo512.png
+│   │   │   ├── manifest.json
+│   │   │   ├── robots.txt
+│   │   │   └── static
+│   │   │       ├── css
+│   │   │       │   ├── main.f855e6bc.css
+│   │   │       │   └── main.f855e6bc.css.map
+│   │   │       ├── js
+│   │   │       │   ├── 453.ab49e6c3.chunk.js
+│   │   │       │   ├── 453.ab49e6c3.chunk.js.map
+│   │   │       │   ├── main.4d68078e.js
+│   │   │       │   ├── main.4d68078e.js.LICENSE.txt
+│   │   │       │   └── main.4d68078e.js.map
+│   │   │       └── media
+│   │   │           └── logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg
+│   │   └── rest_framework
+│   │       ├── css
+│   │       │   ├── bootstrap.min.css
+│   │       │   ├── bootstrap.min.css.map
+│   │       │   ├── bootstrap-theme.min.css
+│   │       │   ├── bootstrap-theme.min.css.map
+│   │       │   ├── bootstrap-tweaks.css
+│   │       │   ├── default.css
+│   │       │   ├── font-awesome-4.0.3.css
+│   │       │   └── prettify.css
+│   │       ├── docs
+│   │       │   ├── css
+│   │       │   │   ├── base.css
+│   │       │   │   ├── highlight.css
+│   │       │   │   └── jquery.json-view.min.css
+│   │       │   ├── img
+│   │       │   │   ├── favicon.ico
+│   │       │   │   └── grid.png
+│   │       │   └── js
+│   │       │       ├── api.js
+│   │       │       ├── highlight.pack.js
+│   │       │       └── jquery.json-view.min.js
+│   │       ├── fonts
+│   │       │   ├── fontawesome-webfont.eot
+│   │       │   ├── fontawesome-webfont.svg
+│   │       │   ├── fontawesome-webfont.ttf
+│   │       │   ├── fontawesome-webfont.woff
+│   │       │   ├── glyphicons-halflings-regular.eot
+│   │       │   ├── glyphicons-halflings-regular.svg
+│   │       │   ├── glyphicons-halflings-regular.ttf
+│   │       │   ├── glyphicons-halflings-regular.woff
+│   │       │   └── glyphicons-halflings-regular.woff2
+│   │       ├── img
+│   │       │   ├── glyphicons-halflings.png
+│   │       │   ├── glyphicons-halflings-white.png
+│   │       │   └── grid.png
+│   │       └── js
+│   │           ├── ajax-form.js
+│   │           ├── bootstrap.min.js
+│   │           ├── coreapi-0.1.1.js
+│   │           ├── csrf.js
+│   │           ├── default.js
+│   │           ├── jquery-3.7.1.min.js
+│   │           ├── load-ajax-form.js
+│   │           └── prettify-min.js
 │   ├── templates
 │   │   ├── base.html
 │   │   └── index.html
-│   └── travelProject
+│   ├── travelProject
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── settings.cpython-310.pyc
+│   │   │   ├── urls.cpython-310.pyc
+│   │   │   └── wsgi.cpython-310.pyc
+│   │   ├── asgi.py
+│   │   ├── settings.py
+│   │   ├── TravelProjectDjango.code-workspace
+│   │   ├── urls.py
+│   │   └── wsgi.py
+│   └── trends_app
 │       ├── __init__.py
 │       ├── __pycache__
 │       │   ├── __init__.cpython-310.pyc
-│       │   ├── settings.cpython-310.pyc
+│       │   ├── admin.cpython-310.pyc
+│       │   ├── apps.cpython-310.pyc
+│       │   ├── fetcher.cpython-310.pyc
+│       │   ├── ml_utils.cpython-310.pyc
+│       │   ├── models.cpython-310.pyc
 │       │   ├── urls.cpython-310.pyc
-│       │   └── wsgi.cpython-310.pyc
-│       ├── asgi.py
-│       ├── settings.py
-│       ├── TravelProjectDjango.code-workspace
+│       │   └── views.cpython-310.pyc
+│       ├── admin.py
+│       ├── apps.py
+│       ├── fetcher.py
+│       ├── migrations
+│       │   ├── __init__.py
+│       │   ├── __pycache__
+│       │   │   ├── __init__.cpython-310.pyc
+│       │   │   └── 0001_initial.cpython-310.pyc
+│       │   └── 0001_initial.py
+│       ├── ml_utils.py
+│       ├── models.py
+│       ├── templates
+│       │   └── trends_app
+│       │       ├── evaluate.html
+│       │       └── index.html
+│       ├── tests.py
 │       ├── urls.py
-│       └── wsgi.py
+│       └── views.py
 ├── 列出專案目錄腳本.ps1
 └── 啟動django.bat
