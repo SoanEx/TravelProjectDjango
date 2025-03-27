@@ -13,6 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from datetime import datetime
 
 
 # Create your views here.
@@ -218,33 +219,56 @@ def get_weather(city):
         return "❌ 找不到該城市的天氣資訊，請確認城市名稱是否正確！"
 
 def get_weather_info(request):
-    """ 取得當地天氣資訊 """
-    lat = request.GET.get("lat")
-    lon = request.GET.get("lon")
+    """ 🔹 取得使用者查詢的未來天氣資訊 """
 
-    if not lat or not lon:
-        return JsonResponse({"error": "請提供經緯度"}, status=400)
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
+    date_time = request.GET.get('datetime')  # 取得使用者輸入的時間
 
-    # 使用 OpenWeatherMap API 獲取天氣資訊
-    api_key = os.getenv("OPENWEATHER_API_KEY") # 確保 settings.py 設定了 API Key
-    url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=zh_tw"
+    # 1️⃣ **檢查必要參數**
+    if not lat or not lon or not date_time:
+        return JsonResponse({"error": "缺少必要參數 (lat, lon, datetime)！"}, status=400)
 
-    response = requests.get(url)
-    data = response.json()
+    try:
+        user_time = datetime.strptime(date_time, "%Y-%m-%dT%H:%M")  # 解析時間
+        now_time = datetime.now()
 
-    if response.status_code != 200:
-        return JsonResponse({"error": "無法獲取天氣資訊"}, status=500)
+        # 2️⃣ **檢查時間是否小於現在**
+        if user_time < now_time:
+            return JsonResponse({"error": "輸入時間小於現在時間，請重新輸入！"}, status=400)
 
-    # 回傳天氣資訊
-    weather_info = {
-        "temperature": data["main"]["temp"],
-        "description": data["weather"][0]["description"],
-        "humidity": data["main"]["humidity"],
-        "wind_speed": data["wind"]["speed"],
-        "icon": f"http://openweathermap.org/img/wn/{data['weather'][0]['icon']}@2x.png",
-        "location": data["name"],
-    }
-    return JsonResponse(weather_info)
+        # 3️⃣ **發送 API 請求**
+        api_key = os.getenv("OPENWEATHER_API_KEY")
+        url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units=metric&lang=zh_tw"
+
+        response = requests.get(url)
+        data = response.json()
+
+        # 4️⃣ **檢查 API 回應**
+        if "list" not in data or "city" not in data:
+            return JsonResponse({"error": "無法獲取天氣資訊"}, status=500)
+
+        # 5️⃣ **找到最接近的預測**
+        forecast_data = min(
+            data["list"], 
+            key=lambda x: abs(datetime.strptime(x["dt_txt"], "%Y-%m-%d %H:%M:%S") - user_time)
+        )
+
+        # 6️⃣ **整理回應資料**
+        weather_info = {
+            "datetime": date_time,
+            "location": data["city"]["name"],  # ✅ `city.name` 是正確的
+            "temperature": forecast_data["main"]["temp"],
+            "description": forecast_data["weather"][0]["description"],
+            "humidity": forecast_data["main"]["humidity"],
+            "wind_speed": forecast_data["wind"]["speed"]
+        }
+
+        return JsonResponse(weather_info)
+
+    except ValueError:
+        return JsonResponse({"error": "無效的日期格式，請輸入有效的時間！"}, status=400)
+
 
 
 def google_translate(text, target="zh-TW"):
@@ -283,5 +307,6 @@ def translate_text_api(request):
         return JsonResponse({"translatedText": result["data"]["translations"][0]["translatedText"]})
 
     return JsonResponse({"translatedText": text})  # 若翻譯失敗則回傳原始文字
+
 
 

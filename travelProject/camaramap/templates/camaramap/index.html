@@ -6,6 +6,7 @@
 {% block content %}
 
 
+
 <!-- (A) Loading 區塊：顯示「請稍候」 -->
 <div id="loading" style="display:none; text-align:center; margin:10px; font-weight:bold;">
   請稍候，資料載入中...
@@ -25,6 +26,12 @@
       <label>目的地</label>
       <input id="end" type="text" class="form-control" placeholder="輸入目的地">
     </div>
+    <div class="col-lg-4 col-md-6">
+      <div class="form-group">
+        <label class="fs-14 text-custom-white fw-600">出發日期 & 時間</label>
+        <input id="datetime" type="datetime-local" class="form-control">
+      </div>
+    </div>
   </div>
   <div class="row mt-3">
     <div class="col-12 d-flex justify-content-center gap-2">
@@ -38,20 +45,25 @@
 
 <!-- (D) 天氣資訊 (預設隱藏) -->
 <div class="container mt-5">
-    <section id="weather-wrapper">
-  <div id="weather-info" class="weather-info" style="display:none; background:#f9f9f9; padding:15px; border-radius:8px;">
-    <h5>當地天氣資訊</h5>
-    <p id="weather-location">📍 地點：載入中</p>
-    <p id="weather-temp">🌡 溫度：載入中</p>
-    <p id="weather-desc">☁ 天氣狀況：載入中</p>
-    <p id="weather-humidity">💧 濕度：載入中</p>
-    <p id="weather-wind">💨 風速：載入中</p>
-  </div>
+  <section id="weather-info" class="weather-info section-padding bg-light-white" style="display:none;">
+    <div class="container">
+      <div class="section-header text-center">
+        <h3 class="text-custom-black">當地 <span class="text-custom">天氣資訊</span></h3>
+      </div>
+      <div class="text-center">
+        <p id="weather-datetime">📅 日期時間：</p>
+        <p id="weather-location">📍 地點：</p>
+        <p id="weather-temp">🌡 溫度：</p>
+        <p id="weather-desc">☁ 天氣狀況：</p>
+        <p id="weather-humidity">💧 濕度：</p>
+        <p id="weather-wind">💨 風速：</p>
+      </div>
+    </div>
   </section>
 </div>
 
 <!-- (E) 景點資訊 (預設隱藏) -->
-<div class="container mt-5" id="attractions-section" >
+<div class="container mt-5" id="attractions-section" style="display:none;">
   <h5>附近景點資訊</h5>
   <ul id="attractionsList" style="display:flex; flex-wrap:wrap; gap:15px; list-style:none; padding:0;"></ul>
 </div>
@@ -144,6 +156,11 @@
     });
     document.getElementById("btn-food").addEventListener("click", fetchFood);
     document.getElementById("btn-parking").addEventListener("click", fetchParking);
+    });
+    document.querySelector(".btn-primary").addEventListener("click", function() {
+      if (!validateDateTime()) return;  // 若驗證失敗則不繼續執行
+      planRoute();  // 執行規劃路線
+    
   });
 
   /* ============================
@@ -326,13 +343,13 @@
 
   /* 一筆一筆顯示列表 (景點) */
   async function displayAttractionsOneByOne(places) {
-    debugLog("displayAttractionsOneByOne() -> places數量:", places.length);
+    console.log("📌 顯示景點數量:", places.length);
     const section = document.getElementById("attractions-section");
     const list = document.getElementById("attractionsList");
     list.innerHTML = "";
 
     if (!places || places.length === 0) {
-      debugLog("無資料，隱藏 section");
+      console.log("🚫 沒有景點資料，隱藏區塊");
       section.style.display = "none";
       return;
     }
@@ -670,38 +687,60 @@
   /* ============================
    * (G) 天氣查詢
    * ============================ */
-  function fetchWeatherInfo(lat, lng) {
-    debugLog("fetchWeatherInfo() -> ", lat, lng);
-    const w = document.getElementById("weather-info");
-    if (!w) return;
-    w.style.display = "block";
+   async function fetchWeatherInfo(lat, lng) {
+    console.log("🔍 fetchWeatherInfo() -> ", lat, lng);
 
+    // 1️⃣ 確保 `#weather-info` 存在，並 **先隱藏**
+    const weatherInfo = document.getElementById("weather-info");
+    if (!weatherInfo) return;
+    weatherInfo.style.display = "none";  // 🚀 查詢前先隱藏
+
+    // 2️⃣ 取得使用者輸入的 **日期 & 時間**
+    let dateTimeInput = document.getElementById("datetime").value;
+    if (!dateTimeInput) {
+        alert("⚠ 請選擇查詢日期與時間！");
+        return;
+    }
+
+    // 3️⃣ **預設顯示「載入中」**
+    document.getElementById("weather-datetime").textContent = "📅 日期時間：載入中...";
     document.getElementById("weather-location").textContent = "📍 地點：載入中...";
     document.getElementById("weather-temp").textContent = "🌡 溫度：載入中...";
     document.getElementById("weather-desc").textContent = "☁ 天氣狀況：載入中...";
     document.getElementById("weather-humidity").textContent = "💧 濕度：載入中...";
     document.getElementById("weather-wind").textContent = "💨 風速：載入中...";
 
-    fetch(`/api/weather/?lat=${lat}&lon=${lng}`)
-      .then(res => res.json())
-      .then(data => {
+    try {
+        // 4️⃣ **發送 API 請求**
+        let response = await fetch(`/api/weather/?lat=${lat}&lon=${lng}&datetime=${dateTimeInput}`);
+        let data = await response.json();
+
         if (data.error) {
-          console.error("無法獲取天氣資訊:", data.error);
-          debugLog("fetchWeatherInfo() -> weather API error:", data.error);
-          return;
+            alert(`❌ 天氣 API 錯誤：${data.error}`);
+            return;
         }
-        debugLog("fetchWeatherInfo() -> success data:", data);
+
+        console.log("✅ 成功獲取天氣資料:", data);
+
+        // **將 T 替換為 空格**
+        let formattedDateTime = data.datetime.replace("T", " ");
+
+        // 5️⃣ **更新天氣資訊**
+        document.getElementById("weather-datetime").textContent = `📅 日期時間：${formattedDateTime}`;
         document.getElementById("weather-location").textContent = `📍 地點：${data.location}`;
         document.getElementById("weather-temp").textContent = `🌡 溫度：${data.temperature}°C`;
         document.getElementById("weather-desc").textContent = `☁ 天氣狀況：${data.description}`;
         document.getElementById("weather-humidity").textContent = `💧 濕度：${data.humidity}%`;
         document.getElementById("weather-wind").textContent = `💨 風速：${data.wind_speed} m/s`;
-      })
-      .catch(err => {
-        console.error("天氣 API 錯誤:", err);
-        debugLog("fetchWeatherInfo() -> catch error:", err);
-      });
-  }
+
+        // 6️⃣ **查詢成功後顯示天氣資訊**
+        weatherInfo.style.display = "block";
+        
+    } catch (error) {
+        console.error("❌ 天氣 API 發生錯誤:", error);
+        alert("⚠ 取得天氣資訊失敗，請稍後再試！");
+    }
+}
 
   /* ============================
    * (H) 翻譯 API (單筆)
@@ -719,9 +758,24 @@
       return text; // fallback：失敗時顯示原文
     }
   }
+  
+  /* ============================
+   * (I) 檢查輸入時間
+   * ============================ */
+  function validateDateTime() {
+    let dateTimeInput = document.getElementById("datetime").value;
+    let selectedTime = new Date(dateTimeInput);
+    let now = new Date(); // 取得現在時間
+
+    if (selectedTime <= now) {
+        alert("輸入時間小於現在時間，請重新輸入！");
+        return false;  // 禁止繼續執行
+    }
+    return true;
+}
 
   /* ============================
-   * (I) CSRF Token
+   * (J) CSRF Token
    * ============================ */
   function getCSRFToken() {
     let cookieValue = null;
@@ -739,7 +793,7 @@
   }
 
   /* ============================
-   * (J) Loading UI
+   * (K) Loading UI
    * ============================ */
   function showLoading() {
     debugLog("showLoading() -> 顯示載入提示");
