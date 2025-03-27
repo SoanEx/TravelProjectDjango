@@ -117,11 +117,8 @@
     console.log('準備綁定 datepicker');
     if (typeof $.fn.datepicker === 'function') {
       console.log('✅ datepicker is ready');
-      dateInput.datepicker({
-        format: 'yyyy-mm-dd',
-        autoclose: true,
-        todayHighlight: true
-      });
+
+      dateInput.datepicker({dateFormat:'yy-mm-dd'});
 
             // 測試是否可以 programmatically 打開
             setTimeout(() => {
