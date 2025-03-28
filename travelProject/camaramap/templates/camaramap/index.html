@@ -33,17 +33,36 @@
       </div>
     </div>
   </div>
+  <!-- 交通方式 + 規劃路線按鈕 -->
   <div class="row mt-3">
     <div class="col-12 d-flex justify-content-center gap-2">
-      <button type="button" class="btn btn-primary" id="btn-plan-route">規劃路線</button>
-      <button type="button" class="btn btn-success" id="btn-attractions">查詢景點</button>
-      <button type="button" class="btn btn-danger" id="btn-food">🍽 美食</button>
-      <button type="button" class="btn btn-warning" id="btn-parking">🚗 停車場</button>
+      <select id="travel-mode" class="form-select btn-lg" style="width: auto;">
+        <option value="DRIVING">🚗 開車</option>
+        <option value="TWO_WHEELER">🏍 機車</option>
+        <option value="TRANSIT">🚌 大眾運輸</option>
+      </select>
+      <button type="button" class="btn btn-primary btn-lg" id="btn-plan-route">規劃路線</button>
+    </div>
+  </div>
+    <div class="row mt-3">
+      <div class="col-12 d-flex justify-content-center gap-2">
+        <button type="button" class="btn btn-success" id="btn-attractions">查詢景點</button>
+        <button type="button" class="btn btn-danger" id="btn-food">🍽 美食</button>
+        <button type="button" class="btn btn-warning" id="btn-parking">🚗 停車場</button>
+      </div>
     </div>
   </div>
 </div>
-
-<!-- (D) 天氣資訊 (預設隱藏) -->
+<!-- (D) 路線資訊 (預設隱藏) -->
+<div class="container mt-4" id="route-info" style="display:none;">
+  <h5>📍 路線資訊</h5>
+  <p>🚗 交通方式：</p>
+  <p>📌 出發地：</p>
+  <p>🏁 目的地：</p>
+  <p>🕒 預估時間：</p>
+  <p>📏 距離：</p>
+</div>
+<!-- (E) 天氣資訊 (預設隱藏) -->
 <div class="container mt-5">
   <section id="weather-info" class="weather-info section-padding bg-light-white" style="display:none;">
     <div class="container">
@@ -62,19 +81,19 @@
   </section>
 </div>
 
-<!-- (E) 景點資訊 (預設隱藏) -->
+<!-- (F) 景點資訊 (預設隱藏) -->
 <div class="container mt-5" id="attractions-section" style="display:none;">
   <h5>附近景點資訊</h5>
   <ul id="attractionsList" style="display:flex; flex-wrap:wrap; gap:15px; list-style:none; padding:0;"></ul>
 </div>
 
-<!-- (F) 美食資訊 (預設隱藏) -->
+<!-- (G) 美食資訊 (預設隱藏) -->
 <div class="container mt-5" id="food-section" style="display:none;">
   <h5>附近美食</h5>
   <ul id="foodList" style="display:flex; flex-wrap:wrap; gap:15px; list-style:none; padding:0;"></ul>
 </div>
 
-<!-- (G) 停車場資訊 (預設隱藏) -->
+<!-- (H) 停車場資訊 (預設隱藏) -->
 <div class="container mt-5" id="parking-section" style="display:none;">
   <h5>附近停車場</h5>
   <ul id="parkingList" style="display:flex; flex-wrap:wrap; gap:15px; list-style:none; padding:0;"></ul>
@@ -118,7 +137,7 @@
       window.GOOGLE_API_KEY = data.apiKey;
 
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places,marker`;
       script.async = true;
       script.defer = true;
       document.head.appendChild(script);
@@ -166,34 +185,196 @@
   /* ============================
    * (C) 規劃路線 + 測速照相
    * ============================ */
-  function planRoute() {
-    debugLog("planRoute() -> start");
-    const start = document.getElementById("start").value.trim();
-    const end = document.getElementById("end").value.trim();
+   async function planRoute() {
+    debugLog("📌 [planRoute] 開始執行...");
+
+    // ✅ 取得使用者輸入的出發地 & 目的地
+    let start = document.getElementById("start").value;
+    let end = document.getElementById("end").value;
+    debugLog(`📍 出發地: ${start}, 目的地: ${end}`);
+
     if (!start || !end) {
-      alert("請輸入出發地與目的地！");
-      debugLog("planRoute() -> 結束(無輸入)");
+        alert("⚠️ 請輸入出發地和目的地！");
+        return;
+    }
+
+    // ✅ 取得選擇的交通方式
+    let travelMode = document.getElementById("travel-mode").value;
+    debugLog(`🚗 選擇的交通方式: ${travelMode}`);
+
+    // ✅ 設定 Google Maps API 路線服務
+    let directionsService = new google.maps.DirectionsService();
+    let directionsRenderer = new google.maps.DirectionsRenderer();
+    directionsRenderer.setMap(map);
+
+    // ✅ 發送 Google Maps API 請求
+    debugLog("📡 發送 Google Maps Directions API 請求...");
+    directionsService.route({
+        origin: start,
+        destination: end,
+        travelMode: travelMode, // 🚀 根據選擇的交通方式變動
+        provideRouteAlternatives: true, // 🚀 顯示多條路線（如果有）
+    }, function(response, status) {
+        if (status === "OK") {
+            directionsRenderer.setDirections(response);
+            debugLog("✅ 成功規劃路線:", response);
+
+            // ✅ 顯示對應的路線資訊
+            displayRouteInfo(response, travelMode);
+        } else {
+            debugLog("❌ 無法取得路線:", status);
+            alert("🚫 無法取得路線，請確認輸入是否正確！");
+        }
+    });
+  }
+  
+  function displayRouteInfo(response, travelMode, map) {  
+    let routeInfo = document.getElementById("route-info");
+    let leg = response.routes[0].legs[0];
+
+    debugLog("📍 [displayRouteInfo] 顯示路線資訊:", response);
+    console.log("Google Maps 路線回應:", response);  // ✅ 確保 API 回傳資料完整
+    
+    if (!google.maps.marker || !google.maps.marker.AdvancedMarkerElement) {
+      console.error("🚨 Google Maps `marker` library 未載入或不支援 AdvancedMarkerElement！");
+      return;
+  }
+
+    // ✅ 確保 `leg.steps` 存在
+    if (!leg.steps || leg.steps.length === 0) {
+      console.warn("🚨 無法取得路線步驟資料，可能是 API 回應異常");
+      routeInfo.innerHTML = "<p>⚠ 無法取得詳細路線資訊</p>";
       return;
     }
 
-    showLoading();
-    const request = { origin: start, destination: end, travelMode: "DRIVING" };
-    directionsService.route(request, function(result, status) {
-      debugLog("planRoute() -> directionsService 回傳:", status);
-      if (status === "OK") {
-        directionsRenderer.setDirections(result);
-        // 取得路線座標
-        const routePoints = result.routes[0].overview_path.map(p => ({
-          lat: p.lat(),
-          lng: p.lng()
-        }));
-        fetchSpeedCameras(routePoints);
-      } else {
-        alert("路線規劃失敗: " + status);
-        hideLoading();
-        debugLog("planRoute() -> 失敗:", status);
+    // ✅ 清除舊標記
+    if (window.routeMarkers) {
+        window.routeMarkers.forEach(marker => marker.map = null);
+    }
+    window.routeMarkers = [];
+
+    // ✅ 基本資訊
+    let infoHtml = `
+        <h5>📍 路線資訊</h5>
+        <p>🚗 交通方式：${document.getElementById("travel-mode").selectedOptions[0].text}</p>
+        <p>📌 出發地：${leg.start_address}</p>
+        <p>🏁 目的地：${leg.end_address}</p>
+        <p>🕒 預估時間：${leg.duration.text}</p>
+        <p>📏 距離：${leg.distance.text}</p>
+    `;
+
+    // ✅ 詳細路線資訊
+    let detailedRoute = "<h6>📍 詳細路線：</h6><ul>";
+
+    if (travelMode === "DRIVING" || travelMode === "TWO_WHEELER") {
+        // 🚗 開車 / 🏍 機車 - 顯示沿途主要道路
+        leg.steps.forEach((step) => {
+            let roadName = step.instructions ? step.instructions.replace(/<\/?[^>]+(>|$)/g, "") : "未知道路";
+            detailedRoute += `<li>🔹 ${roadName} (${step.distance.text})</li>`;
+        });
+
+    } else if (travelMode === "TRANSIT") {// 🚌 大眾運輸 - 顯示完整轉乘資訊
+        leg.steps.forEach((step) => {
+            if (step.travel_mode === "WALKING") {
+                let instruction = step.instructions 
+                    ? step.instructions.replace(/<\/?[^>]+(>|$)/g, "") 
+                    : `步行 ${step.distance.text}`;
+                detailedRoute += `<li>🚶 ${instruction}</li>`;
+
+                // 🔴 **地圖標記步行起點**
+                let markerContent = document.createElement("div");
+                  markerContent.innerHTML = "🚶";
+                  markerContent.style.fontSize = "20px";
+
+                let walkMarker = new google.maps.marker.AdvancedMarkerElement({
+                    position: step.start_location,
+                    map: map,
+                    content: markerContent,
+                    title: `步行 ${step.distance.text}`
+                });
+                window.routeMarkers.push(walkMarker);
+
+            } else if (step.travel_mode === "TRANSIT" && step.transit) {
+                let transit = step.transit;
+
+                // ✅ 確保 transit 存在
+                if (!transit) {
+                    console.warn("🚨 transit 為 undefined，跳過此步驟", step);
+                    return; // 跳過此步驟
+                }
+
+                let line = transit.line || {};
+                let vehicle = line.vehicle ? line.vehicle.type : "未知";
+                let routeName = line.short_name || line.name || "未命名路線";
+                let departureStop = transit.departure_stop ? transit.departure_stop.name : "未知出發站";
+                let arrivalStop = transit.arrival_stop ? transit.arrival_stop.name : "未知抵達站";
+                let numStops = transit.num_stops || "未知";
+
+                let transitMode = vehicle === "BUS" ? "🚌 公車" :
+                                  vehicle === "RAIL" ? "🚆 火車" :
+                                  vehicle === "SUBWAY" ? "🚇 捷運" :
+                                  vehicle === "TRAM" ? "🚋 輕軌" : "🚏 其他";
+
+                detailedRoute += `<li>${transitMode} <b>${routeName}</b>，從 <b>${departureStop}</b> 搭至 <b>${arrivalStop}</b>，共 ${numStops} 站</li>`;
+                
+                if (transit.departure_stop?.location) {
+                  let transportIcon = transitMode;  // 🚏、🚌、🚆、🚇
+                  let routeInfo = `${transportIcon} ${routeName} - ${departureStop}`;
+                  
+                  let markerContent = document.createElement("div");
+                  markerContent.innerHTML = "🚏";
+                  markerContent.style.fontSize = "20px";
+
+                  let depMarker = new google.maps.marker.AdvancedMarkerElement({
+                      position: transit.departure_stop.location,
+                      map: map,
+                      content: markerContent,
+                      title: routeInfo // ✅ 標題顯示完整資訊
+                });
+                window.routeMarkers.push(depMarker);
+            }
+
+                // 🔴 **地圖標記下車站**
+
+                if (transit.arrival_stop?.location) {
+                  let transportIcon = transitMode;
+                  let routeInfo = `${transportIcon} ${routeName} - ${arrivalStop}`;
+
+                  let markerContent = document.createElement("div");
+                  markerContent.innerHTML = "🏁";
+                  markerContent.style.fontSize = "20px";
+
+                  let arrMarker = new google.maps.marker.AdvancedMarkerElement({
+                      position: transit.arrival_stop.location,
+                      map: map,
+                      content: markerContent,
+                      title: routeInfo // ✅ 標題顯示完整資訊
+                });
+                window.routeMarkers.push(arrMarker);
+             }
+          }
+        });
+
+        // ✅ 確保最後一段步行到目的地
+        let lastStep = leg.steps[leg.steps.length - 1];
+        if (lastStep && lastStep.travel_mode === "WALKING" && lastStep.distance && leg.end_location) {
+          let markerContent = document.createElement("div");
+              markerContent.innerHTML = "🏁";
+              markerContent.style.fontSize = "20px";
+
+          let endMarker = new google.maps.marker.AdvancedMarkerElement({
+              position: leg.end_location,
+              map: map,
+              content: markerContent,
+              title: `目的地：${leg.end_address}`
+            });
+            window.routeMarkers.push(endMarker); 
+          }
       }
-    });
+    
+      detailedRoute += "</ul>";
+      routeInfo.innerHTML = infoHtml + detailedRoute;
+      routeInfo.style.display = "block"; // ✅ 顯示資訊
   }
 
   function fetchSpeedCameras(routePoints) {
