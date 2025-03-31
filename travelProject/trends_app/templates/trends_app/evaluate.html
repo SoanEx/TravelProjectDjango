@@ -119,7 +119,7 @@
           let errors = []; // actual - predicted
     
           // 只顯示前5筆於表格，圖表則可完整繪製
-          data.compare.slice(0, 5).forEach(item => {
+          data.compare.slice(-5).forEach(item => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td>${item.date}</td>
                             <td>${item.actual.toFixed(1)}</td>
