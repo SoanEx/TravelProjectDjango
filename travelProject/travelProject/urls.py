@@ -20,6 +20,7 @@ from accounts.views import index_view
 from camaramap import views
 from personalPage import views as personalPage_views
 from camaramap.views import line_webhook
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,5 +40,6 @@ urlpatterns = [
     path("line/webhook/", line_webhook, name="line_webhook"),
     path("api/translate/", views.translate_text_api, name="translate_text_api"),
     path("api/weather/", views.get_weather_info, name="get_weather_info"),
+    path('googlef0696927d7504acf.html', TemplateView.as_view(template_name='googlef0696927d7504acf.html')),
     
 ]
