@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}個人頁面{% endblock title %}
+
+{% block content %}
+<div class="container my-4">
+    <h2>{{ travel_plan.title }}</h2>
+    <p>{{ travel_plan.description }}</p>
+    <p>預算：{{ travel_plan.budget }}</p>
+    <p>建立日期：{{ travel_plan.created_at|date:"Y-m-d H:i" }}</p>
+    <p>更新日期：{{ travel_plan.updated_at|date:"Y-m-d H:i" }}</p>
+    <hr>
+    <h4>時程計畫：</h4>
+    {% if destinations %}
+        <ul class="list-group">
+            {% for destination in destinations %}
+                <li class="list-group-item">
+                    <p>地點：{{ destination.place }}</p>
+                    <p>日期：{{ destination.date }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>目前尚無目的地。</p>
+    {% endif %}
+
+    <a href="{% url 'edit_travel_plan' travel_plan.pk %}" class="btn btn-danger text-white mb-3">編輯時程計畫</a>
+    <a href="{% url 'personal_page' %}" class="btn btn-success text-white mb-3">返回首頁</a>
+
+</div>
+
+{% endblock content %}
+
+

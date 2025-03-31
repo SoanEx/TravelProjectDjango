@@ -181,3 +181,12 @@ CSRF_TRUSTED_ORIGINS = [
     "https://ezm1n1.link",
     "https://www.ezm1n1.link",
 ]
+
+
+#移轉登入介面
+LOGIN_URL = '/accounts/'
+
+#確保訪客不用密碼
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

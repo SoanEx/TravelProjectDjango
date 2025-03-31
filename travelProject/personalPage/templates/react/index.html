@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}個人頁面{% endblock title %}
+
+{% block content %}
+<div class="container my-4">
+
+  <!-- 標題置中 -->
+  <h2 class="text-center mb-4">您好，{{ request.user.username }}</h2>
+  
+  <div class="container my-4">
+    <h2 class="text-center mb-4"><strong>您的旅遊計畫</strong></h2>
+
+    {% if travel_plans %}
+        <ul class="list-group">
+            {% for plan in travel_plans %}
+                <li class="list-group-item">
+                    <h4>{{ plan.title }}</h4>
+                    <p>{{ plan.description }}</p>
+                    <p>預算：{{ plan.budget }}</p>
+                    <p>建立日期：{{ plan.created_at|date:"Y-m-d H:i" }}</p>
+                    <a href="{% url 'travel_plan_detail' plan.id %}" class="btn btn-success text-white">查看</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>目前尚無旅遊計畫。</p>
+    {% endif %}
+  </div>
+
+  <div class="d-flex justify-content-center mb-3">
+    <button href="{% url 'create_travel_plan' %}" class="btn btn-success text-white">
+        創建一個新的計畫
+    </button>
+  </div>
+</div>
+
+{% endblock content %}
+
+
