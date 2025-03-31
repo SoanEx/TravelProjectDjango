@@ -16,6 +16,11 @@ pip install -r ../requirements.txt
 sudo chown -R ec2-user:ec2-user /home/ec2-user/myproject/TravelProjectDjango/travelProject/staticfiles
 sudo chmod -R 755 /home/ec2-user/myproject/TravelProjectDjango/travelProject/staticfiles
 
+# 3.6) 新增或確保 ml_models 目錄存在，並調整權限
+mkdir -p /home/ec2-user/myproject/TravelProjectDjango/travelProject/ml_models
+sudo chown -R ec2-user:ec2-user /home/ec2-user/myproject/TravelProjectDjango/travelProject/ml_models
+sudo chmod -R 755 /home/ec2-user/myproject/TravelProjectDjango/travelProject/ml_models
+
 # 4) 執行 migrate、collectstatic
 python manage.py migrate
 python manage.py collectstatic --noinput
