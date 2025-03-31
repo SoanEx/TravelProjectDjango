@@ -105,7 +105,7 @@
               <div class="header-middle-wrap position-relative">
 
                 <!-- LOGO -->
-                <a href="#" class="header-logo">
+                <a href="{% url 'home' %}" class="header-logo">
                   <!-- 路徑請確保 dark.png 在 assets/images/logo/ 下 -->
                   <img src="{% static 'assets/images/logo/SailAway3.png' %}" alt="Header Logo">
                 </a>
@@ -127,8 +127,21 @@
                             <span class="title">Function</span>
                             <ul>
                               <li><a href="{% url 'index' %}">Trends</a></li>
-                              <li><a href="{% url 'map_page' %}">Map</a></li>
+                              <li><a href="{% url 'map_page' %}">Explore</a></li>
                               <li><a href="{% url 'feedback_explosive' %}">Feedback</a></li>
+                            </ul>
+                          </li>
+                          <!--<li><a href="#">Home Two</a></li>-->
+                        </ul>
+                      </li>
+                      <li class="megamenu-holder">
+                        <a href="#">My Travel <i class="pe-7s-angle-down"></i></a>
+                        <ul class="drop-menu megamenu">
+                          <li>
+                            <span class="title">My Travel</span>
+                            <ul>
+                              <li><a href="{% url 'personal_page' %}">Personal page</a></li>
+                              <li><a href="{% url 'create_travel_plan' %}">Creat a new travel</a></li>
                             </ul>
                           </li>
                           <!--<li><a href="#">Home Two</a></li>-->
@@ -180,7 +193,7 @@
                         <i class="pe-7s-user"></i>
                       </button>
                       <ul class="dropdown-menu right-side" aria-labelledby="settingButton">
-                        <li><a class="dropdown-item" href="#">My account</a></li>
+                        <li><a class="dropdown-item" href="{% url 'personal_page' %}">我的計畫</a></li>
                         <li><a class="dropdown-item" href="{% url 'registration_login' %}">登入 | 註冊</a></li>
                       </ul>
                     </li>

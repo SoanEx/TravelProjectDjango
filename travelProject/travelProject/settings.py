@@ -176,3 +176,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY') 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY') 
+
+
+#移轉登入介面
+LOGIN_URL = '/accounts/'
+
+#確保訪客不用密碼
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

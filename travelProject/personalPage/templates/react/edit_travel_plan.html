@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}編輯時程計畫{% endblock title %}
+
+{% block content %}
+
+<div class="container my-4">
+<h2 class="text-center mb-4"><strong>編輯時程計畫</strong></h2>
+    <form method="POST" action="">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <label class="col-sm-2 col-form-label text-end">
+              目前建立者
+            </label>
+            <div class="col-sm-6">
+              <p class="form-control-plaintext">
+                {{ request.user.username }}
+              </p>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label for="title" class="col-sm-2 col-form-label text-end">
+              計畫名稱
+            </label>
+            <div class="col-sm-6">
+              <input type="text" name="title" id="title" value="{{ travel_plan.title }}" required>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label for="description" class="col-sm-2 col-form-label text-end">
+              簡略描述
+            </label>
+            <div class="col-sm-6">
+                <textarea name="description" id="description" rows="4" cols="50">{{ travel_plan.description }}</textarea>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label for="budget" class="col-sm-2 col-form-label text-end">
+              預算
+            </label>
+            <div class="col-sm-6">
+                <input type="number" name="budget" id="budget" step="0.01" value="{{ travel_plan.budget }}">
+            </div>
+        </div>
+
+        <hr class="border-white">
+
+        <div class="row mb-3">
+            <h3 class="col-sm-2 col-form-label text-end"><strong>行程規劃</strong></h3>
+        </div>
+
+        <div id="destination-fields">
+            {% for destination in destinations %}
+            <div class="destination-entry">
+                <div class="row mb-3">
+                    <label class="col-sm-2 col-form-label text-end">地點：</label>
+                    <div class="col-sm-6">
+                        <input type="text" name="places[]" value="{{ destination.place }}" required>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-sm-2 col-form-label text-end">日期或時間：</label>
+                    <div class="col-sm-6">
+                        <input type="text" name="dates[]" value="{{ destination.date }}" required>
+                    </div>
+                </div>
+                <br>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-2 text-end"></div>
+            <div class="col-sm-6">
+                <button type="button" onclick="addDestination()" class="btn btn-success text-white">新增一個規劃</button>
+                <button type="button" id="removeBtn" onclick="removeDestination()" class="btn btn-danger text-white" style="display: none;">刪除一個規劃</button>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-center mb-3">
+            <button type="submit" class="btn btn-primary text-white">儲存變更</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function toggleRemoveButton() {
+        const container = document.getElementById("destination-fields");
+        const removeBtn = document.getElementById("removeBtn");
+        const entries = container.getElementsByClassName("destination-entry");
+        removeBtn.style.display = entries.length >= 1 ? "inline-block" : "none";
+    }
+
+    function addDestination() {
+        let container = document.getElementById("destination-fields");
+        let div = document.createElement("div");
+        div.classList.add("destination-entry");
+        div.innerHTML = `
+            <div class="row mb-3">
+                <label class="col-sm-2 col-form-label text-end">地點：</label>
+                <div class="col-sm-6">
+                    <input type="text" name="places[]" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label class="col-sm-2 col-form-label text-end">日期或時間：</label>
+                <div class="col-sm-6">
+                    <input type="text" name="dates[]" required>
+                </div>
+            </div>
+            <br>
+        `;
+        container.appendChild(div);
+        toggleRemoveButton();
+    }
+
+    function removeDestination() {
+        let container = document.getElementById("destination-fields");
+        const entries = container.getElementsByClassName("destination-entry");
+        if (entries.length >= 1) {
+            container.removeChild(entries[entries.length - 1]);
+        }
+        toggleRemoveButton();
+    }
+
+    window.onload = toggleRemoveButton;
+</script>
+
+{% endblock %}
