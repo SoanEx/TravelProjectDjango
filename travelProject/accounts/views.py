@@ -281,10 +281,10 @@ def _smart_return(request, context):
     """
     小工具函式：若是 AJAX 就 JsonResponse；否則 render
     """
+    context['GOOGLE_CLIENT_ID'] = settings.GOOGLE_CLIENT_ID
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse(context)
     else:
-        context['GOOGLE_CLIENT_ID'] = settings.GOOGLE_CLIENT_ID
         return render(request, 'accounts/registration_login.html', context)
 
 

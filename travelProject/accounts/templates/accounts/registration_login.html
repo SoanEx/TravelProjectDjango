@@ -301,7 +301,15 @@ document.getElementById('username').addEventListener('blur', function() {
   if (!username) return;
 
   fetch("/accounts/check_username/?username=" + encodeURIComponent(username))
-    .then(res => res.json())
+    .then(res => {
+  const type = res.headers.get("content-type") || "";
+  if (type.includes("application/json")) {
+    return res.json();
+  } else {
+    throw new Error("預期 JSON 回應，但收到非 JSON（可能是錯誤頁）");
+  }
+})
+
     .then(data => {
       let regFields = document.getElementById('registrationFields');
       let info = document.getElementById('usernameInfo');
@@ -343,7 +351,15 @@ mainForm.addEventListener('submit', function(e) {
       'X-CSRFToken': getCookie('csrftoken')
     }
   })
-  .then(res => res.json())
+  .then(res => {
+  const type = res.headers.get("content-type") || "";
+  if (type.includes("application/json")) {
+    return res.json();
+  } else {
+    throw new Error("預期 JSON 回應，但收到非 JSON（可能是錯誤頁）");
+  }
+})
+
   .then(data => {
     console.log("後端回傳 (普通表單):", data);
     // 依照 mode=normal => 呼叫對應函式
@@ -484,7 +500,15 @@ function handleGoogleCallback(response) {
       'X-CSRFToken': getCookie('csrftoken')
     }
   })
-  .then(res => res.json())
+  .then(res => {
+  const type = res.headers.get("content-type") || "";
+  if (type.includes("application/json")) {
+    return res.json();
+  } else {
+    throw new Error("預期 JSON 回應，但收到非 JSON（可能是錯誤頁）");
+  }
+})
+
   .then(data => {
     console.log("One Tap回應:", data);
     handleGoogleResponse(data);
@@ -529,7 +553,15 @@ function googlePhoneSubmit() {
         'X-CSRFToken': getCookie('csrftoken')
       }
     })
-    .then(res => res.json())
+    .then(res => {
+  const type = res.headers.get("content-type") || "";
+  if (type.includes("application/json")) {
+    return res.json();
+  } else {
+    throw new Error("預期 JSON 回應，但收到非 JSON（可能是錯誤頁）");
+  }
+})
+
     .then(data => {
       console.log("googlePhoneSubmit(第一步)回應:", data);
       handleGoogleResponse(data);
@@ -568,7 +600,15 @@ function googlePhoneSubmit() {
         'X-CSRFToken': getCookie('csrftoken')
       }
     })
-    .then(res => res.json())
+    .then(res => {
+  const type = res.headers.get("content-type") || "";
+  if (type.includes("application/json")) {
+    return res.json();
+  } else {
+    throw new Error("預期 JSON 回應，但收到非 JSON（可能是錯誤頁）");
+  }
+})
+
     .then(data => {
       console.log("googlePhoneSubmit(第二步)回應:", data);
       handleGoogleResponse(data);
