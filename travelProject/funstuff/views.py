@@ -18,7 +18,7 @@ def feedback_explosive_view_PHYSICS(request):
     # example: check if request.method == 'POST': ...
     
     # 爆炸文字可自訂，也可來自 DB / form 
-    explosion_text = "設計者:bow8234"
+    explosion_text = "設計者:林瀚群、古景睿、鄭仲軒、陳宣伊"
     
     context = {
         'user': request.user,        # 假設你想在模板顯示使用者
