@@ -48,7 +48,7 @@
    GOOGLE_MAPS_API_KEY = yourkey
    OPENAI_API_KEY = yourkey
    LINE_CHANNEL_ACCESS_TOKEN = yourkey
-   OPENWEATHER_API_KEY = daec25784413bb901befd71125152f5c
+   OPENWEATHER_API_KEY = yourkey
    ```
 
 
