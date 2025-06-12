@@ -1,5 +1,12 @@
 # TravelProjectDjango
 
+
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-5.1.6-green?logo=django)](https://www.djangoproject.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen?logo=node.js)](https://nodejs.org/)
+[![Poetry](https://img.shields.io/badge/poetry-2.0%2B-blueviolet?logo=pypi)](https://python-poetry.org/)
+
+
 本專案是一個使用 **Django** 與 **Poetry** 管理後端相依套件的示範專案，
 同時包含 React 前端 (位於 `travelProject/personalpage-frontend`) 與多個 Django app。
 倉庫內也附有 AWS CodeDeploy 的腳本，方便部署至 EC2。
