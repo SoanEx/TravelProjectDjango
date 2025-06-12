@@ -89,9 +89,10 @@ TravelProjectDjango/
 └── pyproject.toml            # Poetry 設定檔
 ```
 
+
 ## 其他
 
-- `setup.ps1`、`setup.bat` 為 Windows 使用者準備的初始化腳本，可協助安裝 Python、Poetry 及相關依賴。
-- `hello_world.py` 為簡易範例腳本。
+- `setup.ps1`、`setup.bat` 協助 Windows 使用者安裝 Python、Poetry 以及依賴。
+- `hello_world.py` 為簡單範例程式。
 
 歡迎依需求修改並擴充此專案。
