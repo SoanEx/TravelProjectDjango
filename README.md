@@ -4,17 +4,16 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-5.1.6-green?logo=django)](https://www.djangoproject.com/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen?logo=node.js)](https://nodejs.org/)
-[![Poetry](https://img.shields.io/badge/poetry-2.0%2B-blueviolet?logo=pypi)](https://python-poetry.org/)
 
 
-本專案是一個使用 **Django** 與 **Poetry** 管理後端相依套件的示範專案，
+
+本專案是一個使用 **Django** 與 **Aws** 管理後端並自動部署的示範專案，
 同時包含 React 前端 (位於 `travelProject/personalpage-frontend`) 與多個 Django app。
 倉庫內也附有 AWS CodeDeploy 的腳本，方便部署至 EC2。
 
 ## 環境需求
 
 - Python 3.10 以上（建議 3.10.11）
-- [Poetry](https://python-poetry.org/) 用於安裝與管理依賴
 - Node.js 18 以上（如需啟動前端）
 
 ## 專案初始化
@@ -25,11 +24,9 @@
    cd TravelProjectDjango
    ```
 2. 安裝後端依賴：
-   ```bash
-   poetry install
-   ```
-   或使用 `pip install -r requirements.txt`。
-3. 複製 `.env` 檔並填入必要設定，常見變數如下：
+   使用 `pip install -r requirements.txt`。
+   
+4. 複製 `.env` 檔並填入必要設定，常見變數如下：
    ```env
    DJANGO_SECRET_KEY=your-secret-key
    DEBUG=True
@@ -41,11 +38,7 @@
    DB_PORT=3306
    OPENAI_API_KEY=your-openai-key
    ```
-4. 進行資料庫遷移與收集靜態檔案：
-   ```bash
-   poetry run python travelProject/manage.py migrate
-   poetry run python travelProject/manage.py collectstatic --noinput
-   ```
+
 
 ## 啟動開發伺服器
 
