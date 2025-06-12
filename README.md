@@ -1,12 +1,12 @@
 # TravelProjectDjango
-
+<a id="readme-top"></a>
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-5.1.6-green?logo=django)](https://www.djangoproject.com/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen?logo=node.js)](https://nodejs.org/)
 
 <div align="center">
-  <a href="https://github.com/SoanEx/TravelProjectDjango/edit/main/README.md">
+  <a href="#readme-top">
     <img src="travelProject/static/assets/images/logo/SailAway3.png" alt="Logo" width="178" height="39">
   </a>
 
@@ -17,14 +17,14 @@
 同時包含 React 前端 (位於 <strong>travelProject/personalpage-frontend</strong>) 與多個 Django app。
 倉庫內也附有 AWS CodeDeploy 的腳本，方便部署至 EC2。
     <br />
-    <a href="https://github.com/SoanEx/TravelProjectDjango/edit/main/README.md"><strong>Explore the docs »</strong></a>
+    <a href="#readme-top"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/SoanEx/TravelProjectDjango/edit/main/README.md">View Demo</a>
+    <a href="#readme-top">View Demo</a>
     &middot;
-    <a href="https://github.com/SoanEx/TravelProjectDjango/edit/main/README.md">Report Bug</a>
+    <a href="#readme-top">Report Bug</a>
     &middot;
-    <a href="https://github.com/SoanEx/TravelProjectDjango/edit/main/README.md">Request Feature</a>
+    <a href="#readme-top">Request Feature</a>
   </p>
 </div>
 
@@ -120,3 +120,4 @@ TravelProjectDjango/
 - `hello_world.py` 為簡單範例程式。
 
 歡迎依需求修改並擴充此專案。
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
