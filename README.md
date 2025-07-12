@@ -1,15 +1,34 @@
 # TravelProjectDjango
-
+<a id="readme-top"></a>
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-5.1.6-green?logo=django)](https://www.djangoproject.com/)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen?logo=node.js)](https://nodejs.org/)
 
+<div align="center">
+  <a href="#readme-top">
+    <img src="travelProject/static/assets/images/logo/SailAway3.png" alt="Logo" width="178" height="39">
+  </a>
 
+  <h3 align="center">TravelProjectDjango SailAway</h3>
 
-本專案是一個使用 **Django** 與 **Aws** 管理後端並自動部署的示範專案，
-同時包含 React 前端 (位於 `travelProject/personalpage-frontend`) 與多個 Django app。
+  <p align="center">
+    本專案是一個使用 <strong>Django</strong> 與 <strong>Aws</strong> 管理後端並自動部署的示範專案，
+同時包含 React 前端 (位於 <strong>travelProject/personalpage-frontend</strong>) 與多個 Django app。
 倉庫內也附有 AWS CodeDeploy 的腳本，方便部署至 EC2。
+    <br />
+    <a href="#readme-top"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="#readme-top">View Demo</a>
+    &middot;
+    <a href="#readme-top">Report Bug</a>
+    &middot;
+    <a href="#readme-top">Request Feature</a>
+  </p>
+</div>
+
+
 
 ## 環境需求
 
@@ -28,15 +47,27 @@
    
 4. 複製 `.env` 檔並填入必要設定，常見變數如下：
    ```env
-   DJANGO_SECRET_KEY=your-secret-key
-   DEBUG=True
-   ALLOWED_HOSTS=127.0.0.1,localhost
-   DB_NAME=your_db
-   DB_USER=your_user
-   DB_PASSWORD=your_password
-   DB_HOST=localhost
-   DB_PORT=3306
-   OPENAI_API_KEY=your-openai-key
+   DJANGO_SECRET_KEY = yourkey
+   DEBUG = True
+   ALLOWED_HOSTS = 127.0.0.1,localhost
+   
+   DB_NAME = yourkey
+   DB_USER = yourkey
+   DB_PASSWORD = yourkey
+   DB_HOST = yourkey
+   DB_PORT = 3306
+   
+   TWILIO_ACCOUNT_SID = yourkey
+   TWILIO_AUTH_TOKEN = yourkey
+   TWILIO_PHONE_NUMBER = yourkey
+   
+   GOOGLE_CLIENT_ID = yourkey
+   GOOGLE_CLIENT_SECRET = yourkey
+   
+   GOOGLE_MAPS_API_KEY = yourkey
+   OPENAI_API_KEY = yourkey
+   LINE_CHANNEL_ACCESS_TOKEN = yourkey
+   OPENWEATHER_API_KEY = yourkey
    ```
 
 
@@ -44,7 +75,7 @@
 
 執行下列指令即可開啟本地伺服器：
 ```bash
-poetry run python travelProject/manage.py runserver
+travelProject/manage.py runserver
 ```
 預設會在 `http://127.0.0.1:8000/` 提供服務。
 
@@ -54,13 +85,7 @@ npm install
 npm start
 ```
 
-## 測試
 
-專案內含多個 Django app 的測試，可透過：
-```bash
-poetry run python travelProject/manage.py test
-```
-執行測試。若環境未安裝所有依賴，測試可能無法順利進行。
 
 ## 部署
 
@@ -85,14 +110,14 @@ TravelProjectDjango/
 │   ├── trends_app/           # 熱門趨勢分析 app
 │   └── manage.py             # Django 管理腳本
 ├── scripts/                  # 部署用 shell 腳本
-├── requirements.txt          # 由 Poetry 匯出的依賴列表
-└── pyproject.toml            # Poetry 設定檔
+└── requirements.txt          
 ```
 
 
 ## 其他
 
-- `setup.ps1`、`setup.bat` 協助 Windows 使用者安裝 Python、Poetry 以及依賴。
+- `setup.ps1`、`setup.bat` 協助 Windows 使用者安裝 Python、 依賴。
 - `hello_world.py` 為簡單範例程式。
 
 歡迎依需求修改並擴充此專案。
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
