@@ -7,6 +7,9 @@ from django.conf import settings
 from trends_app.models import TrendData
 from sklearn.metrics import mean_squared_error, r2_score
 
+
+from trends_app.fetcher import fetch_google_trends
+
 MODEL_DIR = os.path.join(settings.BASE_DIR, 'ml_models')
 MODEL_PATH = os.path.join(MODEL_DIR, 'trend_model.pkl')
 
@@ -41,7 +44,19 @@ def train_model(keyword="Taiwan travel", window_size=7):
     joblib.dump(model, MODEL_PATH)
     return True
 
-def predict_future(keyword="Taiwan travel", window_size=7, days_to_predict=7):
+def predict_future(keyword="Taiwan travel",
+                   window_size=7, days_to_predict=7,
+                   force_refresh=False,
+                   timeframe="today 3-m"):
+    """
+    force_refresh=True → 先呼叫 fetch_google_trends() 把最新資料寫進 DB
+    """
+    if force_refresh:
+        try:
+            fetch_google_trends(keyword=keyword, timeframe=timeframe)
+        except Exception as e:
+            # 抓取失敗視情況回空或往上丟
+            print(f"fetch_google_trends error: {e}")
     """
     使用已訓練的模型，預測未來 days_to_predict 天的 interest。
     回傳 [(date, predicted_interest), ...]
