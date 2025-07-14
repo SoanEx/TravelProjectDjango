@@ -614,10 +614,13 @@ function googlePhoneSubmit() {
       handleGoogleResponse(data);
 
       if (data.success) {
-        // 驗證成功，可提示已登入
-        document.querySelector('.msg-success').innerText = '手機驗證成功，已完成 Google 登入流程。';
-        // 也可收合 phoneSection 等
-        // document.getElementById('phoneSection').classList.remove('active');
+        // 驗證成功提示
+        document.querySelector('.msg-success').innerText = '手機驗證成功，5 秒後自動跳回首頁。';
+        
+        // 5 秒後導回首頁（要去別頁就改 URL）
+        setTimeout(() => {
+          window.location.href = '/';   // 或 '/index'、'/home' 隨你
+        }, 5000);
       }
     })
     .catch(err => {

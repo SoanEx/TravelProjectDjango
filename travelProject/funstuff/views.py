@@ -76,3 +76,7 @@ def explosive_quiz_view(request):
     # 這裡直接渲染 "funstuff/widgets/explosive_quiz.html"
     # 也可改成自己的獨立模板
     return render(request, 'funstuff/widgets/explosive_quiz.html', context)
+
+
+def three(request):
+    return render(request, 'funstuff/widgets/three.html')

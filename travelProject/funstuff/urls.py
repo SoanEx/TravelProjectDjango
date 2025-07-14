@@ -6,5 +6,6 @@ urlpatterns = [
     path('quiz/', views.explosive_quiz_view, name='explosive_quiz'),
     path('feedback/', views.feedback_explosive_view, name='feedback_explosive'),
     path('feedback/physics/', views.feedback_explosive_view_PHYSICS, name='feedback_explosive_physics'),
+    path('3d/', views.three, name='3d'),
 ]
 
