@@ -1,66 +1,98 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}3D 立方體展示{% endblock title %}
 
 {% block content %}
 <canvas id="threeCanvas"
-        style="width:100%;height:80vh;display:block;background:#000;"></canvas>
+        style="width:100%;height:80vh;display:block;background:#2C2C2C;"></canvas>
 {% endblock content %}
 
 {% block scripts %}
-<!-- 把裸模組 "three" 映射到真正檔案位置 -->
+<!-- import-map 把裸名稱 "three" 指向本機檔案 -->
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.163.0/build/three.module.js"
+    "three": "{% static 'funstuff/js/three.module.js' %}"
   }
 }
 </script>
 
 <script type="module">
 import * as THREE from 'three';
-import { OrbitControls } from 'https://unpkg.com/three@0.163.0/examples/jsm/controls/OrbitControls.js?module';
+import { OrbitControls } from '{% static "funstuff/js/OrbitControls.js" %}';
 
-const canvas    = document.getElementById('threeCanvas');
-const renderer  = new THREE.WebGLRenderer({ canvas, antialias: true });
-const scene     = new THREE.Scene();
-const camera    = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+const canvas   = document.getElementById('threeCanvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setClearColor(0x2C2C2C);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
 camera.position.set(3, 2, 3);
 
-/* ---------- 滑鼠控制 ---------- */
+/* 滑鼠控制 */
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.enablePan     = false;
-controls.minDistance   = 2;
-controls.maxDistance   = 10;
 
-/* ---------- 立方體與光源 ---------- */
-scene.add(new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshStandardMaterial({ color: 0x2C2C2C })
-  
-));
+/* ---------- 愛心幾何 ---------- */
+function createHeartGeometry() {
+  // (1) 畫 2D 愛心輪廓
+  const x = 0, y = 0;
+  const heart = new THREE.Shape();
+  heart.moveTo(x, y + 0.5);
+  heart.bezierCurveTo(x, y, x - 0.5, y, x - 0.5, y + 0.35);
+  heart.bezierCurveTo(x - 0.5, y + 0.7, x - 0.2, y + 0.9, x, y + 1.1);
+  heart.bezierCurveTo(x + 0.2, y + 0.9, x + 0.5, y + 0.7, x + 0.5, y + 0.35);
+  heart.bezierCurveTo(x + 0.5, y, x, y, x, y + 0.5);
 
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(5, 5, 5).normalize();
-scene.background = new THREE.Color(0x2C2C2C);
-scene.add(light);
+  // (2) 擠出成厚度 0.4 的 3D 幾何
+  const geo = new THREE.ExtrudeGeometry(heart, {
+    depth: 0.4,
+    bevelEnabled: true,
+    bevelThickness: 0.05,
+    bevelSize: 0.05,
+    bevelSegments: 8
+  });
 
-/* ---------- 自適應尺寸 ---------- */
-function onResize() {
-  const w = canvas.clientWidth,
-        h = canvas.clientHeight;
+  // (3) 讓模型以中心為原點
+  geo.center();
+  return geo;
+}
+
+const heartMaterial = new THREE.MeshStandardMaterial({   // ← 補一個材質
+  color: 0xdb2777,   // 愛心粉紅
+  metalness: 0.2,
+  roughness: 0.4
+});
+
+const heartMesh = new THREE.Mesh(createHeartGeometry(), heartMaterial);
+heartMesh.rotation.z = Math.PI;   // 翻正
+scene.add(heartMesh); 
+
+
+/* 定向光 + 動態點光源 */
+scene.add(new THREE.DirectionalLight(0xffffff, 0.6));
+const point = new THREE.PointLight(0xffaa00, 1.2, 10);
+scene.add(point);
+scene.add(new THREE.AmbientLight(0x404040, 0.8));
+
+/* 尺寸同步 */
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h, false);
 }
-window.addEventListener('resize', onResize);
-onResize();
+window.addEventListener('resize', resize);
+resize();
 
-/* ---------- 主迴圈 ---------- */
-(function animate() {
-  requestAnimationFrame(animate);
+/* 主迴圈 */
+(function loop() {
+  requestAnimationFrame(loop);
+  const t = performance.now() * 0.001;
+  point.position.set(Math.sin(t) * 3, 2, Math.cos(t) * 3);
   controls.update();
   renderer.render(scene, camera);
 })();
